@@ -26,10 +26,11 @@ export async function action({ request, context }: ActionFunctionArgs) {
         if (!name) return json({ error: "Name required" }, { status: 400 });
 
         try {
-            await env.DB.prepare("INSERT INTO categories (name, slug) VALUES (?, ?)").bind(name, slug).run();
+            // Use INSERT OR REPLACE to allow re-adding previously deleted categories
+            await env.DB.prepare("INSERT OR REPLACE INTO categories (name, slug) VALUES (?, ?)").bind(name, slug).run();
             return json({ success: true });
         } catch (e) {
-            return json({ error: "Category already exists or invalid" }, { status: 400 });
+            return json({ error: "添加分类失败" }, { status: 400 });
         }
     }
 
