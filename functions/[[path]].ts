@@ -1,14 +1,5 @@
-// @ts-nocheck
-export async function onRequest(context) {
-    try {
-        const { createPagesFunctionHandler } = await import("@remix-run/cloudflare-pages");
-        const build = await import("../build/server/index.js");
-        const handler = createPagesFunctionHandler({ build });
-        return handler(context);
-    } catch (error) {
-        return new Response(`Error: ${error.message}\nStack: ${error.stack}`, {
-            status: 500,
-            headers: { "Content-Type": "text/plain" }
-        });
-    }
+export async function onRequest() {
+    return new Response("Hello from Cloudflare Pages Functions! This means the basic setup works.", {
+        headers: { "Content-Type": "text/plain" }
+    });
 }
