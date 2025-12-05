@@ -8,31 +8,37 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     const { env } = context as { env: any };
     const user = await requireUser(request, env);
 
-    // Stats
-    const { results: lowStock } = await env.DB.prepare(`
-    SELECT p.*, c.name as category_name 
-    FROM products p 
-    JOIN categories c ON p.category_id = c.id
-    WHERE p.stock_quantity <= p.min_stock_level
-    ORDER BY p.stock_quantity ASC
-    LIMIT 5
-  `).all();
+    try {
+        // Stats
+        const { results: lowStock } = await env.DB.prepare(`
+        SELECT p.*, c.name as category_name 
+        FROM products p 
+        JOIN categories c ON p.category_id = c.id
+        WHERE p.stock_quantity <= p.min_stock_level
+        ORDER BY p.stock_quantity ASC
+        LIMIT 5
+      `).all();
 
-    const { results: recentTx } = await env.DB.prepare(`
-    SELECT t.*, p.brand, p.model 
-    FROM transactions t
-    JOIN products p ON t.product_id = p.id
-    ORDER BY t.date DESC
-    LIMIT 5
-  `).all();
+        const { results: recentTx } = await env.DB.prepare(`
+        SELECT t.*, p.brand, p.model 
+        FROM transactions t
+        JOIN products p ON t.product_id = p.id
+        ORDER BY t.date DESC
+        LIMIT 5
+      `).all();
 
-    const totalItemsResult = await env.DB.prepare("SELECT COUNT(*) as count FROM products").first();
-    const totalItems = totalItemsResult?.count || 0;
+        const totalItemsResult = await env.DB.prepare("SELECT COUNT(*) as count FROM products").first();
+        const totalItems = totalItemsResult?.count || 0;
 
-    const lowStockCountResult = await env.DB.prepare("SELECT COUNT(*) as count FROM products WHERE stock_quantity <= min_stock_level").first();
-    const lowStockCount = lowStockCountResult?.count || 0;
+        const lowStockCountResult = await env.DB.prepare("SELECT COUNT(*) as count FROM products WHERE stock_quantity <= min_stock_level").first();
+        const lowStockCount = lowStockCountResult?.count || 0;
 
-    return json({ user, lowStock, recentTx, totalItems, lowStockCount });
+        return json({ user, lowStock, recentTx, totalItems, lowStockCount });
+    } catch (error) {
+        console.error("Database error:", error);
+        // Return empty data if DB fails
+        return json({ user, lowStock: [], recentTx: [], totalItems: 0, lowStockCount: 0 });
+    }
 }
 
 export default function Index() {

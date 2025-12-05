@@ -2,7 +2,11 @@
 
 本指南将指导您如何将 ItWork 系统部署到 Cloudflare Pages，并配置免费的 D1 数据库。
 
-## 第一步：推送到 GitHub (Push to GitHub)
+**注意：** 如果 Cloudflare 页面改版导致不知如何操作，请直接跳到 **方法二：命令行部署 (CLI)**。
+
+## 方法一：通过 Dashboard 部署 (Web UI)
+
+### 第一步：推送到 GitHub (Push to GitHub)
 
 确保您当前的代码已经全部提交并推送到 GitHub 仓库：
 `https://github.com/dengzhiqi/itwork`
@@ -29,7 +33,7 @@ git push
 7. 点击 **Save and Deploy**。
    *(注意：第一次部署可能会因为缺少数据库绑定而报错，这是正常的，请继续下一步)*
 
-## 第三步：配置 D1 数据库 (Database)
+### 第三步：配置 D1 数据库 (Database)
 
 我们需要创建一个 D1 数据库并将其连接到应用。
 
@@ -43,7 +47,7 @@ git push
     - **D1 database**: 选择刚才创建的 `itwork-db`
 7. 点击 **Save**。
 
-## 第四步：配置 R2 存储 (可选 Setup R2)
+### 第四步：配置 R2 存储 (可选 Setup R2)
 
 如果您将来需要上传图片，可以配置 R2。目前系统已预留支持。
 
@@ -54,7 +58,7 @@ git push
     - **R2 bucket**: 选择 `itwork-bucket`
 4. 保存。
 
-## 第五步：设置登录账号 (Environment Variables)
+### 第五步：设置登录账号 (Environment Variables)
 
 1. 在 `itwork` 项目页面，点击 **Settings** -> **Environment Variables**。
 2. 点击 **Add variable**，添加以下两个变量（用于后台登录）：
@@ -62,7 +66,7 @@ git push
     - `ADMIN_PASSWORD`: 设置您的密码 (例如: `123456`)
 3. 保存。
 
-## 第六步：初始化数据库表结构 (Initialize Schema)
+### 第六步：初始化数据库表结构 (Initialize Schema)
 
 这是最重要的一步。我们需要在 Cloudflare 上创建表。
 
@@ -74,7 +78,7 @@ git push
 6. 点击 **Execute** (执行)。
    *(您应该能看到 "Success" 提示，这就表示表创建好了)*
 
-## 第七步：重新部署 (Redeploy)
+### 第七步：重新部署 (Redeploy)
 
 因为我们修改了设置（绑定了数据库和环境变量），需要重新部署才能生效。
 
@@ -82,6 +86,69 @@ git push
 2. 点击 **Deployments** (部署记录) 标签。
 3. 在最新的部署记录右侧，点击 **三个点** -> **Retry deployment** (重试部署)。
 4. 等待构建完成，点击生成的 URL 即可访问！
+
+---
+
+## 方法二：命令行部署 (CLI) - 推荐！
+
+如果 Web 界面操作困难，使用命令行是最快的方式。
+
+### 1. 登录 Cloudflare
+在 VSCode 终端运行：
+```bash
+npx wrangler login
+```
+(会弹跳出浏览器，请授权登录)
+
+### 2. 创建并部署
+直接运行：
+```bash
+npm run build
+npx wrangler pages deploy ./build/client --project-name itwork
+```
+- 如果提示 `Create a new Pages project?`，输入 `y` 确认。
+- **Production branch**: 输入 `main`。
+
+### 3. 配置数据库 (绑定 D1)
+部署成功后，我们需要在本地命令行绑定数据库到远程项目：
+
+*(这步建议还是去 Dashboard 操作更直观，参考 **方法一的第三步和第五步**)*
+
+但是，如果您想纯用命令行：
+
+1. **创建远程数据库**:
+   ```bash
+   npx wrangler d1 create itwork-db
+   ```
+   *(记下返回的 `database_id`，替换下面 `wrangler.toml` 中的 ID)*
+
+2. **修改 `wrangler.toml`**:
+   取消注释并填入 ID：
+   ```toml
+   [[d1_databases]]
+   binding = "DB"
+   database_name = "itwork-db"
+   database_id = "您刚才获取的ID"
+   ```
+
+3. **重新部署**:
+   ```bash
+   npx wrangler pages deploy ./build/client --project-name itwork
+   ```
+   *(这次它会自动读取 `wrangler.toml` 的配置)*
+
+4. **初始化表结构**:
+   ```bash
+   npx wrangler d1 execute itwork-db --remote --file=./schema.sql
+   ```
+
+5. **设置密码**:
+   ```bash
+   npx wrangler pages project env add itwork production ADMINISTRATIVE_USER=admin
+   npx wrangler pages project env add itwork production ADMINISTRATIVE_PASSWORD=your_password
+   ```
+
+---
 
 ## 常见问题
 

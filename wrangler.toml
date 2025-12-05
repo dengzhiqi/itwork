@@ -2,14 +2,14 @@ name = "itwork"
 compatibility_date = "2024-04-01"
 pages_build_output_dir = "./build/client"
 
-# [d1_databases]
-# binding = "DB"
-# database_name = "itwork-db"
-# database_id = "GET_FROM_CLOUDFLARE"
+[[d1_databases]]
+binding = "DB"
+database_name = "itwork-db"
+database_id = "f652b7a2-5bbb-4267-860a-c0dcfa045f7b"
 
 # [r2_buckets]
 # binding = "BUCKET"
-# bucket_name = "itwork-bucket"
+# bucket_name = "itwork"
 
 [vars]
 # ENVIRONMENT = "production"
