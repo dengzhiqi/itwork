@@ -31,6 +31,39 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
     const { id } = params;
 
     const formData = await request.formData();
+    const intent = formData.get("intent");
+
+    if (intent === "delete") {
+        // Get transaction details first
+        const { results: transactions } = await env.DB.prepare(`
+            SELECT t.*, p.id as product_id
+            FROM transactions t
+            JOIN products p ON t.product_id = p.id
+            WHERE t.id = ?
+        `).bind(id).all();
+
+        if (transactions && transactions.length > 0) {
+            const t = transactions[0];
+
+            // Restore stock
+            if (t.type === "OUT") {
+                // Outbound was reducing stock, so add it back
+                await env.DB.prepare("UPDATE products SET stock_quantity = stock_quantity + ? WHERE id = ?")
+                    .bind(t.quantity, t.product_id).run();
+            } else if (t.type === "IN") {
+                // Inbound was adding stock, so subtract it back
+                await env.DB.prepare("UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ?")
+                    .bind(t.quantity, t.product_id).run();
+            }
+
+            // Delete the transaction
+            await env.DB.prepare("DELETE FROM transactions WHERE id = ?").bind(id).run();
+        }
+
+        return redirect("/transactions");
+    }
+
+    // Update action
     const date = formData.get("date");
     const department = formData.get("department");
     const handler_name = formData.get("handler_name");
@@ -56,10 +89,30 @@ export default function EditTransaction() {
             <div className="glass-panel" style={{ padding: "2rem", maxWidth: "800px", margin: "0 auto" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
                     <h2>编辑出入库记录</h2>
-                    <Link to="/transactions" style={{ color: "var(--text-secondary)" }}>取消</Link>
+                    <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+                        <Form method="post" onSubmit={(e) => !confirm("确定要删除这条记录吗？库存将会恢复。") && e.preventDefault()}>
+                            <input type="hidden" name="intent" value="delete" />
+                            <button
+                                type="submit"
+                                style={{
+                                    background: "none",
+                                    border: "1px solid var(--danger-color)",
+                                    color: "var(--danger-color)",
+                                    padding: "0.5rem 1rem",
+                                    borderRadius: "var(--radius-sm)",
+                                    cursor: "pointer",
+                                    fontSize: "0.875rem"
+                                }}
+                            >
+                                删除
+                            </button>
+                        </Form>
+                        <Link to="/transactions" style={{ color: "var(--text-secondary)" }}>取消</Link>
+                    </div>
                 </div>
 
                 <Form method="post" style={{ display: "grid", gap: "1.5rem" }}>
+                    <input type="hidden" name="intent" value="update" />
                     {/* Read-only fields */}
                     <div style={{ padding: "1rem", background: "rgba(0,0,0,0.2)", borderRadius: "var(--radius-sm)" }}>
                         <h4 style={{ marginBottom: "1rem", fontSize: "0.875rem", color: "var(--text-secondary)" }}>不可修改的信息</h4>
