@@ -21,13 +21,30 @@ export async function action({ request, context }: ActionFunctionArgs) {
 
     if (intent === "add") {
         const name = formData.get("name") as string;
-        const slug = name.toLowerCase().replace(/ /g, "-").replace(/[^\w-]/g, "");
+        let slug = name.toLowerCase().replace(/ /g, "-").replace(/[^\w-]/g, "");
 
         if (!name) return json({ error: "Name required" }, { status: 400 });
 
         try {
-            // Use INSERT OR REPLACE to allow re-adding previously deleted categories
-            await env.DB.prepare("INSERT OR REPLACE INTO categories (name, slug) VALUES (?, ?)").bind(name, slug).run();
+            // Check if slug already exists
+            const { results: existing } = await env.DB.prepare("SELECT id FROM categories WHERE slug = ?").bind(slug).all();
+
+            // If slug exists, append a number to make it unique
+            if (existing && existing.length > 0) {
+                let counter = 1;
+                let newSlug = `${slug}-${counter}`;
+                while (true) {
+                    const { results: check } = await env.DB.prepare("SELECT id FROM categories WHERE slug = ?").bind(newSlug).all();
+                    if (!check || check.length === 0) {
+                        slug = newSlug;
+                        break;
+                    }
+                    counter++;
+                    newSlug = `${slug}-${counter}`;
+                }
+            }
+
+            await env.DB.prepare("INSERT INTO categories (name, slug) VALUES (?, ?)").bind(name, slug).run();
             return json({ success: true });
         } catch (e) {
             return json({ error: "添加分类失败" }, { status: 400 });
