@@ -43,6 +43,7 @@ export default function Transactions() {
                                 <th style={{ padding: "1rem" }}>数量</th>
                                 <th style={{ padding: "1rem" }}>经手人/部门</th>
                                 <th style={{ padding: "1rem" }}>备注</th>
+                                <th style={{ padding: "1rem" }}>操作</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -63,7 +64,7 @@ export default function Transactions() {
                                         </span>
                                     </td>
                                     <td style={{ padding: "1rem" }}>
-                                        <div style={{ fontWeight: 600 }}>{t.model}</div>
+                                        <div style={{ fontWeight: 600 }}>[{t.category_name}] {t.model}</div>
                                         <div style={{ fontSize: "0.875rem", color: "var(--text-secondary)" }}>{t.brand}</div>
                                     </td>
                                     <td style={{ padding: "1rem", fontWeight: "bold" }}>{t.quantity}</td>
@@ -78,11 +79,23 @@ export default function Transactions() {
                                         )}
                                     </td>
                                     <td style={{ padding: "1rem", color: "var(--text-secondary)" }}>{t.note || "-"}</td>
+                                    <td style={{ padding: "1rem" }}>
+                                        <Link
+                                            to={`/transactions/${t.id}/edit`}
+                                            style={{
+                                                fontSize: "0.875rem",
+                                                color: "var(--text-accent)",
+                                                textDecoration: "none"
+                                            }}
+                                        >
+                                            编辑
+                                        </Link>
+                                    </td>
                                 </tr>
                             ))}
                             {transactions.length === 0 && (
                                 <tr>
-                                    <td colSpan={6} style={{ padding: "2rem", textAlign: "center", color: "var(--text-secondary)" }}>
+                                    <td colSpan={7} style={{ padding: "2rem", textAlign: "center", color: "var(--text-secondary)" }}>
                                         暂无记录。
                                     </td>
                                 </tr>
