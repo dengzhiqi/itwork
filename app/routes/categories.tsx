@@ -1,0 +1,105 @@
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/cloudflare";
+import { json, redirect } from "@remix-run/cloudflare";
+import { Form, useLoaderData, useNavigation } from "@remix-run/react";
+import Layout from "../components/Layout";
+import { requireUser } from "../utils/auth.server";
+
+export async function loader({ request, context }: LoaderFunctionArgs) {
+    const { env } = context as { env: any };
+    const user = await requireUser(request, env);
+
+    const { results: categories } = await env.DB.prepare("SELECT * FROM categories ORDER BY name ASC").all();
+    return json({ categories, user });
+}
+
+export async function action({ request, context }: ActionFunctionArgs) {
+    const { env } = context as { env: any };
+    await requireUser(request, env);
+
+    const formData = await request.formData();
+    const intent = formData.get("intent");
+
+    if (intent === "add") {
+        const name = formData.get("name") as string;
+        const slug = name.toLowerCase().replace(/ /g, "-").replace(/[^\w-]/g, "");
+
+        if (!name) return json({ error: "Name required" }, { status: 400 });
+
+        try {
+            await env.DB.prepare("INSERT INTO categories (name, slug) VALUES (?, ?)").bind(name, slug).run();
+            return json({ success: true });
+        } catch (e) {
+            return json({ error: "Category already exists or invalid" }, { status: 400 });
+        }
+    }
+
+    if (intent === "delete") {
+        const id = formData.get("id");
+        await env.DB.prepare("DELETE FROM categories WHERE id = ?").bind(id).run();
+        return json({ success: true });
+    }
+
+    return null;
+}
+
+export default function Categories() {
+    const { categories, user } = useLoaderData<typeof loader>();
+    const navigation = useNavigation();
+    const isAdding = navigation.formData?.get("intent") === "add";
+
+    return (
+        <Layout user={user}>
+            <div className="glass-panel" style={{ padding: "2rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
+                    <h2>Categories</h2>
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "2rem" }}>
+                    {/* Add Category Form */}
+                    <div className="glass-card" style={{ padding: "1.5rem", height: "fit-content" }}>
+                        <h3 style={{ fontSize: "1.25rem", marginBottom: "1rem" }}>Add New</h3>
+                        <Form method="post">
+                            <div style={{ marginBottom: "1rem" }}>
+                                <label>Category Name</label>
+                                <input type="text" name="name" placeholder="e.g. Office Chairs" required />
+                            </div>
+                            <button
+                                type="submit"
+                                name="intent"
+                                value="add"
+                                className="btn btn-primary"
+                                style={{ width: "100%" }}
+                                disabled={isAdding}
+                            >
+                                {isAdding ? "Adding..." : "Add Category"}
+                            </button>
+                        </Form>
+                    </div>
+
+                    {/* List */}
+                    <div style={{ display: "grid", gap: "1rem", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" }}>
+                        {categories.map((cat: any) => (
+                            <div key={cat.id} className="glass-card" style={{ padding: "1rem", position: "relative" }}>
+                                <h4 style={{ color: "var(--text-primary)", marginBottom: "0.25rem" }}>{cat.name}</h4>
+                                <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>{cat.slug}</p>
+                                <Form method="post" style={{ position: "absolute", top: "0.5rem", right: "0.5rem" }}>
+                                    <input type="hidden" name="id" value={cat.id} />
+                                    <button
+                                        type="submit"
+                                        name="intent"
+                                        value="delete"
+                                        style={{ background: "none", border: "none", color: "var(--text-secondary)", cursor: "pointer", opacity: 0.5 }}
+                                        title="Delete"
+                                        onClick={(e) => !confirm("Are you sure?") && e.preventDefault()}
+                                    >
+                                        ✕
+                                    </button>
+                                </Form>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </Layout>
+    );
+}
