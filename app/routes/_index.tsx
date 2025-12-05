@@ -49,25 +49,25 @@ export default function Index() {
             <div style={{ display: "grid", gap: "2rem" }}>
                 {/* Welcome */}
                 <div>
-                    <h1 style={{ marginBottom: "0.5rem" }}>Dashboard</h1>
-                    <p style={{ color: "var(--text-secondary)" }}>Overview of office supplies and status.</p>
+                    <h1 style={{ marginBottom: "0.5rem" }}>仪表盘</h1>
+                    <p style={{ color: "var(--text-secondary)" }}>办公用品概览与状态</p>
                 </div>
 
                 {/* Stats Cards */}
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "1.5rem" }}>
                     <div className="glass-card" style={{ padding: "1.5rem" }}>
-                        <h3 style={{ fontSize: "1rem", color: "var(--text-secondary)", marginBottom: "0.5rem" }}>Total Products</h3>
+                        <h3 style={{ fontSize: "1rem", color: "var(--text-secondary)", marginBottom: "0.5rem" }}>产品总数</h3>
                         <div style={{ fontSize: "2.5rem", fontWeight: 700 }}>{totalItems}</div>
                     </div>
                     <div className="glass-card" style={{ padding: "1.5rem" }}>
-                        <h3 style={{ fontSize: "1rem", color: "var(--text-secondary)", marginBottom: "0.5rem" }}>Low Stock Items</h3>
+                        <h3 style={{ fontSize: "1rem", color: "var(--text-secondary)", marginBottom: "0.5rem" }}>低库存商品</h3>
                         <div style={{ fontSize: "2.5rem", fontWeight: 700, color: lowStockCount > 0 ? "var(--danger-color)" : "var(--success-color)" }}>
                             {lowStockCount}
                         </div>
                     </div>
                     <div className="glass-card" style={{ padding: "1.5rem", display: "flex", flexDirection: "column", justifyContent: "center" }}>
                         <Link to="/transactions/new" className="btn btn-primary" style={{ textAlign: "center" }}>
-                            Quick Outbound
+                            快速出库
                         </Link>
                     </div>
                 </div>
@@ -76,8 +76,8 @@ export default function Index() {
                 {lowStock.length > 0 && (
                     <div className="glass-panel" style={{ padding: "2rem" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-                            <h3 style={{ fontSize: "1.25rem", color: "var(--danger-color)" }}>⚠️ Low Stock Alerts</h3>
-                            <Link to="/inventory" style={{ fontSize: "0.875rem", color: "var(--text-accent)" }}>View All</Link>
+                            <h3 style={{ fontSize: "1.25rem", color: "var(--danger-color)" }}>⚠️ 低库存警告</h3>
+                            <Link to="/inventory" style={{ fontSize: "0.875rem", color: "var(--text-accent)" }}>查看全部</Link>
                         </div>
                         <div style={{ display: "grid", gap: "1rem" }}>
                             {lowStock.map((item: any) => (
@@ -88,7 +88,7 @@ export default function Index() {
                                     </div>
                                     <div style={{ textAlign: "right" }}>
                                         <div style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--danger-color)" }}>{item.stock_quantity}</div>
-                                        <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>Min: {item.min_stock_level}</div>
+                                        <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>最低: {item.min_stock_level}</div>
                                     </div>
                                 </div>
                             ))}
@@ -99,18 +99,18 @@ export default function Index() {
                 {/* Recent Transactions */}
                 <div className="glass-panel" style={{ padding: "2rem" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-                        <h3 style={{ fontSize: "1.25rem" }}>Recent Activity</h3>
-                        <Link to="/transactions" style={{ fontSize: "0.875rem", color: "var(--text-accent)" }}>View History</Link>
+                        <h3 style={{ fontSize: "1.25rem" }}>最近活动</h3>
+                        <Link to="/transactions" style={{ fontSize: "0.875rem", color: "var(--text-accent)" }}>查看历史</Link>
                     </div>
                     <div style={{ width: "100%", overflowX: "auto" }}>
                         <table style={{ width: "100%", borderCollapse: "collapse" }}>
                             <thead>
                                 <tr style={{ color: "var(--text-secondary)", textAlign: "left", fontSize: "0.875rem" }}>
-                                    <th style={{ paddingBottom: "1rem" }}>Date</th>
-                                    <th style={{ paddingBottom: "1rem" }}>Type</th>
-                                    <th style={{ paddingBottom: "1rem" }}>Product</th>
-                                    <th style={{ paddingBottom: "1rem" }}>Qty</th>
-                                    <th style={{ paddingBottom: "1rem" }}>Handler</th>
+                                    <th style={{ paddingBottom: "1rem" }}>日期</th>
+                                    <th style={{ paddingBottom: "1rem" }}>类型</th>
+                                    <th style={{ paddingBottom: "1rem" }}>产品</th>
+                                    <th style={{ paddingBottom: "1rem" }}>数量</th>
+                                    <th style={{ paddingBottom: "1rem" }}>经手人</th>
                                 </tr>
                             </thead>
                             <tbody>

@@ -73,39 +73,39 @@ export default function NewTransaction() {
         <Layout user={user}>
             <div className="glass-panel" style={{ padding: "2rem", maxWidth: "800px", margin: "0 auto" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-                    <h2>Record Operation</h2>
-                    <Link to="/transactions" style={{ color: "var(--text-secondary)" }}>Cancel</Link>
+                    <h2>记录出入库</h2>
+                    <Link to="/transactions" style={{ color: "var(--text-secondary)" }}>取消</Link>
                 </div>
 
                 <Form method="post" style={{ display: "grid", gap: "1.5rem" }}>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                         <div>
-                            <label>Type</label>
+                            <label>类型</label>
                             <select name="type" required>
-                                <option value="OUT">Outbound (Usage)</option>
-                                <option value="IN">Inbound (Restock)</option>
+                                <option value="OUT">出库 (使用)</option>
+                                <option value="IN">入库 (补货)</option>
                             </select>
                         </div>
                         <div>
-                            <label>Date</label>
+                            <label>日期</label>
                             <input type="date" name="date" defaultValue={new Date().toISOString().split('T')[0]} required />
                         </div>
                     </div>
 
                     <div>
-                        <label>Product</label>
+                        <label>产品</label>
                         <select name="product_id" required style={{ fontFamily: "monospace" }}>
-                            <option value="">Select Item...</option>
+                            <option value="">选择商品...</option>
                             {products.map((p: any) => (
                                 <option key={p.id} value={p.id}>
-                                    [{p.category}] {p.brand} {p.model} (Stock: {p.stock_quantity})
+                                    [{p.category}] {p.brand} {p.model} (库存: {p.stock_quantity})
                                 </option>
                             ))}
                         </select>
                     </div>
 
                     <div>
-                        <label>Quantity</label>
+                        <label>数量</label>
                         <input type="number" name="quantity" min="1" defaultValue="1" required />
                     </div>
 
@@ -113,33 +113,33 @@ export default function NewTransaction() {
               Simpler to show all but label properly. */}
 
                     <div style={{ padding: "1rem", background: "rgba(0,0,0,0.2)", borderRadius: "var(--radius-sm)" }}>
-                        <h4 style={{ marginBottom: "1rem", fontSize: "0.875rem", color: "var(--text-secondary)" }}>For Outbound Only</h4>
+                        <h4 style={{ marginBottom: "1rem", fontSize: "0.875rem", color: "var(--text-secondary)" }}>仅限出库时填写</h4>
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                             <div>
-                                <label>Department</label>
+                                <label>部门</label>
                                 <select name="department">
-                                    <option value="">Select Dept...</option>
+                                    <option value="">选择部门...</option>
                                     <option value="IT">IT</option>
-                                    <option value="HR">HR</option>
-                                    <option value="Sales">Sales</option>
-                                    <option value="Finance">Finance</option>
-                                    <option value="Ops">Operations</option>
+                                    <option value="HR">人力资源</option>
+                                    <option value="Sales">销售</option>
+                                    <option value="Finance">财务</option>
+                                    <option value="Ops">运营</option>
                                 </select>
                             </div>
                             <div>
-                                <label>User / Handler</label>
-                                <input type="text" name="handler_name" placeholder="Who took it?" />
+                                <label>经手人</label>
+                                <input type="text" name="handler_name" placeholder="谁领取的?" />
                             </div>
                         </div>
                     </div>
 
                     <div>
-                        <label>Note / Supplier info</label>
+                        <label>备注 / 供应商信息</label>
                         <textarea name="note" rows={3}></textarea>
                     </div>
 
                     <button type="submit" className="btn btn-primary" style={{ marginTop: "1rem" }} disabled={isSubmitting}>
-                        {isSubmitting ? "Processing..." : "Confirm Operation"}
+                        {isSubmitting ? "处理中..." : "确认操作"}
                     </button>
                 </Form>
             </div>

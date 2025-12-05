@@ -27,9 +27,9 @@ export default function Transactions() {
         <Layout user={user}>
             <div className="glass-panel" style={{ padding: "2rem" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-                    <h2>Transactions</h2>
+                    <h2>出入库记录</h2>
                     <Link to="/transactions/new" className="btn btn-primary">
-                        + New Operation
+                        + 新增操作
                     </Link>
                 </div>
 
@@ -37,12 +37,12 @@ export default function Transactions() {
                     <table style={{ width: "100%", borderCollapse: "collapse", color: "var(--text-primary)" }}>
                         <thead>
                             <tr style={{ borderBottom: "1px solid var(--border-light)", textAlign: "left" }}>
-                                <th style={{ padding: "1rem" }}>Date</th>
-                                <th style={{ padding: "1rem" }}>Type</th>
-                                <th style={{ padding: "1rem" }}>Item</th>
-                                <th style={{ padding: "1rem" }}>Qty</th>
-                                <th style={{ padding: "1rem" }}>Handler/Dept</th>
-                                <th style={{ padding: "1rem" }}>Note</th>
+                                <th style={{ padding: "1rem" }}>日期</th>
+                                <th style={{ padding: "1rem" }}>类型</th>
+                                <th style={{ padding: "1rem" }}>商品</th>
+                                <th style={{ padding: "1rem" }}>数量</th>
+                                <th style={{ padding: "1rem" }}>经手人/部门</th>
+                                <th style={{ padding: "1rem" }}>备注</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -83,7 +83,7 @@ export default function Transactions() {
                             {transactions.length === 0 && (
                                 <tr>
                                     <td colSpan={6} style={{ padding: "2rem", textAlign: "center", color: "var(--text-secondary)" }}>
-                                        No transactions found.
+                                        暂无记录。
                                     </td>
                                 </tr>
                             )}

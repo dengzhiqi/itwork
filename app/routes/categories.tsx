@@ -51,17 +51,17 @@ export default function Categories() {
         <Layout user={user}>
             <div className="glass-panel" style={{ padding: "2rem" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-                    <h2>Categories</h2>
+                    <h2>分类管理</h2>
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "2rem" }}>
                     {/* Add Category Form */}
                     <div className="glass-card" style={{ padding: "1.5rem", height: "fit-content" }}>
-                        <h3 style={{ fontSize: "1.25rem", marginBottom: "1rem" }}>Add New</h3>
+                        <h3 style={{ fontSize: "1.25rem", marginBottom: "1rem" }}>添加新分类</h3>
                         <Form method="post">
                             <div style={{ marginBottom: "1rem" }}>
-                                <label>Category Name</label>
-                                <input type="text" name="name" placeholder="e.g. Office Chairs" required />
+                                <label>分类名称</label>
+                                <input type="text" name="name" placeholder="例如: 办公椅" required />
                             </div>
                             <button
                                 type="submit"
@@ -71,7 +71,7 @@ export default function Categories() {
                                 style={{ width: "100%" }}
                                 disabled={isAdding}
                             >
-                                {isAdding ? "Adding..." : "Add Category"}
+                                {isAdding ? "添加中..." : "添加分类"}
                             </button>
                         </Form>
                     </div>
@@ -89,8 +89,8 @@ export default function Categories() {
                                         name="intent"
                                         value="delete"
                                         style={{ background: "none", border: "none", color: "var(--text-secondary)", cursor: "pointer", opacity: 0.5 }}
-                                        title="Delete"
-                                        onClick={(e) => !confirm("Are you sure?") && e.preventDefault()}
+                                        title="删除"
+                                        onClick={(e) => !confirm("确定要删除吗?") && e.preventDefault()}
                                     >
                                         ✕
                                     </button>

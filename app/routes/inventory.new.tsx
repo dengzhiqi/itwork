@@ -43,15 +43,15 @@ export default function AddInventory() {
         <Layout user={user}>
             <div className="glass-panel" style={{ padding: "2rem", maxWidth: "800px", margin: "0 auto" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-                    <h2>Add New Item</h2>
-                    <Link to="/inventory" style={{ color: "var(--text-secondary)" }}>Cancel</Link>
+                    <h2>添加新商品</h2>
+                    <Link to="/inventory" style={{ color: "var(--text-secondary)" }}>取消</Link>
                 </div>
 
                 <Form method="post" style={{ display: "grid", gap: "1.5rem" }}>
                     <div>
-                        <label>Category</label>
+                        <label>分类</label>
                         <select name="category_id" required>
-                            <option value="">Select Category...</option>
+                            <option value="">选择分类...</option>
                             {categories.map((c: any) => (
                                 <option key={c.id} value={c.id}>{c.name}</option>
                             ))}
@@ -60,33 +60,33 @@ export default function AddInventory() {
 
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                         <div>
-                            <label>Brand</label>
-                            <input type="text" name="brand" placeholder="e.g. HP" />
+                            <label>品牌</label>
+                            <input type="text" name="brand" placeholder="例如: HP" />
                         </div>
                         <div>
-                            <label>Model</label>
-                            <input type="text" name="model" placeholder="e.g. 1020 Plus" required />
+                            <label>型号</label>
+                            <input type="text" name="model" placeholder="例如: 1020 Plus" required />
                         </div>
                     </div>
 
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                         <div>
-                            <label>Price (¥)</label>
+                            <label>价格 (¥)</label>
                             <input type="number" step="0.01" name="price" placeholder="0.00" />
                         </div>
                         <div>
-                            <label>Initial Stock</label>
+                            <label>初始库存</label>
                             <input type="number" name="stock_quantity" placeholder="0" />
                         </div>
                     </div>
 
                     <div>
-                        <label>Supplier</label>
-                        <input type="text" name="supplier" placeholder="e.g. Office Depot" />
+                        <label>供应商</label>
+                        <input type="text" name="supplier" placeholder="例如: 办公用品商店" />
                     </div>
 
                     <button type="submit" className="btn btn-primary" style={{ marginTop: "1rem" }} disabled={isSubmitting}>
-                        {isSubmitting ? "Saving..." : "Save Item"}
+                        {isSubmitting ? "保存中..." : "保存商品"}
                     </button>
                 </Form>
             </div>

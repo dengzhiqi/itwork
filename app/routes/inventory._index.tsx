@@ -25,9 +25,9 @@ export default function Inventory() {
         <Layout user={user}>
             <div className="glass-panel" style={{ padding: "2rem" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-                    <h2>Inventory</h2>
+                    <h2>库存管理</h2>
                     <Link to="/inventory/new" className="btn btn-primary">
-                        + Add New Item
+                        + 添加新商品
                     </Link>
                 </div>
 
@@ -35,12 +35,12 @@ export default function Inventory() {
                     <table style={{ width: "100%", borderCollapse: "collapse", color: "var(--text-primary)" }}>
                         <thead>
                             <tr style={{ borderBottom: "1px solid var(--border-light)", textAlign: "left" }}>
-                                <th style={{ padding: "1rem" }}>Category</th>
-                                <th style={{ padding: "1rem" }}>Brand / Model</th>
-                                <th style={{ padding: "1rem" }}>Supplier</th>
-                                <th style={{ padding: "1rem" }}>Price</th>
-                                <th style={{ padding: "1rem" }}>Stock</th>
-                                <th style={{ padding: "1rem" }}>Status</th>
+                                <th style={{ padding: "1rem" }}>分类</th>
+                                <th style={{ padding: "1rem" }}>品牌 / 型号</th>
+                                <th style={{ padding: "1rem" }}>供应商</th>
+                                <th style={{ padding: "1rem" }}>价格</th>
+                                <th style={{ padding: "1rem" }}>库存</th>
+                                <th style={{ padding: "1rem" }}>状态</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -56,9 +56,9 @@ export default function Inventory() {
                                     <td style={{ padding: "1rem", fontWeight: "bold" }}>{item.stock_quantity}</td>
                                     <td style={{ padding: "1rem" }}>
                                         {item.stock_quantity <= (item.min_stock_level || 5) ? (
-                                            <span style={{ color: "var(--danger-color)", fontSize: "0.875rem" }}>Low Stock</span>
+                                            <span style={{ color: "var(--danger-color)", fontSize: "0.875rem" }}>低库存</span>
                                         ) : (
-                                            <span style={{ color: "var(--success-color)", fontSize: "0.875rem" }}>In Stock</span>
+                                            <span style={{ color: "var(--success-color)", fontSize: "0.875rem" }}>有货</span>
                                         )}
                                     </td>
                                 </tr>
@@ -66,7 +66,7 @@ export default function Inventory() {
                             {products.length === 0 && (
                                 <tr>
                                     <td colSpan={6} style={{ padding: "2rem", textAlign: "center", color: "var(--text-secondary)" }}>
-                                        No items found. Add one to get started.
+                                        暂无商品。点击上方按钮添加。
                                     </td>
                                 </tr>
                             )}
