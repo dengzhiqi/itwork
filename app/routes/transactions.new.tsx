@@ -1,6 +1,7 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { json, redirect } from "@remix-run/cloudflare";
 import { Form, useLoaderData, useNavigation, Link } from "@remix-run/react";
+import { useState, useEffect } from "react";
 import Layout from "../components/Layout";
 import { requireUser } from "../utils/auth.server";
 
@@ -8,7 +9,6 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     const { env } = context as { env: any };
     const user = await requireUser(request, env);
 
-    // Get all products for selection
     const { results: products } = await env.DB.prepare(`
     SELECT p.id, p.brand, p.model, p.stock_quantity, c.name as category 
     FROM products p
@@ -16,7 +16,9 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     ORDER BY c.name, p.brand
   `).all();
 
-    return json({ products, user });
+    const { results: staff } = await env.DB.prepare("SELECT * FROM staff ORDER BY department, name").all();
+
+    return json({ products, staff, user });
 }
 
 export async function action({ request, context }: ActionFunctionArgs) {
@@ -33,19 +35,14 @@ export async function action({ request, context }: ActionFunctionArgs) {
     const note = formData.get("note");
 
     if (!product_id || !quantity || !type) {
-        return json({ error: "Missing required fields" }, { status: 400 });
+        return json({ error: "缺少必填字段" }, { status: 400 });
     }
 
-    // Update Stock
-    // Use a transaction or batch if possible. D1 supports batch.
-    // We need to check stock for OUT.
-
     if (type === "OUT") {
-        // Check stock
         const { results } = await env.DB.prepare("SELECT stock_quantity FROM products WHERE id = ?").bind(product_id).all();
         const currentStock = results[0]?.stock_quantity || 0;
         if (currentStock < quantity) {
-            return json({ error: `Insufficient stock (Current: ${currentStock})` }, { status: 400 });
+            return json({ error: `库存不足 (当前: ${currentStock})` }, { status: 400 });
         }
 
         await env.DB.batch([
@@ -53,7 +50,6 @@ export async function action({ request, context }: ActionFunctionArgs) {
             env.DB.prepare("UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ?").bind(quantity, product_id)
         ]);
     } else {
-        // IN
         await env.DB.batch([
             env.DB.prepare("INSERT INTO transactions (product_id, type, quantity, date, note) VALUES (?, ?, ?, ?, ?)").bind(product_id, type, quantity, date || new Date().toISOString(), note),
             env.DB.prepare("UPDATE products SET stock_quantity = stock_quantity + ? WHERE id = ?").bind(quantity, product_id)
@@ -64,10 +60,24 @@ export async function action({ request, context }: ActionFunctionArgs) {
 }
 
 export default function NewTransaction() {
-    const { products, user } = useLoaderData<typeof loader>();
+    const { products, staff, user } = useLoaderData<typeof loader>();
     const navigation = useNavigation();
     const isSubmitting = navigation.state === "submitting";
-    const actionData = navigation.formAction === "/transactions/new" ? null : (useNavigation().formMethod ? null : null); // Simple error handling
+
+    const [selectedDepartment, setSelectedDepartment] = useState("");
+    const [transactionType, setTransactionType] = useState("OUT");
+    const [filteredStaff, setFilteredStaff] = useState<any[]>([]);
+
+    const departments = Array.from(new Set((staff as any[]).map(s => s.department)));
+
+    useEffect(() => {
+        if (selectedDepartment) {
+            const filtered = (staff as any[]).filter(s => s.department === selectedDepartment);
+            setFilteredStaff(filtered);
+        } else {
+            setFilteredStaff([]);
+        }
+    }, [selectedDepartment, staff]);
 
     return (
         <Layout user={user}>
@@ -81,7 +91,12 @@ export default function NewTransaction() {
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                         <div>
                             <label>类型</label>
-                            <select name="type" required>
+                            <select
+                                name="type"
+                                value={transactionType}
+                                onChange={(e) => setTransactionType(e.target.value)}
+                                required
+                            >
                                 <option value="OUT">出库 (使用)</option>
                                 <option value="IN">入库 (补货)</option>
                             </select>
@@ -96,7 +111,7 @@ export default function NewTransaction() {
                         <label>产品</label>
                         <select name="product_id" required style={{ fontFamily: "monospace" }}>
                             <option value="">选择商品...</option>
-                            {products.map((p: any) => (
+                            {(products as any[]).map((p: any) => (
                                 <option key={p.id} value={p.id}>
                                     [{p.category}] {p.brand} {p.model} (库存: {p.stock_quantity})
                                 </option>
@@ -109,29 +124,35 @@ export default function NewTransaction() {
                         <input type="number" name="quantity" min="1" defaultValue="1" required />
                     </div>
 
-                    {/* Conditional fields could be done with JS/State, but for now show all optional or use CSS peer selectors? 
-              Simpler to show all but label properly. */}
-
-                    <div style={{ padding: "1rem", background: "rgba(0,0,0,0.2)", borderRadius: "var(--radius-sm)" }}>
-                        <h4 style={{ marginBottom: "1rem", fontSize: "0.875rem", color: "var(--text-secondary)" }}>仅限出库时填写</h4>
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-                            <div>
-                                <label>部门</label>
-                                <select name="department">
-                                    <option value="">选择部门...</option>
-                                    <option value="IT">IT</option>
-                                    <option value="HR">人力资源</option>
-                                    <option value="Sales">销售</option>
-                                    <option value="Finance">财务</option>
-                                    <option value="Ops">运营</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label>经手人</label>
-                                <input type="text" name="handler_name" placeholder="谁领取的?" />
+                    {transactionType === "OUT" && (
+                        <div style={{ padding: "1rem", background: "rgba(0,0,0,0.2)", borderRadius: "var(--radius-sm)" }}>
+                            <h4 style={{ marginBottom: "1rem", fontSize: "0.875rem", color: "var(--text-secondary)" }}>出库信息</h4>
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                                <div>
+                                    <label>部门</label>
+                                    <select
+                                        name="department"
+                                        value={selectedDepartment}
+                                        onChange={(e) => setSelectedDepartment(e.target.value)}
+                                    >
+                                        <option value="">选择部门...</option>
+                                        {departments.map((dept: string) => (
+                                            <option key={dept} value={dept}>{dept}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>经手人</label>
+                                    <select name="handler_name" disabled={!selectedDepartment}>
+                                        <option value="">选择人员...</option>
+                                        {filteredStaff.map((s: any) => (
+                                            <option key={s.id} value={s.name}>{s.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
 
                     <div>
                         <label>备注 / 供应商信息</label>
