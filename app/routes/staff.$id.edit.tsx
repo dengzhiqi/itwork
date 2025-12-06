@@ -15,7 +15,12 @@ export async function loader({ request, context, params }: LoaderFunctionArgs) {
         throw new Response("人员未找到", { status: 404 });
     }
 
-    return json({ staff: staff[0], user });
+    // Get distinct departments from staff table
+    const { results: departments } = await env.DB.prepare(
+        "SELECT DISTINCT department FROM staff WHERE department IS NOT NULL AND department != '' ORDER BY department ASC"
+    ).all();
+
+    return json({ staff: staff[0], user, departments });
 }
 
 export async function action({ request, context, params }: ActionFunctionArgs) {
@@ -39,7 +44,7 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
 }
 
 export default function EditStaff() {
-    const { staff, user } = useLoaderData<typeof loader>();
+    const { staff, user, departments } = useLoaderData<typeof loader>();
     const navigation = useNavigation();
     const isSubmitting = navigation.state === "submitting";
 
@@ -56,12 +61,15 @@ export default function EditStaff() {
                         <label>部门 *</label>
                         <select name="department" defaultValue={staff.department} required>
                             <option value="">选择部门...</option>
-                            <option value="IT">IT</option>
-                            <option value="HR">人力资源</option>
-                            <option value="Sales">销售</option>
-                            <option value="Finance">财务</option>
-                            <option value="Ops">运营</option>
+                            {departments.map((dept: any) => (
+                                <option key={dept.department} value={dept.department}>
+                                    {dept.department}
+                                </option>
+                            ))}
                         </select>
+                        <p style={{ margin: "0.5rem 0 0 0", fontSize: "0.875rem", color: "var(--text-secondary)" }}>
+                            如需添加新部门，请前往"部门管理"选项卡
+                        </p>
                     </div>
 
                     <div>
