@@ -177,31 +177,7 @@ export default function Index() {
                     </div>
                 </div>
 
-                {category && (
-                    <div style={{
-                        padding: "0.75rem 1rem",
-                        background: "rgba(0, 136, 254, 0.1)",
-                        borderRadius: "var(--radius-sm)",
-                        border: "1px solid rgba(0, 136, 254, 0.3)",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center"
-                    }}>
-                        <span>当前筛选: <strong>{category}</strong></span>
-                        <button
-                            onClick={handleClearFilter}
-                            style={{
-                                background: "transparent",
-                                border: "none",
-                                color: "var(--text-accent)",
-                                cursor: "pointer",
-                                textDecoration: "underline"
-                            }}
-                        >
-                            清除筛选
-                        </button>
-                    </div>
-                )}
+
 
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(500px, 1fr))", gap: "2rem" }}>
 
