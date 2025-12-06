@@ -256,12 +256,16 @@ export default function Index() {
                                 <ResponsiveContainer>
                                     <BarChart
                                         data={departmentStats}
-                                        layout="vertical"
-                                        margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
+                                        margin={{ top: 5, right: 30, left: 20, bottom: 60 }}
                                     >
-                                        <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                                        <XAxis type="number" />
-                                        <YAxis type="category" dataKey="name" width={100} />
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis
+                                            dataKey="name"
+                                            angle={-45}
+                                            textAnchor="end"
+                                            height={80}
+                                        />
+                                        <YAxis />
                                         <RechartsTooltip cursor={{ fill: 'rgba(255, 255, 255, 0.1)' }} formatter={(value: number) => [value, "消耗数量"]} />
                                         <Legend />
                                         <Bar dataKey="value" name="消耗数量" fill="#8884d8">
