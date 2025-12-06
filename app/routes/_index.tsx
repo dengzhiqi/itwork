@@ -263,7 +263,7 @@ export default function Index() {
                                 <ResponsiveContainer>
                                     <BarChart
                                         data={departmentStats}
-                                        margin={{ top: 35, right: 30, left: 20, bottom: 60 }}
+                                        margin={{ top: 50, right: 30, left: 20, bottom: 60 }}
                                     >
                                         <CartesianGrid strokeDasharray="3 3" />
                                         <XAxis
