@@ -81,8 +81,8 @@ export default function AddInventory() {
                     </div>
 
                     <div>
-                        <label>供应商</label>
-                        <input type="text" name="supplier" placeholder="例如: 办公用品商店" />
+                        <label>备注</label>
+                        <input type="text" name="supplier" placeholder="选填" />
                     </div>
 
                     <button type="submit" className="btn btn-primary" style={{ marginTop: "1rem" }} disabled={isSubmitting}>
