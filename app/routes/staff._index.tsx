@@ -69,7 +69,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
                 error: `无法删除部门"${deptName}"，该部门还有 ${staffCount[0].count} 名人员`
             }, { status: 400 });
         }
-        
+
         // Delete from departments table
         await env.DB.prepare(
             "DELETE FROM departments WHERE name = ?"
@@ -88,18 +88,17 @@ export async function action({ request, context }: ActionFunctionArgs) {
 
         // Check if department already exists
         const { results: existing } = await env.DB.prepare(
-            "SELECT COUNT(*) as count FROM staff WHERE department = ?"
+            "SELECT COUNT(*) as count FROM departments WHERE name = ?"
         ).bind(deptName).all();
 
         if (existing[0].count > 0) {
             return json({ error: "该部门已存在" }, { status: 400 });
         }
 
-        // Create a placeholder staff entry to establish the department
-        // This is a workaround since departments are derived from staff table
+        // Insert into departments table
         await env.DB.prepare(
-            "INSERT INTO staff (department, name) VALUES (?, ?)"
-        ).bind(deptName, "[占位]").run();
+            "INSERT INTO departments (name) VALUES (?)"
+        ).bind(deptName).run();
 
         return json({ success: true, message: "部门已创建" });
     }
