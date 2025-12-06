@@ -55,20 +55,21 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
             FROM transactions t
         `;
 
-        const departmentParams: any[] = [...params];
+        const departmentParams: any[] = [];
 
         if (category) {
             departmentQuery += `
                 JOIN products p ON t.product_id = p.id
                 JOIN categories c ON p.category_id = c.id
                 WHERE t.type = 'OUT' AND t.department IS NOT NULL AND t.department != '' 
-                AND c.name = ? AND ${dateFilter}
+                AND ${dateFilter} AND c.name = ?
             `;
-            departmentParams.unshift(category); // Add category as first param
+            departmentParams.push(...params, category); // Date params first, then category
         } else {
             departmentQuery += `
                 WHERE t.type = 'OUT' AND t.department IS NOT NULL AND t.department != '' AND ${dateFilter}
             `;
+            departmentParams.push(...params);
         }
 
         departmentQuery += `
