@@ -28,9 +28,14 @@ export default function Transactions() {
             <div className="glass-panel" style={{ padding: "2rem" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
                     <h2>出入库记录</h2>
-                    <Link to="/transactions/new" className="btn btn-primary">
-                        + 新增操作
-                    </Link>
+                    <div style={{ display: "flex", gap: "1rem" }}>
+                        <Link to="/transactions/export" className="btn" style={{ background: "var(--bg-glass)", border: "1px solid var(--border-light)" }} target="_blank">
+                            导出 CSV
+                        </Link>
+                        <Link to="/transactions/new" className="btn btn-primary">
+                            + 新增操作
+                        </Link>
+                    </div>
                 </div>
 
                 <div style={{ overflowX: "auto" }}>
