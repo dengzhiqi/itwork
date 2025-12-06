@@ -159,7 +159,7 @@ export default function Index() {
                 {/* Header & Controls */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
                     <div>
-                        <h1 style={{ marginBottom: "0.5rem" }}>仪表盘</h1>
+                        <h2 style={{ marginBottom: "0.5rem" }}>仪表盘</h2>
                         <p style={{ color: "var(--text-secondary)" }}>消耗统计与分析</p>
                     </div>
 

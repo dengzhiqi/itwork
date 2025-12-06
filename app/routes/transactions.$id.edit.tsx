@@ -58,6 +58,10 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
 
             // Delete the transaction
             await env.DB.prepare("DELETE FROM transactions WHERE id = ?").bind(id).run();
+
+            // Redirect based on transaction type
+            const redirectPath = t.type === "OUT" ? "/transactions?type=OUT" : "/transactions?type=IN";
+            return redirect(redirectPath);
         }
 
         return redirect("/transactions");
@@ -69,12 +73,23 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
     const handler_name = formData.get("handler_name");
     const note = formData.get("note");
 
+    // Get transaction type for redirect
+    const { results: transactionData } = await env.DB.prepare(
+        "SELECT type FROM transactions WHERE id = ?"
+    ).bind(id).all();
+
     // Update only the editable fields (not product, quantity, or type)
     await env.DB.prepare(`
         UPDATE transactions 
         SET date = ?, department = ?, handler_name = ?, note = ?
         WHERE id = ?
     `).bind(date, department, handler_name, note, id).run();
+
+    // Redirect based on transaction type
+    if (transactionData && transactionData.length > 0) {
+        const redirectPath = transactionData[0].type === "OUT" ? "/transactions?type=OUT" : "/transactions?type=IN";
+        return redirect(redirectPath);
+    }
 
     return redirect("/transactions");
 }

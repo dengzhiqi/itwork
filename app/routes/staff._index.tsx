@@ -116,7 +116,7 @@ export default function Staff() {
         <Layout user={user}>
             <div style={{ display: "grid", gap: "2rem" }}>
                 <div>
-                    <h1 style={{ marginBottom: "0.5rem" }}>人员与部门管理</h1>
+                    <h2 style={{ marginBottom: "0.5rem" }}>人员与部门管理</h2>
                     <p style={{ color: "var(--text-secondary)" }}>管理组织架构和人员信息</p>
                 </div>
 
