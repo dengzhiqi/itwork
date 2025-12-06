@@ -206,7 +206,7 @@ export default function Index() {
                                         <Pie
                                             data={categoryStats}
                                             cx="50%"
-                                            cy="50%"
+                                            cy="45%"
                                             labelLine={false}
                                             label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                                             outerRadius={100}
