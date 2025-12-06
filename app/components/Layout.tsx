@@ -7,9 +7,9 @@ export default function Layout({ children, user }: { children: React.ReactNode; 
     const navItems = [
         { label: "仪表盘", path: "/" },
         { label: "库存管理", path: "/inventory" },
-        { label: "分类管理", path: "/categories" },
         { label: "出库管理", path: "/transactions?type=OUT" },
         { label: "入库管理", path: "/transactions?type=IN" },
+        { label: "分类管理", path: "/categories" },
         { label: "供应商", path: "/suppliers" },
         { label: "人员管理", path: "/staff" },
     ];
