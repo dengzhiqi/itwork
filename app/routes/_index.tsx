@@ -1,128 +1,189 @@
 import type { LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
-import { Link, useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData, useSearchParams, Form, useSubmit } from "@remix-run/react";
 import Layout from "../components/Layout";
 import { requireUser } from "../utils/auth.server";
+import {
+    PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend,
+    BarChart, Bar, XAxis, YAxis, CartesianGrid
+} from "recharts";
 
 export async function loader({ request, context }: LoaderFunctionArgs) {
     const { env } = context as { env: any };
     const user = await requireUser(request, env);
+    const url = new URL(request.url);
+
+    const currentYearStr = new Date().getFullYear().toString();
+    const currentMonthStr = (new Date().getMonth() + 1).toString().padStart(2, '0');
+
+    const year = url.searchParams.get("year") || currentYearStr;
+    const month = url.searchParams.get("month") || currentMonthStr; // "all" or "01"-"12"
+
+    const isAllMonths = month === "all";
+    let dateFilter = "";
+    let params: any[] = [];
+
+    if (isAllMonths) {
+        dateFilter = "strftime('%Y', t.date) = ?";
+        params.push(year);
+    } else {
+        dateFilter = "strftime('%Y-%m', t.date) = ?";
+        params.push(`${year}-${month}`);
+    }
 
     try {
-        const currentYear = new Date().getFullYear().toString();
-        const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
-
-        // Year Stats
-        const { results: yearStats } = await env.DB.prepare(`
-            SELECT c.name as category, 
-                   SUM(CASE WHEN t.type = 'OUT' THEN t.quantity ELSE 0 END) as total_out,
-                   SUM(CASE WHEN t.type = 'IN' THEN t.quantity ELSE 0 END) as total_in
+        // Category Consumption (Pie Chart) - Only OUT transactions
+        const { results: categoryStats } = await env.DB.prepare(`
+            SELECT c.name as name, 
+                   SUM(t.quantity) as value
             FROM transactions t
             JOIN products p ON t.product_id = p.id
             JOIN categories c ON p.category_id = c.id
-            WHERE strftime('%Y', t.date) = ?
+            WHERE t.type = 'OUT' AND ${dateFilter}
             GROUP BY c.id
-            ORDER BY total_out DESC
-        `).bind(currentYear).all();
+            ORDER BY value DESC
+        `).bind(...params).all();
 
-        // Month Stats
-        const { results: monthStats } = await env.DB.prepare(`
-            SELECT c.name as category, 
-                   SUM(CASE WHEN t.type = 'OUT' THEN t.quantity ELSE 0 END) as total_out,
-                   SUM(CASE WHEN t.type = 'IN' THEN t.quantity ELSE 0 END) as total_in
+        // Department Consumption (Bar Chart) - Only OUT transactions
+        const { results: departmentStats } = await env.DB.prepare(`
+            SELECT t.department as name, 
+                   SUM(t.quantity) as value
             FROM transactions t
-            JOIN products p ON t.product_id = p.id
-            JOIN categories c ON p.category_id = c.id
-            WHERE strftime('%Y-%m', t.date) = ?
-            GROUP BY c.id
-            ORDER BY total_out DESC
-        `).bind(currentMonth).all();
+            WHERE t.type = 'OUT' AND t.department IS NOT NULL AND t.department != '' AND ${dateFilter}
+            GROUP BY t.department
+            ORDER BY value DESC
+        `).bind(...params).all();
 
         const totalItemsResult = await env.DB.prepare("SELECT COUNT(*) as count FROM products").first();
         const totalItems = totalItemsResult?.count || 0;
 
-        return json({ user, totalItems, yearStats, monthStats, currentYear, currentMonth });
+        return json({ user, totalItems, categoryStats, departmentStats, year, month });
     } catch (error) {
         console.error("Database error:", error);
-        return json({ user, totalItems: 0, yearStats: [], monthStats: [], currentYear: "", currentMonth: "" });
+        return json({ user, totalItems: 0, categoryStats: [], departmentStats: [], year, month });
     }
 }
 
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658', '#8dd1e1', '#a4de6c', '#d0ed57'];
+
 export default function Index() {
-    const { user, totalItems, yearStats, monthStats, currentYear, currentMonth } = useLoaderData<typeof loader>();
+    const { user, totalItems, categoryStats, departmentStats, year, month } = useLoaderData<typeof loader>();
+    const submit = useSubmit();
+
+    const years = Array.from({ length: 5 }, (_, i) => (new Date().getFullYear() - i).toString());
+    const months = [
+        { value: "all", label: "全年" },
+        ...Array.from({ length: 12 }, (_, i) => ({ value: (i + 1).toString().padStart(2, '0'), label: `${i + 1}月` }))
+    ];
+
+    const handleChange = (event: any) => {
+        submit(event.currentTarget.form);
+    };
 
     return (
         <Layout user={user}>
             <div style={{ display: "grid", gap: "2rem" }}>
-                {/* Header & Quick Action */}
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                {/* Header & Controls */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
                     <div>
                         <h1 style={{ marginBottom: "0.5rem" }}>仪表盘</h1>
-                        <p style={{ color: "var(--text-secondary)" }}>库存概览与统计数据 (产品总数: {totalItems})</p>
+                        <p style={{ color: "var(--text-secondary)" }}>消耗统计与分析</p>
                     </div>
-                    <div>
+
+                    <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+                        <Form method="get" style={{ display: "flex", gap: "0.5rem" }}>
+                            <select
+                                name="year"
+                                defaultValue={year}
+                                onChange={handleChange}
+                                style={{ padding: "0.5rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-light)" }}
+                            >
+                                {years.map(y => <option key={y} value={y}>{y}年</option>)}
+                            </select>
+
+                            <select
+                                name="month"
+                                defaultValue={month}
+                                onChange={handleChange}
+                                style={{ padding: "0.5rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-light)" }}
+                            >
+                                {months.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+                            </select>
+                        </Form>
+
                         <Link to="/transactions/new" className="btn btn-primary">
                             快速出库
                         </Link>
                     </div>
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))", gap: "2rem" }}>
-                    {/* Monthly Stats */}
-                    <div className="glass-panel" style={{ padding: "1.5rem" }}>
-                        <h3 style={{ fontSize: "1.25rem", marginBottom: "1.5rem", borderBottom: "1px solid var(--border-light)", paddingBottom: "0.5rem" }}>
-                            本月统计 ({currentMonth})
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(500px, 1fr))", gap: "2rem" }}>
+
+                    {/* Category Pie Chart */}
+                    <div className="glass-panel" style={{ padding: "1.5rem", minHeight: "400px" }}>
+                        <h3 style={{ fontSize: "1.25rem", marginBottom: "1rem", borderBottom: "1px solid var(--border-light)", paddingBottom: "0.5rem" }}>
+                            分类消耗占比
                         </h3>
-                        {monthStats.length > 0 ? (
-                            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                                <thead>
-                                    <tr style={{ color: "var(--text-secondary)", textAlign: "left", fontSize: "0.875rem" }}>
-                                        <th style={{ padding: "0.5rem" }}>类别</th>
-                                        <th style={{ padding: "0.5rem", textAlign: "right", color: "#fca5a5" }}>出库总数</th>
-                                        <th style={{ padding: "0.5rem", textAlign: "right", color: "#86efac" }}>入库总数</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {monthStats.map((stat: any, index: number) => (
-                                        <tr key={index} style={{ borderBottom: "1px solid var(--border-light)" }}>
-                                            <td style={{ padding: "0.75rem 0.5rem", fontWeight: 600 }}>{stat.category}</td>
-                                            <td style={{ padding: "0.75rem 0.5rem", textAlign: "right", fontWeight: "bold" }}>{stat.total_out}</td>
-                                            <td style={{ padding: "0.75rem 0.5rem", textAlign: "right", color: "var(--text-secondary)" }}>{stat.total_in}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                        {categoryStats.length > 0 ? (
+                            <div style={{ width: '100%', height: 300 }}>
+                                <ResponsiveContainer>
+                                    <PieChart>
+                                        <Pie
+                                            data={categoryStats}
+                                            cx="50%"
+                                            cy="50%"
+                                            labelLine={false}
+                                            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                            outerRadius={100}
+                                            fill="#8884d8"
+                                            dataKey="value"
+                                        >
+                                            {categoryStats.map((entry: any, index: number) => (
+                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                            ))}
+                                        </Pie>
+                                        <RechartsTooltip formatter={(value: number) => [value, "数量"]} />
+                                        <Legend />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </div>
                         ) : (
-                            <p style={{ color: "var(--text-secondary)", textAlign: "center", padding: "2rem" }}>本月暂无数据</p>
+                            <div style={{ height: "300px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-secondary)" }}>
+                                暂无数据
+                            </div>
                         )}
                     </div>
 
-                    {/* Annual Stats */}
-                    <div className="glass-panel" style={{ padding: "1.5rem" }}>
-                        <h3 style={{ fontSize: "1.25rem", marginBottom: "1.5rem", borderBottom: "1px solid var(--border-light)", paddingBottom: "0.5rem" }}>
-                            本年统计 ({currentYear})
+                    {/* Department Bar Chart */}
+                    <div className="glass-panel" style={{ padding: "1.5rem", minHeight: "400px" }}>
+                        <h3 style={{ fontSize: "1.25rem", marginBottom: "1rem", borderBottom: "1px solid var(--border-light)", paddingBottom: "0.5rem" }}>
+                            部门消耗统计
                         </h3>
-                        {yearStats.length > 0 ? (
-                            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                                <thead>
-                                    <tr style={{ color: "var(--text-secondary)", textAlign: "left", fontSize: "0.875rem" }}>
-                                        <th style={{ padding: "0.5rem" }}>类别</th>
-                                        <th style={{ padding: "0.5rem", textAlign: "right", color: "#fca5a5" }}>出库总数</th>
-                                        <th style={{ padding: "0.5rem", textAlign: "right", color: "#86efac" }}>入库总数</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {yearStats.map((stat: any, index: number) => (
-                                        <tr key={index} style={{ borderBottom: "1px solid var(--border-light)" }}>
-                                            <td style={{ padding: "0.75rem 0.5rem", fontWeight: 600 }}>{stat.category}</td>
-                                            <td style={{ padding: "0.75rem 0.5rem", textAlign: "right", fontWeight: "bold" }}>{stat.total_out}</td>
-                                            <td style={{ padding: "0.75rem 0.5rem", textAlign: "right", color: "var(--text-secondary)" }}>{stat.total_in}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                        {departmentStats.length > 0 ? (
+                            <div style={{ width: '100%', height: 300 }}>
+                                <ResponsiveContainer>
+                                    <BarChart
+                                        data={departmentStats}
+                                        layout="vertical"
+                                        margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
+                                    >
+                                        <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                                        <XAxis type="number" />
+                                        <YAxis type="category" dataKey="name" width={100} />
+                                        <RechartsTooltip cursor={{ fill: 'rgba(255, 255, 255, 0.1)' }} formatter={(value: number) => [value, "消耗数量"]} />
+                                        <Legend />
+                                        <Bar dataKey="value" name="消耗数量" fill="#8884d8">
+                                            {departmentStats.map((entry: any, index: number) => (
+                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                            ))}
+                                        </Bar>
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
                         ) : (
-                            <p style={{ color: "var(--text-secondary)", textAlign: "center", padding: "2rem" }}>本年暂无数据</p>
+                            <div style={{ height: "300px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-secondary)" }}>
+                                暂无数据
+                            </div>
                         )}
                     </div>
                 </div>
