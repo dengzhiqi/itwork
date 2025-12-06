@@ -79,13 +79,26 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
 
         const { results: departmentStats } = await env.DB.prepare(departmentQuery).bind(...departmentParams).all();
 
+        // Total Statistics - All categories with IN/OUT totals
+        const { results: totalStats } = await env.DB.prepare(`
+            SELECT c.name as category,
+                   SUM(CASE WHEN t.type = 'OUT' THEN t.quantity ELSE 0 END) as total_out,
+                   SUM(CASE WHEN t.type = 'IN' THEN t.quantity ELSE 0 END) as total_in
+            FROM transactions t
+            JOIN products p ON t.product_id = p.id
+            JOIN categories c ON p.category_id = c.id
+            WHERE ${dateFilter}
+            GROUP BY c.id
+            ORDER BY total_out DESC
+        `).bind(...params).all();
+
         const totalItemsResult = await env.DB.prepare("SELECT COUNT(*) as count FROM products").first();
         const totalItems = totalItemsResult?.count || 0;
 
-        return json({ user, totalItems, categoryStats, departmentStats, year, month, category });
+        return json({ user, totalItems, categoryStats, departmentStats, totalStats, year, month, category });
     } catch (error) {
         console.error("Database error:", error);
-        return json({ user, totalItems: 0, categoryStats: [], departmentStats: [], year, month, category: null });
+        return json({ user, totalItems: 0, categoryStats: [], departmentStats: [], totalStats: [], year, month, category: null });
     }
 }
 
@@ -110,7 +123,7 @@ const CustomPieTooltip = ({ active, payload }: any) => {
 };
 
 export default function Index() {
-    const { user, totalItems, categoryStats, departmentStats, year, month, category } = useLoaderData<typeof loader>();
+    const { user, totalItems, categoryStats, departmentStats, totalStats, year, month, category } = useLoaderData<typeof loader>();
     const submit = useSubmit();
     const [searchParams, setSearchParams] = useSearchParams();
 
@@ -156,7 +169,7 @@ export default function Index() {
                                 name="year"
                                 defaultValue={year}
                                 onChange={handleChange}
-                                style={{ padding: "0.5rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-light)", minWidth: "90px" }}
+                                style={{ padding: "0.5rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-light)", minWidth: "100px" }}
                             >
                                 {years.map(y => <option key={y} value={y}>{y}年</option>)}
                             </select>
@@ -250,7 +263,7 @@ export default function Index() {
                                 <ResponsiveContainer>
                                     <BarChart
                                         data={departmentStats}
-                                        margin={{ top: 5, right: 30, left: 20, bottom: 60 }}
+                                        margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
                                     >
                                         <CartesianGrid strokeDasharray="3 3" />
                                         <XAxis
@@ -276,6 +289,35 @@ export default function Index() {
                             </div>
                         )}
                     </div>
+                </div>
+
+                {/* Total Statistics Table */}
+                <div className="glass-panel" style={{ padding: "1.5rem" }}>
+                    <h3 style={{ fontSize: "1.25rem", marginBottom: "1.5rem", borderBottom: "1px solid var(--border-light)", paddingBottom: "0.5rem" }}>
+                        总统计
+                    </h3>
+                    {totalStats.length > 0 ? (
+                        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                            <thead>
+                                <tr style={{ color: "var(--text-secondary)", textAlign: "left", fontSize: "0.875rem" }}>
+                                    <th style={{ padding: "0.5rem" }}>类别</th>
+                                    <th style={{ padding: "0.5rem", textAlign: "right", color: "#fca5a5" }}>出库总数</th>
+                                    <th style={{ padding: "0.5rem", textAlign: "right", color: "#86efac" }}>入库总数</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {totalStats.map((stat: any, index: number) => (
+                                    <tr key={index} style={{ borderBottom: "1px solid var(--border-light)" }}>
+                                        <td style={{ padding: "0.75rem 0.5rem", fontWeight: 600 }}>{stat.category}</td>
+                                        <td style={{ padding: "0.75rem 0.5rem", textAlign: "right", fontWeight: "bold" }}>{stat.total_out}</td>
+                                        <td style={{ padding: "0.75rem 0.5rem", textAlign: "right", color: "var(--text-secondary)" }}>{stat.total_in}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    ) : (
+                        <p style={{ color: "var(--text-secondary)", textAlign: "center", padding: "2rem" }}>暂无数据</p>
+                    )}
                 </div>
             </div>
         </Layout>
