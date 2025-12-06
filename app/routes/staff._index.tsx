@@ -90,9 +90,13 @@ export async function action({ request, context }: ActionFunctionArgs) {
             return json({ error: "该部门已存在" }, { status: 400 });
         }
 
-        // Create a placeholder staff member to create the department
-        // Or we can just return success since departments are created when staff is added
-        return json({ success: true, message: "部门将在添加人员时创建" });
+        // Create a placeholder staff entry to establish the department
+        // This is a workaround since departments are derived from staff table
+        await env.DB.prepare(
+            "INSERT INTO staff (department, name) VALUES (?, ?)"
+        ).bind(deptName, "[占位]").run();
+
+        return json({ success: true, message: "部门已创建" });
     }
 
     return json({ success: false });
@@ -127,6 +131,7 @@ export default function Staff() {
                             borderBottom: activeTab === "staff" ? "2px solid var(--text-accent)" : "2px solid transparent",
                             color: activeTab === "staff" ? "var(--text-accent)" : "var(--text-secondary)",
                             fontWeight: activeTab === "staff" ? "bold" : "normal",
+                            fontSize: "1.125rem",
                             cursor: "pointer",
                             marginBottom: "-2px"
                         }}
@@ -142,6 +147,7 @@ export default function Staff() {
                             borderBottom: activeTab === "departments" ? "2px solid var(--text-accent)" : "2px solid transparent",
                             color: activeTab === "departments" ? "var(--text-accent)" : "var(--text-secondary)",
                             fontWeight: activeTab === "departments" ? "bold" : "normal",
+                            fontSize: "1.125rem",
                             cursor: "pointer",
                             marginBottom: "-2px"
                         }}
@@ -168,30 +174,28 @@ export default function Staff() {
 
                         {addingDept && (
                             <div style={{ marginBottom: "1.5rem", padding: "1rem", background: "var(--bg-secondary)", borderRadius: "var(--radius-sm)" }}>
-                                <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+                                <Form method="post" style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+                                    <input type="hidden" name="_action" value="addDept" />
                                     <input
                                         type="text"
+                                        name="deptName"
                                         value={newDept}
                                         onChange={(e) => setNewDept(e.target.value)}
                                         placeholder="输入新部门名称"
                                         style={{ flex: 1 }}
                                         autoFocus
+                                        required
                                     />
                                     <button
-                                        onClick={() => {
-                                            if (newDept.trim()) {
-                                                // Just close the form, department will be created when staff is added
-                                                alert(`部门"${newDept}"将在添加人员时自动创建`);
-                                                setNewDept("");
-                                                setAddingDept(false);
-                                            }
-                                        }}
+                                        type="submit"
                                         className="btn btn-primary"
                                         style={{ padding: "0.5rem 1rem", fontSize: "0.875rem" }}
+                                        disabled={!newDept.trim()}
                                     >
                                         确认
                                     </button>
                                     <button
+                                        type="button"
                                         onClick={() => {
                                             setNewDept("");
                                             setAddingDept(false);
@@ -201,10 +205,7 @@ export default function Staff() {
                                     >
                                         取消
                                     </button>
-                                </div>
-                                <p style={{ margin: "0.5rem 0 0 0", fontSize: "0.875rem", color: "var(--text-secondary)" }}>
-                                    提示：部门会在添加第一个人员时自动创建
-                                </p>
+                                </Form>
                             </div>
                         )}
 
