@@ -8,9 +8,9 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     const { env } = context as { env: any };
     const user = await requireUser(request, env);
 
-    // Get distinct departments from staff table
+    // Get departments from departments table
     const { results: departments } = await env.DB.prepare(
-        "SELECT DISTINCT department FROM staff WHERE department IS NOT NULL AND department != '' ORDER BY department ASC"
+        "SELECT name FROM departments ORDER BY name ASC"
     ).all();
 
     return json({ user, departments });
@@ -54,8 +54,8 @@ export default function NewStaff() {
                         <select name="department" required>
                             <option value="">选择部门...</option>
                             {departments.map((dept: any) => (
-                                <option key={dept.department} value={dept.department}>
-                                    {dept.department}
+                                <option key={dept.name} value={dept.name}>
+                                    {dept.name}
                                 </option>
                             ))}
                         </select>

@@ -18,8 +18,10 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
 
     const { results: staff } = await env.DB.prepare("SELECT * FROM staff ORDER BY department, name").all();
     const { results: suppliers } = await env.DB.prepare("SELECT * FROM suppliers ORDER BY company_name").all();
+    // Fetch departments
+    const { results: departments } = await env.DB.prepare("SELECT name FROM departments ORDER BY name ASC").all();
 
-    return json({ products, staff, suppliers, user });
+    return json({ products, staff, suppliers, departments, user });
 }
 
 export async function action({ request, context }: ActionFunctionArgs) {
@@ -63,7 +65,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
 }
 
 export default function NewTransaction() {
-    const { products, staff, suppliers, user } = useLoaderData<typeof loader>();
+    const { products, staff, suppliers, departments: loadedDepartments, user } = useLoaderData<typeof loader>();
     const navigation = useNavigation();
     const isSubmitting = navigation.state === "submitting";
 
@@ -74,7 +76,7 @@ export default function NewTransaction() {
     const [transactionType, setTransactionType] = useState(initialType);
     const [filteredStaff, setFilteredStaff] = useState<any[]>([]);
 
-    const departments = Array.from(new Set((staff as any[]).map(s => s.department)));
+    const departments = (loadedDepartments as any[]).map(d => d.name);
 
     useEffect(() => {
         if (selectedDepartment) {

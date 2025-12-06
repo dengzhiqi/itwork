@@ -15,9 +15,9 @@ export async function loader({ request, context, params }: LoaderFunctionArgs) {
         throw new Response("人员未找到", { status: 404 });
     }
 
-    // Get distinct departments from staff table
+    // Get departments from departments table
     const { results: departments } = await env.DB.prepare(
-        "SELECT DISTINCT department FROM staff WHERE department IS NOT NULL AND department != '' ORDER BY department ASC"
+        "SELECT name FROM departments ORDER BY name ASC"
     ).all();
 
     return json({ staff: staff[0], user, departments });
@@ -62,8 +62,8 @@ export default function EditStaff() {
                         <select name="department" defaultValue={staff.department} required>
                             <option value="">选择部门...</option>
                             {departments.map((dept: any) => (
-                                <option key={dept.department} value={dept.department}>
-                                    {dept.department}
+                                <option key={dept.name} value={dept.name}>
+                                    {dept.name}
                                 </option>
                             ))}
                         </select>

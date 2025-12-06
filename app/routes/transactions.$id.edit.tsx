@@ -18,11 +18,14 @@ export async function loader({ request, context, params }: LoaderFunctionArgs) {
         WHERE t.id = ?
     `).bind(id).all();
 
+    // Fetch departments
+    const { results: departments } = await env.DB.prepare("SELECT name FROM departments ORDER BY name ASC").all();
+
     if (!transactions || transactions.length === 0) {
         throw new Response("记录未找到", { status: 404 });
     }
 
-    return json({ transaction: transactions[0], user });
+    return json({ transaction: transactions[0], departments, user });
 }
 
 export async function action({ request, context, params }: ActionFunctionArgs) {
@@ -95,7 +98,7 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
 }
 
 export default function EditTransaction() {
-    const { transaction, user } = useLoaderData<typeof loader>();
+    const { transaction, departments, user } = useLoaderData<typeof loader>();
     const navigation = useNavigation();
     const isSubmitting = navigation.state === "submitting";
 
@@ -155,11 +158,9 @@ export default function EditTransaction() {
                                 <label>部门</label>
                                 <select name="department" defaultValue={transaction.department || ""}>
                                     <option value="">选择部门...</option>
-                                    <option value="IT">IT</option>
-                                    <option value="HR">人力资源</option>
-                                    <option value="Sales">销售</option>
-                                    <option value="Finance">财务</option>
-                                    <option value="Ops">运营</option>
+                                    {(departments as any[]).map((dept: any) => (
+                                        <option key={dept.name} value={dept.name}>{dept.name}</option>
+                                    ))}
                                 </select>
                             </div>
                             <div>
