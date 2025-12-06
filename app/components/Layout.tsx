@@ -9,9 +9,8 @@ export default function Layout({ children, user }: { children: React.ReactNode; 
         { label: "库存管理", path: "/inventory" },
         { label: "出库管理", path: "/transactions?type=OUT" },
         { label: "入库管理", path: "/transactions?type=IN" },
-        { label: "分类管理", path: "/categories" },
-        { label: "供应商", path: "/suppliers" },
         { label: "人员管理", path: "/staff" },
+        { label: "系统设置", path: "/settings" },
     ];
 
     return (
@@ -40,7 +39,8 @@ export default function Layout({ children, user }: { children: React.ReactNode; 
                 <nav style={{ flex: 1 }}>
                     <ul style={{ listStyle: "none" }}>
                         {navItems.map((item) => {
-                            const isActive = location.pathname === item.path;
+                            const isActive = location.pathname === item.path ||
+                                (item.path === "/settings" && location.pathname.startsWith("/settings"));
                             return (
                                 <li key={item.path} style={{ marginBottom: "0.5rem" }}>
                                     <Link
@@ -65,24 +65,8 @@ export default function Layout({ children, user }: { children: React.ReactNode; 
 
                 <div style={{ paddingTop: "1rem", borderTop: "1px solid var(--border-light)" }}>
                     {user ? (
-                        <div style={{ marginBottom: "1rem" }}>
+                        <div>
                             <p style={{ fontSize: "0.875rem", color: "var(--text-primary)" }}>{user}</p>
-                            <form action="/logout" method="post">
-                                <button
-                                    type="submit"
-                                    style={{
-                                        background: "none",
-                                        border: "none",
-                                        color: "var(--danger-color)",
-                                        fontSize: "0.875rem",
-                                        cursor: "pointer",
-                                        padding: 0,
-                                        marginTop: "0.5rem",
-                                    }}
-                                >
-                                    退出登录
-                                </button>
-                            </form>
                         </div>
                     ) : (
                         <Link to="/login" className="btn btn-primary" style={{ width: "100%", fontSize: "0.875rem" }}>

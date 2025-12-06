@@ -1,6 +1,7 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { json, redirect } from "@remix-run/cloudflare";
 import { Form, useLoaderData, useNavigation, Link } from "@remix-run/react";
+import { useState } from "react";
 import Layout from "../components/Layout";
 import { requireUser } from "../utils/auth.server";
 
@@ -18,14 +19,24 @@ export async function loader({ request, context, params }: LoaderFunctionArgs) {
         WHERE t.id = ?
     `).bind(id).all();
 
-    // Fetch departments
-    const { results: departments } = await env.DB.prepare("SELECT name FROM departments ORDER BY name ASC").all();
-
     if (!transactions || transactions.length === 0) {
         throw new Response("记录未找到", { status: 404 });
     }
 
-    return json({ transaction: transactions[0], departments, user });
+    // Get all products for the dropdown
+    const { results: products } = await env.DB.prepare(`
+        SELECT p.id, p.brand, p.model, p.stock_quantity, c.name as category 
+        FROM products p
+        JOIN categories c ON p.category_id = c.id
+        ORDER BY c.name, p.brand
+    `).all();
+
+    // Get staff and suppliers
+    const { results: staff } = await env.DB.prepare("SELECT * FROM staff ORDER BY department, name").all();
+    const { results: suppliers } = await env.DB.prepare("SELECT * FROM suppliers ORDER BY company_name").all();
+    const { results: departments } = await env.DB.prepare("SELECT name FROM departments ORDER BY name ASC").all();
+
+    return json({ transaction: transactions[0], products, staff, suppliers, departments, user });
 }
 
 export async function action({ request, context, params }: ActionFunctionArgs) {
@@ -50,11 +61,9 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
 
             // Restore stock
             if (t.type === "OUT") {
-                // Outbound was reducing stock, so add it back
                 await env.DB.prepare("UPDATE products SET stock_quantity = stock_quantity + ? WHERE id = ?")
                     .bind(t.quantity, t.product_id).run();
             } else if (t.type === "IN") {
-                // Inbound was adding stock, so subtract it back
                 await env.DB.prepare("UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ?")
                     .bind(t.quantity, t.product_id).run();
             }
@@ -62,7 +71,6 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
             // Delete the transaction
             await env.DB.prepare("DELETE FROM transactions WHERE id = ?").bind(id).run();
 
-            // Redirect based on transaction type
             const redirectPath = t.type === "OUT" ? "/transactions?type=OUT" : "/transactions?type=IN";
             return redirect(redirectPath);
         }
@@ -70,43 +78,92 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
         return redirect("/transactions");
     }
 
-    // Update action
+    // Update action - now handles all fields including product and quantity
+    const type = formData.get("type");
+    const product_id = formData.get("product_id");
+    const quantity = parseInt(formData.get("quantity") as string);
     const date = formData.get("date");
     const department = formData.get("department");
     const handler_name = formData.get("handler_name");
     const note = formData.get("note");
 
-    // Get transaction type for redirect
-    const { results: transactionData } = await env.DB.prepare(
-        "SELECT type FROM transactions WHERE id = ?"
-    ).bind(id).all();
+    // Get old transaction data
+    const { results: oldTransactions } = await env.DB.prepare(`
+        SELECT * FROM transactions WHERE id = ?
+    `).bind(id).all();
 
-    // Update only the editable fields (not product, quantity, or type)
-    await env.DB.prepare(`
-        UPDATE transactions 
-        SET date = ?, department = ?, handler_name = ?, note = ?
-        WHERE id = ?
-    `).bind(date, department, handler_name, note, id).run();
-
-    // Redirect based on transaction type
-    if (transactionData && transactionData.length > 0) {
-        const redirectPath = transactionData[0].type === "OUT" ? "/transactions?type=OUT" : "/transactions?type=IN";
-        return redirect(redirectPath);
+    if (!oldTransactions || oldTransactions.length === 0) {
+        return json({ error: "记录未找到" }, { status: 404 });
     }
 
-    return redirect("/transactions");
+    const oldTransaction = oldTransactions[0];
+
+    // Restore old stock changes
+    if (oldTransaction.type === "OUT") {
+        await env.DB.prepare("UPDATE products SET stock_quantity = stock_quantity + ? WHERE id = ?")
+            .bind(oldTransaction.quantity, oldTransaction.product_id).run();
+    } else if (oldTransaction.type === "IN") {
+        await env.DB.prepare("UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ?")
+            .bind(oldTransaction.quantity, oldTransaction.product_id).run();
+    }
+
+    // Check stock for new OUT transaction
+    if (type === "OUT") {
+        const { results } = await env.DB.prepare("SELECT stock_quantity FROM products WHERE id = ?").bind(product_id).all();
+        const currentStock = results[0]?.stock_quantity || 0;
+        if (currentStock < quantity) {
+            // Restore the old transaction's stock changes before returning error
+            if (oldTransaction.type === "OUT") {
+                await env.DB.prepare("UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ?")
+                    .bind(oldTransaction.quantity, oldTransaction.product_id).run();
+            } else if (oldTransaction.type === "IN") {
+                await env.DB.prepare("UPDATE products SET stock_quantity = stock_quantity + ? WHERE id = ?")
+                    .bind(oldTransaction.quantity, oldTransaction.product_id).run();
+            }
+            return json({ error: `库存不足 (当前: ${currentStock})` }, { status: 400 });
+        }
+    }
+
+    // Apply new stock changes
+    if (type === "OUT") {
+        await env.DB.prepare("UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ?")
+            .bind(quantity, product_id).run();
+    } else if (type === "IN") {
+        await env.DB.prepare("UPDATE products SET stock_quantity = stock_quantity + ? WHERE id = ?")
+            .bind(quantity, product_id).run();
+    }
+
+    // Update the transaction
+    await env.DB.prepare(`
+        UPDATE transactions 
+        SET type = ?, product_id = ?, quantity = ?, date = ?, department = ?, handler_name = ?, note = ?
+        WHERE id = ?
+    `).bind(type, product_id, quantity, date, department, handler_name, note, id).run();
+
+    const redirectPath = type === "OUT" ? "/transactions?type=OUT" : "/transactions?type=IN";
+    return redirect(redirectPath);
 }
 
 export default function EditTransaction() {
-    const { transaction, departments, user } = useLoaderData<typeof loader>();
+    const { transaction, products, staff, suppliers, departments: loadedDepartments, user } = useLoaderData<typeof loader>();
     const navigation = useNavigation();
     const isSubmitting = navigation.state === "submitting";
+
+    const [selectedDepartment, setSelectedDepartment] = useState(transaction.department || "");
+    const [transactionType, setTransactionType] = useState(transaction.type);
+
+    const departments = (loadedDepartments as any[]).map(d => d.name);
+
+    // Derive filteredStaff directly from props/state to ensure it's available on first render
+    const filteredStaff = selectedDepartment
+        ? (staff as any[]).filter(s => s.department === selectedDepartment)
+        : [];
 
     return (
         <Layout user={user}>
             <div className="glass-panel" style={{ padding: "2rem", maxWidth: "800px", margin: "0 auto" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-                    <h2>编辑出入库记录</h2>
+                    <h2>编辑{transactionType === "OUT" ? "出库" : "入库"}记录</h2>
                     <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
                         <Form method="post" onSubmit={(e) => !confirm("确定要删除这条记录吗？库存将会恢复。") && e.preventDefault()}>
                             <input type="hidden" name="intent" value="delete" />
@@ -125,60 +182,106 @@ export default function EditTransaction() {
                                 删除
                             </button>
                         </Form>
-                        <Link to="/transactions" style={{ color: "var(--text-secondary)" }}>取消</Link>
+                        <Link to={`/transactions?type=${transaction.type}`} style={{ color: "var(--text-secondary)" }}>取消</Link>
                     </div>
                 </div>
 
                 <Form method="post" style={{ display: "grid", gap: "1.5rem" }}>
                     <input type="hidden" name="intent" value="update" />
-                    {/* Read-only fields */}
-                    <div style={{ padding: "1rem", background: "rgba(0,0,0,0.2)", borderRadius: "var(--radius-sm)" }}>
-                        <h4 style={{ marginBottom: "1rem", fontSize: "0.875rem", color: "var(--text-secondary)" }}>不可修改的信息</h4>
-                        <div style={{ display: "grid", gap: "0.5rem", fontSize: "0.875rem" }}>
-                            <div><strong>类型：</strong>{transaction.type === "IN" ? "入库" : "出库"}</div>
-                            <div><strong>商品：</strong>[{transaction.category_name}] {transaction.brand} {transaction.model}</div>
-                            <div><strong>数量：</strong>{transaction.quantity}</div>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                        <div>
+                            <label>类型</label>
+                            <select
+                                name="type"
+                                value={transactionType}
+                                onChange={(e) => setTransactionType(e.target.value)}
+                                required
+                            >
+                                <option value="OUT">出库 (使用)</option>
+                                <option value="IN">入库 (补货)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>日期</label>
+                            <input
+                                type="date"
+                                name="date"
+                                defaultValue={transaction.date?.split('T')[0] || new Date().toISOString().split('T')[0]}
+                                required
+                            />
                         </div>
                     </div>
 
-                    {/* Editable fields */}
                     <div>
-                        <label>日期</label>
-                        <input
-                            type="date"
-                            name="date"
-                            defaultValue={transaction.date?.split('T')[0] || new Date().toISOString().split('T')[0]}
-                            required
-                        />
+                        <label>产品</label>
+                        <select name="product_id" defaultValue={transaction.product_id} required style={{ fontFamily: "monospace" }}>
+                            <option value="">选择商品...</option>
+                            {(products as any[]).map((p: any) => (
+                                <option key={p.id} value={p.id}>
+                                    [{p.category}] {p.brand} {p.model} (库存: {p.stock_quantity})
+                                </option>
+                            ))}
+                        </select>
                     </div>
 
-                    {transaction.type === "OUT" && (
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                    <div>
+                        <label>数量</label>
+                        <input type="number" name="quantity" min="1" defaultValue={transaction.quantity} required />
+                    </div>
+
+                    {transactionType === "OUT" && (
+                        <div style={{ padding: "1rem", background: "rgba(0,0,0,0.2)", borderRadius: "var(--radius-sm)" }}>
+                            <h4 style={{ marginBottom: "1rem", fontSize: "0.875rem", color: "var(--text-secondary)" }}>出库信息</h4>
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                                <div>
+                                    <label>部门</label>
+                                    <select
+                                        name="department"
+                                        value={selectedDepartment}
+                                        onChange={(e) => setSelectedDepartment(e.target.value)}
+                                        required
+                                    >
+                                        <option value="">选择部门...</option>
+                                        {departments.map((dept: string) => (
+                                            <option key={dept} value={dept}>{dept}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>经手人</label>
+                                    <select name="handler_name" defaultValue={transaction.handler_name || ""} disabled={!selectedDepartment} required>
+                                        <option value="">选择人员...</option>
+                                        {/* Show current handler if it exists and not in filtered list */}
+                                        {transaction.handler_name && !filteredStaff.some((s: any) => s.name === transaction.handler_name) && (
+                                            <option value={transaction.handler_name}>{transaction.handler_name}</option>
+                                        )}
+                                        {filteredStaff.map((s: any) => (
+                                            <option key={s.id} value={s.name}>{s.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {transactionType === "IN" && (
+                        <div style={{ padding: "1rem", background: "rgba(0,0,0,0.2)", borderRadius: "var(--radius-sm)" }}>
+                            <h4 style={{ marginBottom: "1rem", fontSize: "0.875rem", color: "var(--text-secondary)" }}>入库信息</h4>
                             <div>
-                                <label>部门</label>
-                                <select name="department" defaultValue={transaction.department || ""}>
-                                    <option value="">选择部门...</option>
-                                    {(departments as any[]).map((dept: any) => (
-                                        <option key={dept.name} value={dept.name}>{dept.name}</option>
+                                <label>供应商</label>
+                                <select name="handler_name" defaultValue={transaction.handler_name || ""}>
+                                    <option value="">选择供应商...</option>
+                                    {(suppliers as any[]).map((s: any) => (
+                                        <option key={s.id} value={s.company_name}>{s.company_name}</option>
                                     ))}
                                 </select>
                             </div>
-                            <div>
-                                <label>经手人</label>
-                                <input type="text" name="handler_name" defaultValue={transaction.handler_name || ""} placeholder="谁领取的?" />
-                            </div>
                         </div>
                     )}
 
-                    {transaction.type === "IN" && (
-                        <>
-                            <input type="hidden" name="department" value="" />
-                            <input type="hidden" name="handler_name" value="" />
-                        </>
-                    )}
-
                     <div>
-                        <label>备注 / 供应商信息</label>
+                        <label>备注</label>
                         <textarea name="note" rows={3} defaultValue={transaction.note || ""}></textarea>
                     </div>
 

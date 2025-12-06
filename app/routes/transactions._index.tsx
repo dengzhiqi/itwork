@@ -51,7 +51,7 @@ export default function Transactions() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
                     <h2>{pageTitle}</h2>
                     <div style={{ display: "flex", gap: "1rem" }}>
-                        <Link to="/transactions/export" className="btn" style={{ background: "var(--bg-glass)", border: "1px solid var(--border-light)" }} target="_blank">
+                        <Link to={`/transactions/export${currentType ? `?type=${currentType}` : ""}`} className="btn" style={{ background: "var(--bg-glass)", border: "1px solid var(--border-light)" }} target="_blank">
                             导出 CSV
                         </Link>
                         <Link to={`/transactions/new${currentType ? `?type=${currentType}` : ""}`} className="btn btn-primary">

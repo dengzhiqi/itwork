@@ -36,3 +36,12 @@ INSERT INTO categories (name, slug) VALUES ('Printing Supplies', 'printing-suppl
 INSERT INTO categories (name, slug) VALUES ('Storage Devices', 'storage-devices');
 INSERT INTO categories (name, slug) VALUES ('Cables & Adapters', 'cables-adapters');
 INSERT INTO categories (name, slug) VALUES ('Peripherals', 'peripherals');
+
+CREATE TABLE suppliers (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  company_name TEXT NOT NULL,
+  contact_person TEXT,
+  phone TEXT,
+  email TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
