@@ -19,7 +19,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
 
     // Add filtering based on type
     const filters = [];
-    const params = [];
+    const params: any[] = [];
 
     if (type === "IN") {
         filters.push("t.type = 'IN'");
@@ -54,7 +54,7 @@ export default function Transactions() {
                         <Link to="/transactions/export" className="btn" style={{ background: "var(--bg-glass)", border: "1px solid var(--border-light)" }} target="_blank">
                             导出 CSV
                         </Link>
-                        <Link to="/transactions/new" className="btn btn-primary">
+                        <Link to={`/transactions/new${currentType ? `?type=${currentType}` : ""}`} className="btn btn-primary">
                             + 新增操作
                         </Link>
                     </div>

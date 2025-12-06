@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { json, redirect } from "@remix-run/cloudflare";
-import { Form, useLoaderData, useNavigation, Link } from "@remix-run/react";
+import { Form, useLoaderData, useNavigation, Link, useSearchParams } from "@remix-run/react";
 import { useState, useEffect } from "react";
 import Layout from "../components/Layout";
 import { requireUser } from "../utils/auth.server";
@@ -67,8 +67,11 @@ export default function NewTransaction() {
     const navigation = useNavigation();
     const isSubmitting = navigation.state === "submitting";
 
+    const [searchParams] = useSearchParams();
+    const initialType = searchParams.get("type") || "OUT";
+
     const [selectedDepartment, setSelectedDepartment] = useState("");
-    const [transactionType, setTransactionType] = useState("OUT");
+    const [transactionType, setTransactionType] = useState(initialType);
     const [filteredStaff, setFilteredStaff] = useState<any[]>([]);
 
     const departments = Array.from(new Set((staff as any[]).map(s => s.department)));
