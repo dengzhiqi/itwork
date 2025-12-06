@@ -248,9 +248,27 @@ export default function Index() {
 
                     {/* Department Bar Chart */}
                     <div className="glass-panel" style={{ padding: "1.5rem", minHeight: "400px" }}>
-                        <h3 style={{ fontSize: "1.25rem", marginBottom: "1rem", borderBottom: "1px solid var(--border-light)", paddingBottom: "0.5rem" }}>
-                            部门消耗统计 {category && `(${category})`}
-                        </h3>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", borderBottom: "1px solid var(--border-light)", paddingBottom: "0.5rem" }}>
+                            <h3 style={{ fontSize: "1.25rem", margin: 0 }}>
+                                部门消耗统计 {category && `(${category})`}
+                            </h3>
+                            {category && (
+                                <button
+                                    onClick={handleClearFilter}
+                                    style={{
+                                        padding: "0.25rem 0.75rem",
+                                        background: "rgba(0, 136, 254, 0.2)",
+                                        border: "1px solid rgba(0, 136, 254, 0.4)",
+                                        borderRadius: "var(--radius-sm)",
+                                        color: "var(--text-accent)",
+                                        cursor: "pointer",
+                                        fontSize: "0.875rem"
+                                    }}
+                                >
+                                    清除筛选
+                                </button>
+                            )}
+                        </div>
                         {departmentStats.length > 0 ? (
                             <div style={{ width: '100%', height: 300 }}>
                                 <ResponsiveContainer>
