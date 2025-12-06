@@ -36,6 +36,9 @@ export default function Staff() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
                     <h2>人员管理</h2>
                     <div style={{ display: "flex", gap: "1rem" }}>
+                        <Link to="/staff/import" className="btn" style={{ background: "var(--bg-glass)", border: "1px solid var(--border-light)" }}>
+                            导入 CSV
+                        </Link>
                         <Link to="/staff/new" className="btn btn-primary">
                             + 添加人员
                         </Link>
