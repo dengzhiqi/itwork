@@ -15,11 +15,11 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     // Get departments with staff count
     const { results: departments } = await env.DB.prepare(`
         SELECT 
-            department,
-            COUNT(*) as staff_count
-        FROM staff 
-        WHERE department IS NOT NULL AND department != ''
-        GROUP BY department
+            d.name as department,
+            COUNT(s.id) as staff_count
+        FROM departments d
+        LEFT JOIN staff s ON d.name = s.department
+        GROUP BY d.id, d.name
         ORDER BY department ASC
     `).all();
 
