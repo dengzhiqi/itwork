@@ -69,6 +69,11 @@ export async function action({ request, context }: ActionFunctionArgs) {
                 error: `无法删除部门"${deptName}"，该部门还有 ${staffCount[0].count} 名人员`
             }, { status: 400 });
         }
+        
+        // Delete from departments table
+        await env.DB.prepare(
+            "DELETE FROM departments WHERE name = ?"
+        ).bind(deptName).run();
 
         return json({ success: true, message: "部门已删除" });
     }
