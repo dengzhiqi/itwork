@@ -200,7 +200,7 @@ export default function Index() {
                             分类消耗占比
                         </h3>
                         {categoryStats.length > 0 ? (
-                            <div style={{ width: '100%', height: 300 }}>
+                            <div style={{ width: '100%', height: 350 }}>
                                 <ResponsiveContainer>
                                     <PieChart>
                                         <Pie
@@ -259,7 +259,7 @@ export default function Index() {
                             )}
                         </div>
                         {departmentStats.length > 0 ? (
-                            <div style={{ width: '100%', height: 300 }}>
+                            <div style={{ width: '100%', height: 350 }}>
                                 <ResponsiveContainer>
                                     <BarChart
                                         data={departmentStats}

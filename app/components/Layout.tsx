@@ -12,7 +12,6 @@ export default function Layout({ children, user }: { children: React.ReactNode; 
         { label: "入库管理", path: "/transactions?type=IN" },
         { label: "供应商", path: "/suppliers" },
         { label: "人员管理", path: "/staff" },
-        { label: "部门管理", path: "/departments" },
     ];
 
     return (
