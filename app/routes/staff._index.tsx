@@ -289,24 +289,37 @@ export default function Staff() {
                                                         </button>
                                                     </div>
                                                 ) : (
-                                                    <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
+                                                    <div style={{ display: "flex", gap: "1rem", justifyContent: "flex-end" }}>
                                                         <button
                                                             onClick={() => {
                                                                 setEditingDept(dept.department);
                                                                 setNewDeptName(dept.department);
                                                             }}
-                                                            className="btn btn-secondary"
-                                                            style={{ padding: "0.25rem 0.75rem", fontSize: "0.875rem" }}
+                                                            style={{
+                                                                background: "none",
+                                                                border: "none",
+                                                                fontSize: "0.875rem",
+                                                                color: "var(--text-accent)",
+                                                                cursor: "pointer",
+                                                                padding: 0
+                                                            }}
                                                         >
-                                                            重命名
+                                                            编辑
                                                         </button>
                                                         <Form method="post" style={{ display: "inline" }}>
                                                             <input type="hidden" name="_action" value="deleteDept" />
                                                             <input type="hidden" name="deptName" value={dept.department} />
                                                             <button
                                                                 type="submit"
-                                                                className="btn btn-danger"
-                                                                style={{ padding: "0.25rem 0.75rem", fontSize: "0.875rem" }}
+                                                                style={{
+                                                                    background: "none",
+                                                                    border: "none",
+                                                                    padding: 0,
+                                                                    fontSize: "0.875rem",
+                                                                    color: dept.staff_count > 0 ? "var(--text-secondary)" : "var(--danger-color)",
+                                                                    cursor: dept.staff_count > 0 ? "not-allowed" : "pointer",
+                                                                    opacity: dept.staff_count > 0 ? 0.5 : 1
+                                                                }}
                                                                 disabled={dept.staff_count > 0}
                                                                 onClick={(e) => {
                                                                     if (!confirm(`确定要删除部门"${dept.department}"吗？`)) {
