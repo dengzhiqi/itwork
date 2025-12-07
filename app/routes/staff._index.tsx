@@ -180,14 +180,16 @@ export default function Staff() {
                     <div className="glass-panel" style={{ padding: "2rem" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
                             <h3 style={{ margin: 0 }}>部门列表</h3>
-                            {!addingDept && (
-                                <button
-                                    onClick={() => setAddingDept(true)}
-                                    className="btn btn-primary"
-                                >
-                                    + 添加部门
-                                </button>
-                            )}
+                            <div style={{ display: "flex", gap: "1rem" }}>
+                                {!addingDept && (
+                                    <button
+                                        onClick={() => setAddingDept(true)}
+                                        className="btn btn-primary"
+                                    >
+                                        + 添加部门
+                                    </button>
+                                )}
+                            </div>
                         </div>
 
                         {addingDept && (
