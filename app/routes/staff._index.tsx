@@ -45,10 +45,17 @@ export async function action({ request, context }: ActionFunctionArgs) {
         const oldName = formData.get("oldName");
         const newName = formData.get("newName");
 
+        // Update departments table (source of truth for department names)
+        await env.DB.prepare(
+            "UPDATE departments SET name = ? WHERE name = ?"
+        ).bind(newName, oldName).run();
+
+        // Update references in staff table
         await env.DB.prepare(
             "UPDATE staff SET department = ? WHERE department = ?"
         ).bind(newName, oldName).run();
 
+        // Update references in transactions table
         await env.DB.prepare(
             "UPDATE transactions SET department = ? WHERE department = ?"
         ).bind(newName, oldName).run();
