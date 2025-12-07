@@ -117,6 +117,8 @@ export default function Settings() {
     const activeTab = searchParams.get("tab") || "categories";
     const isAdding = navigation.formData?.get("intent")?.toString().startsWith("add");
 
+    const [isAddingSupplier, setIsAddingSupplier] = useState(false);
+
     return (
         <Layout user={user}>
             <div style={{ display: "grid", gap: "2rem" }}>
@@ -234,89 +236,112 @@ export default function Settings() {
                 {/* Suppliers Tab */}
                 {activeTab === "suppliers" && (
                     <div className="glass-panel" style={{ padding: "2rem" }}>
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "2rem" }}>
-                            {/* Add Supplier Form */}
-                            <div className="glass-card" style={{ padding: "1.5rem", height: "fit-content" }}>
-                                <h3 style={{ fontSize: "1.25rem", marginBottom: "1rem" }}>添加新供应商</h3>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
+                            <h3 style={{ margin: 0 }}>供应商列表</h3>
+                            {!isAddingSupplier && (
+                                <button
+                                    onClick={() => setIsAddingSupplier(true)}
+                                    className="btn btn-primary"
+                                >
+                                    + 添加供应商
+                                </button>
+                            )}
+                        </div>
+
+                        {isAddingSupplier && (
+                            <div style={{ marginBottom: "2rem", padding: "1.5rem", background: "var(--bg-secondary)", borderRadius: "var(--radius-sm)" }}>
                                 <Form method="post" style={{ display: "grid", gap: "1rem" }}>
-                                    <div>
-                                        <label>公司名称</label>
-                                        <input type="text" name="company_name" required />
+                                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "1rem" }}>
+                                        <div>
+                                            <label>公司名称 *</label>
+                                            <input type="text" name="company_name" required placeholder="输入公司名称" autoFocus />
+                                        </div>
+                                        <div>
+                                            <label>联系人</label>
+                                            <input type="text" name="contact_person" placeholder="输入联系人" />
+                                        </div>
+                                        <div>
+                                            <label>电话</label>
+                                            <input type="tel" name="phone" placeholder="输入电话号码" />
+                                        </div>
+                                        <div>
+                                            <label>邮箱</label>
+                                            <input type="email" name="email" placeholder="输入邮箱地址" />
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label>联系人</label>
-                                        <input type="text" name="contact_person" />
+
+                                    <div style={{ display: "flex", gap: "1rem", justifyContent: "flex-end", marginTop: "0.5rem" }}>
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsAddingSupplier(false)}
+                                            className="btn btn-secondary"
+                                            style={{ padding: "0.5rem 1.5rem" }}
+                                        >
+                                            取消
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            name="intent"
+                                            value="add_supplier"
+                                            className="btn btn-primary"
+                                            style={{ padding: "0.5rem 1.5rem" }}
+                                            disabled={isAdding}
+                                        >
+                                            {isAdding ? "保存中..." : "保存"}
+                                        </button>
                                     </div>
-                                    <div>
-                                        <label>电话</label>
-                                        <input type="tel" name="phone" />
-                                    </div>
-                                    <div>
-                                        <label>邮箱</label>
-                                        <input type="email" name="email" />
-                                    </div>
-                                    <button
-                                        type="submit"
-                                        name="intent"
-                                        value="add_supplier"
-                                        className="btn btn-primary"
-                                        disabled={isAdding}
-                                    >
-                                        {isAdding ? "添加中..." : "添加供应商"}
-                                    </button>
                                 </Form>
                             </div>
+                        )}
 
-                            {/* Suppliers List */}
-                            <div>
-                                <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                                    <thead>
-                                        <tr style={{ borderBottom: "2px solid var(--border-light)" }}>
-                                            <th style={{ padding: "1rem", textAlign: "left" }}>公司名称</th>
-                                            <th style={{ padding: "1rem", textAlign: "left" }}>联系人</th>
-                                            <th style={{ padding: "1rem", textAlign: "left" }}>电话</th>
-                                            <th style={{ padding: "1rem", textAlign: "left" }}>邮箱</th>
-                                            <th style={{ padding: "1rem", textAlign: "right" }}>操作</th>
+                        <div style={{ overflowX: "auto" }}>
+                            <table style={{ width: "100%", borderCollapse: "collapse", color: "var(--text-primary)" }}>
+                                <thead>
+                                    <tr style={{ borderBottom: "2px solid var(--border-light)", textAlign: "left" }}>
+                                        <th style={{ padding: "1rem" }}>公司名称</th>
+                                        <th style={{ padding: "1rem" }}>联系人</th>
+                                        <th style={{ padding: "1rem" }}>电话</th>
+                                        <th style={{ padding: "1rem" }}>邮箱</th>
+                                        <th style={{ padding: "1rem", textAlign: "right" }}>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {suppliers.map((s: any) => (
+                                        <tr key={s.id} style={{ borderBottom: "1px solid var(--border-light)" }}>
+                                            <td style={{ padding: "1rem", fontWeight: 600 }}>{s.company_name}</td>
+                                            <td style={{ padding: "1rem" }}>{s.contact_person || "-"}</td>
+                                            <td style={{ padding: "1rem" }}>{s.phone || "-"}</td>
+                                            <td style={{ padding: "1rem" }}>{s.email || "-"}</td>
+                                            <td style={{ padding: "1rem" }}>
+                                                <div style={{ display: "flex", gap: "1rem", justifyContent: "flex-end" }}>
+                                                    <a href={`/suppliers/${s.id}/edit`} style={{ fontSize: "0.875rem", color: "var(--text-accent)" }}>
+                                                        编辑
+                                                    </a>
+                                                    <Form method="post" style={{ display: "inline" }}>
+                                                        <input type="hidden" name="id" value={s.id} />
+                                                        <button
+                                                            type="submit"
+                                                            name="intent"
+                                                            value="delete_supplier"
+                                                            style={{ background: "none", border: "none", color: "var(--danger-color)", fontSize: "0.875rem", cursor: "pointer" }}
+                                                            onClick={(e) => !confirm("确定要删除这个供应商吗？") && e.preventDefault()}
+                                                        >
+                                                            删除
+                                                        </button>
+                                                    </Form>
+                                                </div>
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        {suppliers.map((s: any) => (
-                                            <tr key={s.id} style={{ borderBottom: "1px solid var(--border-light)" }}>
-                                                <td style={{ padding: "1rem", fontWeight: 600 }}>{s.company_name}</td>
-                                                <td style={{ padding: "1rem", color: "var(--text-secondary)" }}>{s.contact_person || "-"}</td>
-                                                <td style={{ padding: "1rem", color: "var(--text-secondary)" }}>{s.phone || "-"}</td>
-                                                <td style={{ padding: "1rem", color: "var(--text-secondary)" }}>{s.email || "-"}</td>
-                                                <td style={{ padding: "1rem", textAlign: "right" }}>
-                                                    <div style={{ display: "flex", gap: "1rem", justifyContent: "flex-end" }}>
-                                                        <a href={`/suppliers/${s.id}/edit`} style={{ fontSize: "0.875rem", color: "var(--text-accent)" }}>
-                                                            编辑
-                                                        </a>
-                                                        <Form method="post" style={{ display: "inline" }}>
-                                                            <input type="hidden" name="id" value={s.id} />
-                                                            <button
-                                                                type="submit"
-                                                                name="intent"
-                                                                value="delete_supplier"
-                                                                style={{ background: "none", border: "none", color: "var(--danger-color)", fontSize: "0.875rem", cursor: "pointer" }}
-                                                                onClick={(e) => !confirm("确定要删除这个供应商吗？") && e.preventDefault()}
-                                                            >
-                                                                删除
-                                                            </button>
-                                                        </Form>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                        {suppliers.length === 0 && (
-                                            <tr>
-                                                <td colSpan={4} style={{ padding: "2rem", textAlign: "center", color: "var(--text-secondary)" }}>
-                                                    暂无供应商。使用左侧表单添加。
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
+                                    ))}
+                                    {suppliers.length === 0 && (
+                                        <tr>
+                                            <td colSpan={5} style={{ padding: "2rem", textAlign: "center", color: "var(--text-secondary)" }}>
+                                                暂无供应商。点击上方按钮添加。
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 )}
