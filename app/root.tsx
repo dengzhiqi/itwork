@@ -6,6 +6,7 @@ import {
     ScrollRestoration,
 } from "@remix-run/react";
 import type { LinksFunction } from "@remix-run/cloudflare";
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 export const links: LinksFunction = () => [
     { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -30,7 +31,9 @@ export default function App() {
                 <Links />
             </head>
             <body>
-                <Outlet />
+                <ThemeProvider>
+                    <Outlet />
+                </ThemeProvider>
                 <ScrollRestoration />
                 <Scripts />
             </body>

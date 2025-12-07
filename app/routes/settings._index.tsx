@@ -167,6 +167,22 @@ export default function Settings() {
                     >
                         供应商管理
                     </button>
+                    <button
+                        onClick={() => window.location.href = "/settings/system"}
+                        style={{
+                            padding: "0.75rem 1.5rem",
+                            background: "none",
+                            border: "none",
+                            borderBottom: "2px solid transparent",
+                            color: "var(--text-secondary)",
+                            fontWeight: "normal",
+                            fontSize: "1.125rem",
+                            cursor: "pointer",
+                            marginBottom: "-2px"
+                        }}
+                    >
+                        系统
+                    </button>
                 </div>
 
                 {/* Categories Tab */}
