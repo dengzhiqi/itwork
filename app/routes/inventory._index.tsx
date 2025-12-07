@@ -37,9 +37,9 @@ export default function Inventory() {
                             <tr style={{ borderBottom: "1px solid var(--border-light)", textAlign: "left" }}>
                                 <th style={{ padding: "1rem" }}>分类</th>
                                 <th style={{ padding: "1rem" }}>品牌 / 型号</th>
-                                <th style={{ padding: "1rem" }}>备注</th>
                                 <th style={{ padding: "1rem" }}>价格</th>
                                 <th style={{ padding: "1rem" }}>库存</th>
+                                <th style={{ padding: "1rem" }}>备注</th>
                                 <th style={{ padding: "1rem" }}>操作</th>
                             </tr>
                         </thead>
@@ -51,9 +51,9 @@ export default function Inventory() {
                                         <div style={{ fontWeight: 600 }}>{item.model}</div>
                                         <div style={{ fontSize: "0.875rem", color: "var(--text-secondary)" }}>{item.brand}</div>
                                     </td>
-                                    <td style={{ padding: "1rem" }}>{item.supplier || "-"}</td>
                                     <td style={{ padding: "1rem" }}>¥{item.price?.toFixed(2)}</td>
-                                    <td style={{ padding: "1rem", fontWeight: "bold" }}>{item.stock_quantity}</td>
+                                    <td style={{ padding: "1rem", fontWeight: "bold", color: item.stock_quantity === 0 ? "var(--danger-color)" : "inherit" }}>{item.stock_quantity}</td>
+                                    <td style={{ padding: "1rem" }}>{item.supplier || "-"}</td>
                                     <td style={{ padding: "1rem" }}>
                                         <Link to={`/inventory/${item.id}/edit`} style={{ fontSize: "0.875rem", color: "var(--text-accent)" }}>
                                             编辑
