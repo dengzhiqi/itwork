@@ -39,7 +39,9 @@ export default function Layout({ children, user }: { children: React.ReactNode; 
                 <nav style={{ flex: 1 }}>
                     <ul style={{ listStyle: "none" }}>
                         {navItems.map((item) => {
-                            const isActive = location.pathname === item.path ||
+                            const currentPath = location.pathname + location.search;
+                            const isActive = currentPath === item.path ||
+                                location.pathname === item.path ||
                                 (item.path === "/settings" && location.pathname.startsWith("/settings"));
                             return (
                                 <li key={item.path} style={{ marginBottom: "0.5rem" }}>
