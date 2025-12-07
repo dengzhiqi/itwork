@@ -97,7 +97,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
             "INSERT INTO suppliers (company_name, contact_person, phone, email) VALUES (?, ?, ?, ?)"
         ).bind(company_name, contact_person, phone, email).run();
 
-        return redirect("/settings?tab=suppliers");
+        return json({ success: true, message: "供应商已添加" });
     }
 
     if (intent === "delete_supplier") {
