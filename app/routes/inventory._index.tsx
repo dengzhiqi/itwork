@@ -37,10 +37,10 @@ export default function Inventory() {
                             <tr style={{ borderBottom: "1px solid var(--border-light)", textAlign: "left" }}>
                                 <th style={{ padding: "1rem" }}>分类</th>
                                 <th style={{ padding: "1rem" }}>品牌 / 型号</th>
-                                <th style={{ padding: "1rem" }}>供应商</th>
+                                <th style={{ padding: "1rem" }}>备注</th>
                                 <th style={{ padding: "1rem" }}>价格</th>
                                 <th style={{ padding: "1rem" }}>库存</th>
-                                <th style={{ padding: "1rem" }}>状态</th>
+                                <th style={{ padding: "1rem" }}>操作</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -55,11 +55,9 @@ export default function Inventory() {
                                     <td style={{ padding: "1rem" }}>¥{item.price?.toFixed(2)}</td>
                                     <td style={{ padding: "1rem", fontWeight: "bold" }}>{item.stock_quantity}</td>
                                     <td style={{ padding: "1rem" }}>
-                                        {item.stock_quantity <= (item.min_stock_level || 5) ? (
-                                            <span style={{ color: "var(--danger-color)", fontSize: "0.875rem" }}>低库存</span>
-                                        ) : (
-                                            <span style={{ color: "var(--success-color)", fontSize: "0.875rem" }}>有货</span>
-                                        )}
+                                        <Link to={`/inventory/${item.id}/edit`} style={{ fontSize: "0.875rem", color: "var(--text-accent)" }}>
+                                            编辑
+                                        </Link>
                                     </td>
                                 </tr>
                             ))}
