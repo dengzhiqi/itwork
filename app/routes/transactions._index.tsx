@@ -121,7 +121,7 @@ export default function Transactions() {
                     <select
                         value={year}
                         onChange={(e) => handleFilterChange("year", e.target.value)}
-                        style={{ fontSize: "0.875rem", padding: "0.5rem" }}
+                        style={{ fontSize: "0.875rem", padding: "0.5rem", width: "100px" }}
                     >
                         {years.map(y => (
                             <option key={y} value={y}>{y}年</option>
@@ -132,7 +132,7 @@ export default function Transactions() {
                     <select
                         value={month}
                         onChange={(e) => handleFilterChange("month", e.target.value)}
-                        style={{ fontSize: "0.875rem", padding: "0.5rem" }}
+                        style={{ fontSize: "0.875rem", padding: "0.5rem", width: "90px" }}
                     >
                         <option value="">全年</option>
                         {months.map(m => (
@@ -144,7 +144,7 @@ export default function Transactions() {
                     <select
                         value={categoryId}
                         onChange={(e) => handleFilterChange("category", e.target.value)}
-                        style={{ fontSize: "0.875rem", padding: "0.5rem" }}
+                        style={{ fontSize: "0.875rem", padding: "0.5rem", width: "120px" }}
                     >
                         <option value="">全部分类</option>
                         {categories.map((c: any) => (
