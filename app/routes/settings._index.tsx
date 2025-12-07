@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/cloudflare";
 import { json, redirect } from "@remix-run/cloudflare";
-import { Form, useLoaderData, useNavigation, useSearchParams, useActionData } from "@remix-run/react";
+import { Form, useLoaderData, useNavigation, useSearchParams, useActionData, useFetcher } from "@remix-run/react";
 import { useState, useEffect } from "react";
 import Layout from "../components/Layout";
 import { requireUser } from "../utils/auth.server";
@@ -117,6 +117,7 @@ export default function Settings() {
     const { categories, suppliers, user } = useLoaderData<typeof loader>();
     const actionData = useActionData<typeof action>();
     const navigation = useNavigation();
+    const fetcher = useFetcher();
     const [searchParams, setSearchParams] = useSearchParams();
     const activeTab = searchParams.get("tab") || "categories";
     const isAdding = navigation.formData?.get("intent")?.toString().startsWith("add");
