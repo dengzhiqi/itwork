@@ -375,26 +375,33 @@ export default function Staff() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {staff.map((s: any) => (
-                                        <tr key={s.id} style={{ borderBottom: "1px solid var(--border-light)" }}>
-                                            <td style={{ padding: "1rem" }}>{s.department}</td>
-                                            <td style={{ padding: "1rem", fontWeight: 600 }}>{s.name}</td>
-                                            <td style={{ padding: "1rem" }}>
-                                                <div style={{ display: "flex", gap: "1rem" }}>
-                                                    <Link to={`/staff/${s.id}/edit`} style={{ fontSize: "0.875rem", color: "var(--text-accent)" }}>
-                                                        编辑
-                                                    </Link>
-                                                    <Form method="post" onSubmit={(e) => !confirm("确定要删除这个人员吗？") && e.preventDefault()}>
-                                                        <input type="hidden" name="_action" value="deleteStaff" />
-                                                        <input type="hidden" name="id" value={s.id} />
-                                                        <button type="submit" style={{ background: "none", border: "none", color: "var(--danger-color)", fontSize: "0.875rem", cursor: "pointer" }}>
-                                                            删除
-                                                        </button>
-                                                    </Form>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
+                                    {staff.map((s: any, index: number) => {
+                                        // Check if this is the first person in this department
+                                        const isFirstInDept = index === 0 || staff[index - 1].department !== s.department;
+
+                                        return (
+                                            <tr key={s.id} style={{ borderBottom: "1px solid var(--border-light)" }}>
+                                                <td style={{ padding: "1rem" }}>
+                                                    {isFirstInDept ? s.department : ""}
+                                                </td>
+                                                <td style={{ padding: "1rem", fontWeight: 600 }}>{s.name}</td>
+                                                <td style={{ padding: "1rem" }}>
+                                                    <div style={{ display: "flex", gap: "1rem" }}>
+                                                        <Link to={`/staff/${s.id}/edit`} style={{ fontSize: "0.875rem", color: "var(--text-accent)" }}>
+                                                            编辑
+                                                        </Link>
+                                                        <Form method="post" onSubmit={(e) => !confirm("确定要删除这个人员吗？") && e.preventDefault()}>
+                                                            <input type="hidden" name="_action" value="deleteStaff" />
+                                                            <input type="hidden" name="id" value={s.id} />
+                                                            <button type="submit" style={{ background: "none", border: "none", color: "var(--danger-color)", fontSize: "0.875rem", cursor: "pointer" }}>
+                                                                删除
+                                                            </button>
+                                                        </Form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                                     {staff.length === 0 && (
                                         <tr>
                                             <td colSpan={3} style={{ padding: "2rem", textAlign: "center", color: "var(--text-secondary)" }}>
