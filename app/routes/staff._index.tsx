@@ -185,6 +185,7 @@ export default function Staff() {
                                     <button
                                         onClick={() => setAddingDept(true)}
                                         className="btn btn-primary"
+                                        style={{ padding: "0.5rem 1rem", fontSize: "0.875rem" }}
                                     >
                                         + 添加部门
                                     </button>
