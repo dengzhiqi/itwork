@@ -1,7 +1,7 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { json, redirect } from "@remix-run/cloudflare";
 import { Form, useLoaderData, useNavigation, Link } from "@remix-run/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Layout from "../components/Layout";
 import { requireUser } from "../utils/auth.server";
 
@@ -152,9 +152,15 @@ export default function EditTransaction() {
     const isSubmitting = navigation.state === "submitting";
 
     const [selectedDepartment, setSelectedDepartment] = useState(transaction.department || "");
+    const [selectedHandler, setSelectedHandler] = useState(transaction.handler_name || "");
     const [transactionType, setTransactionType] = useState(transaction.type);
 
     const departments = (loadedDepartments as any[]).map(d => d.name);
+
+    // Clear handler when department changes
+    useEffect(() => {
+        setSelectedHandler("");
+    }, [selectedDepartment]);
 
     // Derive filteredStaff directly from props/state to ensure it's available on first render
     const filteredStaff = selectedDepartment
@@ -256,12 +262,14 @@ export default function EditTransaction() {
                                 </div>
                                 <div>
                                     <label>经手人</label>
-                                    <select name="handler_name" defaultValue={transaction.handler_name || ""} disabled={!selectedDepartment} required>
+                                    <select
+                                        name="handler_name"
+                                        value={selectedHandler}
+                                        onChange={(e) => setSelectedHandler(e.target.value)}
+                                        disabled={!selectedDepartment}
+                                        required
+                                    >
                                         <option value="">选择人员...</option>
-                                        {/* Show current handler if it exists and not in filtered list */}
-                                        {transaction.handler_name && !filteredStaff.some((s: any) => s.name === transaction.handler_name) && (
-                                            <option value={transaction.handler_name}>{transaction.handler_name}</option>
-                                        )}
                                         {filteredStaff.map((s: any) => (
                                             <option key={s.id} value={s.name}>{s.name}</option>
                                         ))}
