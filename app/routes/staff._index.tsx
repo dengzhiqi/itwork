@@ -177,14 +177,13 @@ export default function Staff() {
 
                 {/* Departments Tab */}
                 {activeTab === "departments" && (
-                    <div className="glass-panel" style={{ padding: "1.5rem" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+                    <div className="glass-panel" style={{ padding: "2rem" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
                             <h3 style={{ margin: 0 }}>部门列表</h3>
                             {!addingDept && (
                                 <button
                                     onClick={() => setAddingDept(true)}
                                     className="btn btn-primary"
-                                    style={{ padding: "0.5rem 1rem", fontSize: "0.875rem" }}
                                 >
                                     + 添加部门
                                 </button>
