@@ -117,12 +117,13 @@ export default function EditInventory() {
                 <Form method="post" style={{ display: "grid", gap: "1.5rem" }}>
                     <div>
                         <label>分类</label>
-                        <select name="category_id" defaultValue={product.category_id} required>
-                            <option value="">选择分类...</option>
-                            {categories.map((c: any) => (
-                                <option key={c.id} value={c.id}>{c.name}</option>
-                            ))}
-                        </select>
+                        <input
+                            type="text"
+                            value={categories.find((c: any) => c.id === product.category_id)?.name || "未知分类"}
+                            disabled
+                            style={{ background: "var(--bg-secondary)", cursor: "not-allowed" }}
+                        />
+                        <small style={{ color: "var(--text-secondary)", fontSize: "0.75rem" }}>分类不可修改</small>
                     </div>
 
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
