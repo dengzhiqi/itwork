@@ -181,6 +181,8 @@ export default function Staff() {
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
                             <h3 style={{ margin: 0 }}>部门列表</h3>
                             <div style={{ display: "flex", gap: "1rem" }}>
+                                {/* Placeholder to match staff tab layout */}
+                                <div style={{ width: "88px" }}></div>
                                 {!addingDept && (
                                     <button
                                         onClick={() => setAddingDept(true)}
