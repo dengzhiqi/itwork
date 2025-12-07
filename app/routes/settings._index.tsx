@@ -1,7 +1,7 @@
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/cloudflare";
 import { json, redirect } from "@remix-run/cloudflare";
 import { Form, useLoaderData, useNavigation, useSearchParams, useActionData } from "@remix-run/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Layout from "../components/Layout";
 import { requireUser } from "../utils/auth.server";
 
@@ -118,6 +118,12 @@ export default function Settings() {
     const isAdding = navigation.formData?.get("intent")?.toString().startsWith("add");
 
     const [isAddingSupplier, setIsAddingSupplier] = useState(false);
+
+    useEffect(() => {
+        if (actionData?.success && isAddingSupplier) {
+            setIsAddingSupplier(false);
+        }
+    }, [actionData, isAddingSupplier]);
 
     return (
         <Layout user={user}>
