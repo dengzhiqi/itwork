@@ -117,6 +117,7 @@ export default function EditInventory() {
                 <Form method="post" style={{ display: "grid", gap: "1.5rem" }}>
                     <div>
                         <label>分类</label>
+                        <input type="hidden" name="category_id" value={product.category_id} />
                         <input
                             type="text"
                             value={categories.find((c: any) => c.id === product.category_id)?.name || "未知分类"}
