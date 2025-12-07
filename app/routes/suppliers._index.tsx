@@ -60,15 +60,15 @@ export default function Suppliers() {
 
     return (
         <Layout user={user}>
-            <div className="glass-panel" style={{ padding: "2rem" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
+            <div className="glass-panel" style={{ padding: "2rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
                     <h2 style={{ margin: 0 }}>供应商管理</h2>
                     {!isAdding && (
                         <button
                             onClick={() => setIsAdding(true)}
                             className="btn btn-primary"
                         >
-                            + 添加供应商
+                            + 添加新供应商
                         </button>
                     )}
                 </div>
