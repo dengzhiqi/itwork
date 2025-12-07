@@ -79,7 +79,7 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
     }
 
     // Update action - now handles all fields including product and quantity
-    const type = formData.get("type");
+    // NOTE: Type is locked and cannot be changed during edit
     const product_id = formData.get("product_id");
     const quantity = parseInt(formData.get("quantity") as string);
     const date = formData.get("date");
@@ -97,6 +97,8 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
     }
 
     const oldTransaction = oldTransactions[0];
+    // Use the original type - type cannot be changed during edit
+    const type = oldTransaction.type;
 
     // Restore old stock changes
     if (oldTransaction.type === "OUT") {
@@ -191,12 +193,16 @@ export default function EditTransaction() {
 
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                         <div>
-                            <label>类型</label>
+                            <label>类型 <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>(已锁定)</span></label>
+                            <input type="hidden" name="type" value={transactionType} />
                             <select
-                                name="type"
                                 value={transactionType}
-                                onChange={(e) => setTransactionType(e.target.value)}
-                                required
+                                disabled
+                                style={{
+                                    cursor: "not-allowed",
+                                    opacity: 0.6,
+                                    backgroundColor: "rgba(0,0,0,0.3)"
+                                }}
                             >
                                 <option value="OUT">出库 (使用)</option>
                                 <option value="IN">入库 (补货)</option>
