@@ -100,46 +100,9 @@ export default function Transactions() {
     return (
         <Layout user={user}>
             <div className="glass-panel" style={{ padding: "2rem" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-                    <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                        <h2 style={{ margin: 0 }}>{pageTitle}</h2>
-
-                        {/* Year filter */}
-                        <select
-                            value={year}
-                            onChange={(e) => handleFilterChange("year", e.target.value)}
-                            style={{ fontSize: "0.8rem", padding: "0.35rem 0.5rem", minWidth: "80px" }}
-                        >
-                            {years.map(y => (
-                                <option key={y} value={y}>{y}年</option>
-                            ))}
-                        </select>
-
-                        {/* Month filter */}
-                        <select
-                            value={month}
-                            onChange={(e) => handleFilterChange("month", e.target.value)}
-                            style={{ fontSize: "0.8rem", padding: "0.35rem 0.5rem", minWidth: "70px" }}
-                        >
-                            <option value="">全年</option>
-                            {months.map(m => (
-                                <option key={m.value} value={m.value}>{m.label}</option>
-                            ))}
-                        </select>
-
-                        {/* Category filter */}
-                        <select
-                            value={categoryId}
-                            onChange={(e) => handleFilterChange("category", e.target.value)}
-                            style={{ fontSize: "0.8rem", padding: "0.35rem 0.5rem", minWidth: "100px" }}
-                        >
-                            <option value="">全部分类</option>
-                            {categories.map((c: any) => (
-                                <option key={c.id} value={c.id}>{c.name}</option>
-                            ))}
-                        </select>
-                    </div>
-
+                {/* Title and action buttons row */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                    <h2 style={{ margin: 0 }}>{pageTitle}</h2>
                     <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
                         <Link to={`/transactions/export${currentType ? `?type=${currentType}` : ""}`} className="btn" style={{ background: "var(--bg-glass)", border: "1px solid var(--border-light)", padding: "0.5rem 1rem", fontSize: "0.875rem" }} target="_blank">
                             导出 CSV
@@ -148,6 +111,46 @@ export default function Transactions() {
                             + 新增操作
                         </Link>
                     </div>
+                </div>
+
+                {/* Filters row */}
+                <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", marginBottom: "1.5rem" }}>
+                    <span style={{ fontSize: "0.875rem", color: "var(--text-secondary)" }}>筛选：</span>
+
+                    {/* Year filter */}
+                    <select
+                        value={year}
+                        onChange={(e) => handleFilterChange("year", e.target.value)}
+                        style={{ fontSize: "0.875rem", padding: "0.5rem" }}
+                    >
+                        {years.map(y => (
+                            <option key={y} value={y}>{y}年</option>
+                        ))}
+                    </select>
+
+                    {/* Month filter */}
+                    <select
+                        value={month}
+                        onChange={(e) => handleFilterChange("month", e.target.value)}
+                        style={{ fontSize: "0.875rem", padding: "0.5rem" }}
+                    >
+                        <option value="">全年</option>
+                        {months.map(m => (
+                            <option key={m.value} value={m.value}>{m.label}</option>
+                        ))}
+                    </select>
+
+                    {/* Category filter */}
+                    <select
+                        value={categoryId}
+                        onChange={(e) => handleFilterChange("category", e.target.value)}
+                        style={{ fontSize: "0.875rem", padding: "0.5rem" }}
+                    >
+                        <option value="">全部分类</option>
+                        {categories.map((c: any) => (
+                            <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                    </select>
                 </div>
 
                 <div style={{ overflowX: "auto" }}>
