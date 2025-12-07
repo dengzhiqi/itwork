@@ -1,7 +1,7 @@
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
-import { Link, useLoaderData, Form, useSearchParams } from "@remix-run/react";
-import { useState } from "react";
+import { Link, useLoaderData, Form, useSearchParams, useActionData } from "@remix-run/react";
+import { useState, useEffect } from "react";
 import Layout from "../components/Layout";
 import { requireUser } from "../utils/auth.server";
 
@@ -115,6 +115,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
 
 export default function Staff() {
     const { staff, departments, user } = useLoaderData<typeof loader>();
+    const actionData = useActionData<{ success?: boolean; error?: string; message?: string }>();
     const [searchParams, setSearchParams] = useSearchParams();
     const activeTab = searchParams.get("tab") || "staff";
 
@@ -122,6 +123,13 @@ export default function Staff() {
     const [newDeptName, setNewDeptName] = useState("");
     const [addingDept, setAddingDept] = useState(false);
     const [newDept, setNewDept] = useState("");
+
+    useEffect(() => {
+        if (actionData?.success && addingDept) {
+            setAddingDept(false);
+            setNewDept("");
+        }
+    }, [actionData, addingDept]);
 
     return (
         <Layout user={user}>
