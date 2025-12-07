@@ -101,14 +101,14 @@ export default function Transactions() {
         <Layout user={user}>
             <div className="glass-panel" style={{ padding: "2rem" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-                    <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+                    <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
                         <h2 style={{ margin: 0 }}>{pageTitle}</h2>
 
                         {/* Year filter */}
                         <select
                             value={year}
                             onChange={(e) => handleFilterChange("year", e.target.value)}
-                            style={{ fontSize: "0.875rem", padding: "0.5rem" }}
+                            style={{ fontSize: "0.8rem", padding: "0.35rem 0.5rem", minWidth: "80px" }}
                         >
                             {years.map(y => (
                                 <option key={y} value={y}>{y}年</option>
@@ -119,7 +119,7 @@ export default function Transactions() {
                         <select
                             value={month}
                             onChange={(e) => handleFilterChange("month", e.target.value)}
-                            style={{ fontSize: "0.875rem", padding: "0.5rem" }}
+                            style={{ fontSize: "0.8rem", padding: "0.35rem 0.5rem", minWidth: "70px" }}
                         >
                             <option value="">全年</option>
                             {months.map(m => (
@@ -131,7 +131,7 @@ export default function Transactions() {
                         <select
                             value={categoryId}
                             onChange={(e) => handleFilterChange("category", e.target.value)}
-                            style={{ fontSize: "0.875rem", padding: "0.5rem" }}
+                            style={{ fontSize: "0.8rem", padding: "0.35rem 0.5rem", minWidth: "100px" }}
                         >
                             <option value="">全部分类</option>
                             {categories.map((c: any) => (
