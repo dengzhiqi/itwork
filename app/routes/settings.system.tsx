@@ -1,9 +1,11 @@
 import { json, type LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { useLoaderData } from "@remix-run/react";
+import { useState } from "react";
 import Layout from "../components/Layout";
 import { requireUser } from "../utils/auth.server";
 import { useTheme } from "../contexts/ThemeContext";
-import { themes } from "../utils/themes";
+import { themes, loadCustomColors, saveCustomColors, defaultCustomColors, type CustomThemeColors } from "../utils/themes";
+import { ColorPicker } from "../components/ColorPicker";
 
 export async function loader({ request, context }: LoaderFunctionArgs) {
     const { env } = context as { env: any };
@@ -13,9 +15,29 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
 
 export default function SystemSettings() {
     const { user } = useLoaderData<typeof loader>();
-    const { currentTheme, setTheme } = useTheme();
+    const { currentTheme, setTheme, updateCustomColors } = useTheme();
+    const [customColors, setCustomColorsState] = useState<CustomThemeColors>(loadCustomColors());
+    const [showCustomEditor, setShowCustomEditor] = useState(false);
 
     const themeList = Object.values(themes);
+
+    const handleCustomColorChange = (key: keyof CustomThemeColors, value: string) => {
+        const newColors = { ...customColors, [key]: value };
+        setCustomColorsState(newColors);
+        updateCustomColors(newColors);
+    };
+
+    const handleSaveCustom = () => {
+        saveCustomColors(customColors);
+        setTheme('custom');
+        setShowCustomEditor(false);
+    };
+
+    const handleResetCustom = () => {
+        setCustomColorsState(defaultCustomColors);
+        updateCustomColors(defaultCustomColors);
+        saveCustomColors(defaultCustomColors);
+    };
 
     return (
         <Layout user={user}>
@@ -128,7 +150,123 @@ export default function SystemSettings() {
                                 </button>
                             );
                         })}
+
+                        {/* Custom Theme Card */}
+                        <div
+                            style={{
+                                position: "relative",
+                                padding: "1.5rem",
+                                background: "var(--bg-panel)",
+                                border: currentTheme === 'custom'
+                                    ? "2px solid var(--text-accent)"
+                                    : "2px solid var(--border-light)",
+                                borderRadius: "var(--radius-md)",
+                                borderStyle: "dashed",
+                            }}
+                        >
+                            {currentTheme === 'custom' && (
+                                <div style={{
+                                    position: "absolute",
+                                    top: "0.75rem",
+                                    right: "0.75rem",
+                                    width: "24px",
+                                    height: "24px",
+                                    borderRadius: "50%",
+                                    background: "var(--primary-gradient)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    color: "white",
+                                    fontSize: "0.75rem",
+                                    fontWeight: "bold",
+                                }}>
+                                    ✓
+                                </div>
+                            )}
+
+                            <h4 style={{
+                                fontSize: "1rem",
+                                fontWeight: "600",
+                                color: "var(--text-primary)",
+                                marginBottom: "0.5rem"
+                            }}>
+                                自定义主题
+                            </h4>
+
+                            <p style={{
+                                fontSize: "0.75rem",
+                                color: "var(--text-secondary)",
+                                marginBottom: "1rem"
+                            }}>
+                                创建您的专属配色
+                            </p>
+
+                            <button
+                                onClick={() => setShowCustomEditor(!showCustomEditor)}
+                                className="btn btn-primary"
+                                style={{
+                                    width: "100%",
+                                    padding: "0.5rem 1rem",
+                                    fontSize: "0.875rem"
+                                }}
+                            >
+                                {showCustomEditor ? '收起' : '自定义配色'}
+                            </button>
+                        </div>
                     </div>
+
+                    {/* Custom Theme Editor */}
+                    {showCustomEditor && (
+                        <div style={{
+                            marginTop: "2rem",
+                            padding: "2rem",
+                            background: "var(--bg-card)",
+                            borderRadius: "var(--radius-md)",
+                            border: "1px solid var(--border-light)"
+                        }}>
+                            <h4 style={{ fontSize: "1.125rem", marginBottom: "1.5rem" }}>自定义主题颜色</h4>
+
+                            <div style={{ display: "grid", gap: "1.5rem", marginBottom: "2rem" }}>
+                                <ColorPicker
+                                    label="主色调 1 (渐变起始)"
+                                    value={customColors.primaryColor1}
+                                    onChange={(value) => handleCustomColorChange('primaryColor1', value)}
+                                />
+                                <ColorPicker
+                                    label="主色调 2 (渐变结束)"
+                                    value={customColors.primaryColor2}
+                                    onChange={(value) => handleCustomColorChange('primaryColor2', value)}
+                                />
+                                <ColorPicker
+                                    label="大标题颜色"
+                                    value={customColors.headingColor}
+                                    onChange={(value) => handleCustomColorChange('headingColor', value)}
+                                />
+                                <ColorPicker
+                                    label="正文颜色"
+                                    value={customColors.textColor}
+                                    onChange={(value) => handleCustomColorChange('textColor', value)}
+                                />
+                            </div>
+
+                            <div style={{ display: "flex", gap: "1rem" }}>
+                                <button
+                                    onClick={handleSaveCustom}
+                                    className="btn btn-primary"
+                                    style={{ flex: 1 }}
+                                >
+                                    保存并应用
+                                </button>
+                                <button
+                                    onClick={handleResetCustom}
+                                    className="btn btn-secondary"
+                                    style={{ flex: 1 }}
+                                >
+                                    重置为默认
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </Layout>

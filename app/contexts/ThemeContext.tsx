@@ -1,10 +1,11 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { getTheme, defaultTheme, type Theme } from '../utils/themes';
+import { getTheme, defaultTheme, type Theme, type CustomThemeColors, loadCustomColors } from '../utils/themes';
 
 interface ThemeContextType {
     currentTheme: string;
     theme: Theme;
     setTheme: (themeName: string) => void;
+    updateCustomColors: (colors: CustomThemeColors) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -12,6 +13,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export function ThemeProvider({ children }: { children: ReactNode }) {
     const [currentTheme, setCurrentTheme] = useState<string>(defaultTheme);
     const [theme, setThemeData] = useState<Theme>(getTheme(defaultTheme));
+    const [customColors, setCustomColors] = useState<CustomThemeColors>(loadCustomColors());
 
     // Load theme from localStorage on mount
     useEffect(() => {
@@ -19,7 +21,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme) {
                 setCurrentTheme(savedTheme);
-                setThemeData(getTheme(savedTheme));
+                setThemeData(getTheme(savedTheme, customColors));
             }
         }
     }, []);
@@ -50,14 +52,21 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
     const setTheme = (themeName: string) => {
         setCurrentTheme(themeName);
-        setThemeData(getTheme(themeName));
+        setThemeData(getTheme(themeName, customColors));
         if (typeof window !== 'undefined') {
             localStorage.setItem('theme', themeName);
         }
     };
 
+    const updateCustomColors = (colors: CustomThemeColors) => {
+        setCustomColors(colors);
+        if (currentTheme === 'custom') {
+            setThemeData(getTheme('custom', colors));
+        }
+    };
+
     return (
-        <ThemeContext.Provider value={{ currentTheme, theme, setTheme }}>
+        <ThemeContext.Provider value={{ currentTheme, theme, setTheme, updateCustomColors }}>
             {children}
         </ThemeContext.Provider>
     );

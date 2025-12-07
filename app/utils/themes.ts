@@ -94,6 +94,65 @@ export const themes: Record<string, Theme> = {
 
 export const defaultTheme = 'ocean-blue';
 
-export function getTheme(themeName: string): Theme {
+export interface CustomThemeColors {
+    primaryColor1: string;
+    primaryColor2: string;
+    headingColor: string;
+    textColor: string;
+}
+
+export const defaultCustomColors: CustomThemeColors = {
+    primaryColor1: '#38bdf8',
+    primaryColor2: '#818cf8',
+    headingColor: '#ffffff',
+    textColor: '#f1f5f9',
+};
+
+export function loadCustomColors(): CustomThemeColors {
+    if (typeof window === 'undefined') return defaultCustomColors;
+
+    const saved = localStorage.getItem('customThemeColors');
+    if (saved) {
+        try {
+            return JSON.parse(saved);
+        } catch {
+            return defaultCustomColors;
+        }
+    }
+    return defaultCustomColors;
+}
+
+export function saveCustomColors(colors: CustomThemeColors) {
+    if (typeof window !== 'undefined') {
+        localStorage.setItem('customThemeColors', JSON.stringify(colors));
+    }
+}
+
+export function generateCustomTheme(colors: CustomThemeColors): Theme {
+    return {
+        name: 'custom',
+        displayName: '自定义主题',
+        colors: {
+            bgApp: '#0f172a',
+            bgPanel: 'rgba(30, 41, 59, 0.7)',
+            bgCard: 'rgba(51, 65, 85, 0.5)',
+            textPrimary: colors.textColor,
+            textSecondary: '#94a3b8',
+            textAccent: colors.primaryColor1,
+            borderLight: 'rgba(148, 163, 184, 0.1)',
+            primaryGradient: `linear-gradient(135deg, ${colors.primaryColor1} 0%, ${colors.primaryColor2} 100%)`,
+            dangerColor: '#ef4444',
+            successColor: '#22c55e',
+            backgroundGradient1: `${colors.primaryColor1}26`,
+            backgroundGradient2: `${colors.primaryColor2}26`,
+        },
+    };
+}
+
+export function getTheme(themeName: string, customColors?: CustomThemeColors): Theme {
+    if (themeName === 'custom') {
+        const colors = customColors || loadCustomColors();
+        return generateCustomTheme(colors);
+    }
     return themes[themeName] || themes[defaultTheme];
 }
