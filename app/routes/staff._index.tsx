@@ -359,7 +359,7 @@ export default function Staff() {
                                 <Link to="/staff/import" className="btn" style={{ background: "var(--bg-glass)", border: "1px solid var(--border-light)", padding: "0.5rem 1rem", fontSize: "0.875rem" }}>
                                     导入 CSV
                                 </Link>
-                                <Link to="/staff/new" className="btn btn-primary">
+                                <Link to="/staff/new" className="btn btn-primary" style={{ padding: "0.5rem 1rem", fontSize: "0.875rem" }}>
                                     + 添加人员
                                 </Link>
                             </div>
