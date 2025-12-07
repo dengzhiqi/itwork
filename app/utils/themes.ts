@@ -99,6 +99,7 @@ export interface CustomThemeColors {
     primaryColor2: string;
     headingColor: string;
     textColor: string;
+    backgroundColor: string;
 }
 
 export const defaultCustomColors: CustomThemeColors = {
@@ -106,6 +107,7 @@ export const defaultCustomColors: CustomThemeColors = {
     primaryColor2: '#818cf8',
     headingColor: '#ffffff',
     textColor: '#f1f5f9',
+    backgroundColor: '#0f172a',
 };
 
 export function loadCustomColors(): CustomThemeColors {
@@ -133,9 +135,9 @@ export function generateCustomTheme(colors: CustomThemeColors): Theme {
         name: 'custom',
         displayName: '自定义主题',
         colors: {
-            bgApp: '#0f172a',
-            bgPanel: 'rgba(30, 41, 59, 0.7)',
-            bgCard: 'rgba(51, 65, 85, 0.5)',
+            bgApp: colors.backgroundColor,
+            bgPanel: `${colors.backgroundColor}b3`,
+            bgCard: `${colors.backgroundColor}80`,
             textPrimary: colors.textColor,
             textSecondary: '#94a3b8',
             textAccent: colors.primaryColor1,

@@ -228,6 +228,11 @@ export default function SystemSettings() {
 
                             <div style={{ display: "grid", gap: "1.5rem", marginBottom: "2rem" }}>
                                 <ColorPicker
+                                    label="背景颜色"
+                                    value={customColors.backgroundColor}
+                                    onChange={(value) => handleCustomColorChange('backgroundColor', value)}
+                                />
+                                <ColorPicker
                                     label="主色调 1 (渐变起始)"
                                     value={customColors.primaryColor1}
                                     onChange={(value) => handleCustomColorChange('primaryColor1', value)}
