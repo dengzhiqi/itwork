@@ -10,6 +10,15 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     const url = new URL(request.url);
     const type = url.searchParams.get("type"); // "IN" or "OUT" (or null for all)
 
+    // Get current year and month for defaults
+    const currentYear = new Date().getFullYear();
+    const currentMonth = (new Date().getMonth() + 1).toString().padStart(2, '0');
+
+    // Get filter parameters with defaults
+    const year = url.searchParams.get("year") || currentYear.toString();
+    const month = url.searchParams.get("month") || (type === "OUT" ? currentMonth : "");
+    const categoryId = url.searchParams.get("category") || "";
+
     let query = `
     SELECT t.*, p.brand, p.model, c.name as category_name 
     FROM transactions t
@@ -17,7 +26,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     JOIN categories c ON p.category_id = c.id
     `;
 
-    // Add filtering based on type
+    // Add filtering based on type and filters
     const filters = [];
     const params: any[] = [];
 
@@ -27,34 +36,112 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
         filters.push("t.type = 'OUT'");
     }
 
+    // Year filter
+    if (year) {
+        filters.push("strftime('%Y', t.date) = ?");
+        params.push(year);
+    }
+
+    // Month filter (optional)
+    if (month) {
+        filters.push("strftime('%m', t.date) = ?");
+        params.push(month.padStart(2, '0'));
+    }
+
+    // Category filter (optional)
+    if (categoryId) {
+        filters.push("p.category_id = ?");
+        params.push(categoryId);
+    }
+
     if (filters.length > 0) {
         query += " WHERE " + filters.join(" AND ");
     }
 
-    query += ` ORDER BY t.date DESC, t.id DESC LIMIT 50`;
+    query += ` ORDER BY t.date DESC, t.id DESC LIMIT 500`;
 
     const { results: transactions } = await env.DB.prepare(query).bind(...params).all();
 
-    return json({ transactions, user, type });
+    // Load categories for filter
+    const { results: categories } = await env.DB.prepare(
+        "SELECT id, name FROM categories ORDER BY name"
+    ).all();
+
+    return json({ transactions, user, type, categories, year, month, categoryId });
 }
 
 export default function Transactions() {
-    const { transactions, user, type } = useLoaderData<typeof loader>();
-    const [searchParams] = useSearchParams();
+    const { transactions, user, type, categories, year, month, categoryId } = useLoaderData<typeof loader>();
+    const [searchParams, setSearchParams] = useSearchParams();
     const currentType = searchParams.get("type") || type;
 
     const pageTitle = currentType === "IN" ? "入库管理" : (currentType === "OUT" ? "出库管理" : "出入库记录");
+
+    // Generate year options (current year and past 5 years)
+    const currentYear = new Date().getFullYear();
+    const years = Array.from({ length: 6 }, (_, i) => currentYear - i);
+
+    // Generate month options
+    const months = Array.from({ length: 12 }, (_, i) => ({
+        value: (i + 1).toString().padStart(2, '0'),
+        label: `${i + 1}月`
+    }));
+
+    const handleFilterChange = (key: string, value: string) => {
+        const newParams = new URLSearchParams(searchParams);
+        if (value) {
+            newParams.set(key, value);
+        } else {
+            newParams.delete(key);
+        }
+        setSearchParams(newParams);
+    };
 
     return (
         <Layout user={user}>
             <div className="glass-panel" style={{ padding: "2rem" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
                     <h2>{pageTitle}</h2>
-                    <div style={{ display: "flex", gap: "1rem" }}>
-                        <Link to={`/transactions/export${currentType ? `?type=${currentType}` : ""}`} className="btn" style={{ background: "var(--bg-glass)", border: "1px solid var(--border-light)" }} target="_blank">
+                    <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
+                        {/* Year filter */}
+                        <select
+                            value={year}
+                            onChange={(e) => handleFilterChange("year", e.target.value)}
+                            style={{ fontSize: "0.875rem", padding: "0.5rem" }}
+                        >
+                            {years.map(y => (
+                                <option key={y} value={y}>{y}年</option>
+                            ))}
+                        </select>
+
+                        {/* Month filter */}
+                        <select
+                            value={month}
+                            onChange={(e) => handleFilterChange("month", e.target.value)}
+                            style={{ fontSize: "0.875rem", padding: "0.5rem" }}
+                        >
+                            <option value="">全年</option>
+                            {months.map(m => (
+                                <option key={m.value} value={m.value}>{m.label}</option>
+                            ))}
+                        </select>
+
+                        {/* Category filter */}
+                        <select
+                            value={categoryId}
+                            onChange={(e) => handleFilterChange("category", e.target.value)}
+                            style={{ fontSize: "0.875rem", padding: "0.5rem" }}
+                        >
+                            <option value="">全部分类</option>
+                            {categories.map((c: any) => (
+                                <option key={c.id} value={c.id}>{c.name}</option>
+                            ))}
+                        </select>
+
+                        <Link to={`/transactions/export${currentType ? `?type=${currentType}` : ""}`} className="btn" style={{ background: "var(--bg-glass)", border: "1px solid var(--border-light)", padding: "0.5rem 1rem", fontSize: "0.875rem" }} target="_blank">
                             导出 CSV
                         </Link>
-                        <Link to={`/transactions/new${currentType ? `?type=${currentType}` : ""}`} className="btn btn-primary">
+                        <Link to={`/transactions/new${currentType ? `?type=${currentType}` : ""}`} className="btn btn-primary" style={{ padding: "0.5rem 1rem", fontSize: "0.875rem" }}>
                             + 新增操作
                         </Link>
                     </div>
