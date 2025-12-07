@@ -104,8 +104,8 @@ export default function Transactions() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
                     <h2 style={{ margin: 0 }}>{pageTitle}</h2>
                     <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
-                        <Link to={`/transactions/export${currentType ? `?type=${currentType}` : ""}`} className="btn" style={{ background: "var(--bg-glass)", border: "1px solid var(--border-light)", padding: "0.5rem 1rem", fontSize: "0.875rem" }} target="_blank">
-                            导出 CSV
+                        <Link to={`/transactions/export?type=${currentType}&year=${year}&month=${month}&category=${categoryId}`} className="btn" style={{ background: "var(--bg-glass)", border: "1px solid var(--border-light)", padding: "0.5rem 1rem", fontSize: "0.875rem" }} target="_blank">
+                            导出查询结果
                         </Link>
                         <Link to={`/transactions/new${currentType ? `?type=${currentType}` : ""}`} className="btn btn-primary" style={{ padding: "0.5rem 1rem", fontSize: "0.875rem" }}>
                             + 新增操作
@@ -158,7 +158,6 @@ export default function Transactions() {
                         <thead>
                             <tr style={{ borderBottom: "1px solid var(--border-light)", textAlign: "left" }}>
                                 <th style={{ padding: "1rem" }}>日期</th>
-                                {currentType && <th style={{ padding: "1rem" }}>类型</th>}
                                 <th style={{ padding: "1rem" }}>分类</th>
                                 <th style={{ padding: "1rem" }}>品牌型号</th>
                                 <th style={{ padding: "1rem" }}>数量</th>
@@ -179,22 +178,6 @@ export default function Transactions() {
                             {transactions.map((t: any) => (
                                 <tr key={t.id} style={{ borderBottom: "1px solid var(--border-light)" }}>
                                     <td style={{ padding: "1rem", whiteSpace: "nowrap" }}>{new Date(t.date).toLocaleDateString()}</td>
-
-                                    {currentType && (
-                                        <td style={{ padding: "1rem" }}>
-                                            <span
-                                                style={{
-                                                    padding: "0.25rem 0.5rem",
-                                                    borderRadius: "4px",
-                                                    fontSize: "0.75rem",
-                                                    background: t.type === "IN" ? "rgba(34, 197, 94, 0.2)" : "rgba(239, 68, 68, 0.2)",
-                                                    color: t.type === "IN" ? "#86efac" : "#fca5a5",
-                                                }}
-                                            >
-                                                {t.type === "IN" ? "入库" : "出库"}
-                                            </span>
-                                        </td>
-                                    )}
 
                                     <td style={{ padding: "1rem" }}>{t.category_name}</td>
                                     <td style={{ padding: "1rem" }}>

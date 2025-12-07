@@ -7,11 +7,13 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
 
     const url = new URL(request.url);
     const type = url.searchParams.get("type");
+    const year = url.searchParams.get("year");
+    const month = url.searchParams.get("month");
+    const categoryId = url.searchParams.get("category");
 
     let query = `
     SELECT 
         t.date,
-        t.type,
         c.name as category,
         p.brand,
         p.model,
@@ -24,13 +26,38 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     JOIN categories c ON p.category_id = c.id
     `;
 
+    const filters = [];
     const params: any[] = [];
+
+    // Type filter
     if (type === "IN") {
-        query += " WHERE t.type = ?";
+        filters.push("t.type = ?");
         params.push("IN");
     } else if (type === "OUT") {
-        query += " WHERE t.type = ?";
+        filters.push("t.type = ?");
         params.push("OUT");
+    }
+
+    // Year filter
+    if (year) {
+        filters.push("strftime('%Y', t.date) = ?");
+        params.push(year);
+    }
+
+    // Month filter
+    if (month) {
+        filters.push("strftime('%m', t.date) = ?");
+        params.push(month.padStart(2, '0'));
+    }
+
+    // Category filter
+    if (categoryId) {
+        filters.push("p.category_id = ?");
+        params.push(categoryId);
+    }
+
+    if (filters.length > 0) {
+        query += " WHERE " + filters.join(" AND ");
     }
 
     query += " ORDER BY t.date DESC, t.id DESC";
@@ -38,13 +65,12 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     try {
         const { results: transactions } = await env.DB.prepare(query).bind(...params).all();
 
-        // CSV Header
-        const header = ["日期", "类型", "分类", "品牌", "型号", "数量", "部门", "经手人", "备注"];
+        // CSV Header (removed "类型")
+        const header = ["日期", "分类", "品牌", "型号", "数量", "部门", "经手人", "备注"];
 
         // CSV Rows
         const rows = (transactions as any[]).map((t: any) => [
             new Date(t.date).toLocaleDateString(),
-            t.type === "IN" ? "入库" : "出库",
             t.category,
             t.brand,
             t.model,
@@ -64,7 +90,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
         const bom = "\uFEFF";
         const finalContent = bom + csvContent;
 
-        const filename = `transactions${type ? `-${type}` : ""}-${new Date().toISOString().split('T')[0]}.csv`;
+        const filename = `transactions${type ? `-${type}` : ""}${year ? `-${year}` : ""}${month ? `-${month}` : ""}-${new Date().toISOString().split('T')[0]}.csv`;
 
         return new Response(finalContent, {
             headers: {
