@@ -12,7 +12,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     SELECT p.*, c.name as category_name 
     FROM products p 
     JOIN categories c ON p.category_id = c.id 
-    ORDER BY p.brand, p.model
+    ORDER BY c.name, p.brand, p.model
   `).all();
 
     return json({ products, user });
