@@ -90,71 +90,29 @@ export const themes: Record<string, Theme> = {
             backgroundGradient2: 'rgba(139, 92, 246, 0.12)',
         },
     },
+    'warm-ivory': {
+        name: 'warm-ivory',
+        displayName: 'Warm Ivory',
+        colors: {
+            bgApp: '#fdfcfa',
+            bgPanel: 'rgba(255, 253, 250, 0.95)',
+            bgCard: 'rgba(250, 248, 245, 0.9)',
+            textPrimary: '#2c2a28',
+            textSecondary: '#6b6560',
+            textAccent: '#8b7355',
+            borderLight: 'rgba(139, 115, 85, 0.15)',
+            primaryGradient: 'linear-gradient(135deg, #a08060 0%, #8b7355 100%)',
+            dangerColor: '#dc2626',
+            successColor: '#16a34a',
+            backgroundGradient1: 'rgba(160, 128, 96, 0.08)',
+            backgroundGradient2: 'rgba(139, 115, 85, 0.08)',
+        },
+    },
 };
 
 export const defaultTheme = 'ocean-blue';
 
-export interface CustomThemeColors {
-    primaryColor1: string;
-    primaryColor2: string;
-    headingColor: string;
-    textColor: string;
-    backgroundColor: string;
-}
-
-export const defaultCustomColors: CustomThemeColors = {
-    primaryColor1: '#38bdf8',
-    primaryColor2: '#818cf8',
-    headingColor: '#ffffff',
-    textColor: '#f1f5f9',
-    backgroundColor: '#0f172a',
-};
-
-export function loadCustomColors(): CustomThemeColors {
-    if (typeof window === 'undefined') return defaultCustomColors;
-
-    const saved = localStorage.getItem('customThemeColors');
-    if (saved) {
-        try {
-            return JSON.parse(saved);
-        } catch {
-            return defaultCustomColors;
-        }
-    }
-    return defaultCustomColors;
-}
-
-export function saveCustomColors(colors: CustomThemeColors) {
-    if (typeof window !== 'undefined') {
-        localStorage.setItem('customThemeColors', JSON.stringify(colors));
-    }
-}
-
-export function generateCustomTheme(colors: CustomThemeColors): Theme {
-    return {
-        name: 'custom',
-        displayName: '自定义主题',
-        colors: {
-            bgApp: colors.backgroundColor,
-            bgPanel: `${colors.backgroundColor}b3`,
-            bgCard: `${colors.backgroundColor}80`,
-            textPrimary: colors.textColor,
-            textSecondary: '#94a3b8',
-            textAccent: colors.primaryColor1,
-            borderLight: 'rgba(148, 163, 184, 0.1)',
-            primaryGradient: `linear-gradient(135deg, ${colors.primaryColor1} 0%, ${colors.primaryColor2} 100%)`,
-            dangerColor: '#ef4444',
-            successColor: '#22c55e',
-            backgroundGradient1: `${colors.primaryColor1}26`,
-            backgroundGradient2: `${colors.primaryColor2}26`,
-        },
-    };
-}
-
-export function getTheme(themeName: string, customColors?: CustomThemeColors): Theme {
-    if (themeName === 'custom') {
-        const colors = customColors || loadCustomColors();
-        return generateCustomTheme(colors);
-    }
+export function getTheme(themeName: string): Theme {
     return themes[themeName] || themes[defaultTheme];
 }
+
