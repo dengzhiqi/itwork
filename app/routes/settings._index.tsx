@@ -884,9 +884,9 @@ export default function Settings() {
                                             color: theme.colors.textSecondary,
                                         }}>
                                             {theme.name === 'ocean-blue' && '经典蓝色主题'}
-                                            {theme.name === 'warm-sunset' && '温暖米黄主题'}
-                                            {theme.name === 'forest-green' && '清新绿色主题'}
-                                            {theme.name === 'purple-dream' && '优雅紫色主题'}
+                                            {theme.name === 'warm-sunset' && '温暖琥珀夜色'}
+                                            {theme.name === 'forest-green' && '深邃翡翠森林'}
+                                            {theme.name === 'purple-dream' && '优雅丝绒之夜'}
                                         </div>
                                     </button>
                                 );
