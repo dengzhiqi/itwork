@@ -116,3 +116,31 @@ export function getTheme(themeName: string): Theme {
     return themes[themeName] || themes[defaultTheme];
 }
 
+// Compatibility exports for legacy code
+export interface CustomThemeColors {
+    backgroundColor: string;
+    primaryColor1: string;
+    primaryColor2: string;
+    headingColor: string;
+    textColor: string;
+}
+
+export const defaultCustomColors: CustomThemeColors = {
+    backgroundColor: '#0f172a',
+    primaryColor1: '#38bdf8',
+    primaryColor2: '#818cf8',
+    headingColor: '#f1f5f9',
+    textColor: '#94a3b8',
+};
+
+export function loadCustomColors(): CustomThemeColors {
+    return defaultCustomColors;
+}
+
+export function saveCustomColors(_colors: CustomThemeColors): void {
+    // No-op for compatibility
+}
+
+export function generateCustomTheme(_colors: CustomThemeColors): Theme {
+    return themes[defaultTheme];
+}
