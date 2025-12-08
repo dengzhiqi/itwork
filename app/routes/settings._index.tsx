@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/cloudflare";
 import { json, redirect } from "@remix-run/cloudflare";
-import { Form, useLoaderData, useNavigation, useSearchParams, useActionData, useFetcher } from "@remix-run/react";
+import { Form, Link, useLoaderData, useNavigation, useSearchParams, useActionData, useFetcher } from "@remix-run/react";
 import { useState, useEffect } from "react";
 import Layout from "../components/Layout";
 import { requireUser } from "../utils/auth.server";
@@ -22,10 +22,24 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
         ORDER BY c.name ASC
     `).all();
 
+    // Get all staff
+    const { results: staff } = await env.DB.prepare("SELECT * FROM staff ORDER BY department, name ASC").all();
+
+    // Get departments with staff count
+    const { results: departments } = await env.DB.prepare(`
+        SELECT 
+            d.name as department,
+            COUNT(s.id) as staff_count
+        FROM departments d
+        LEFT JOIN staff s ON d.name = s.department
+        GROUP BY d.id, d.name
+        ORDER BY department ASC
+    `).all();
+
     // Get suppliers
     const { results: suppliers } = await env.DB.prepare("SELECT * FROM suppliers ORDER BY company_name ASC").all();
 
-    return json({ categories, suppliers, user });
+    return json({ categories, staff, departments, suppliers, user });
 }
 
 export async function action({ request, context }: ActionFunctionArgs) {
@@ -34,6 +48,81 @@ export async function action({ request, context }: ActionFunctionArgs) {
 
     const formData = await request.formData();
     const intent = formData.get("intent");
+
+    // Staff actions
+    if (intent === "delete_staff") {
+        const id = formData.get("id");
+        await env.DB.prepare("DELETE FROM staff WHERE id = ?").bind(id).run();
+        return json({ success: true });
+    }
+
+    // Department actions
+    if (intent === "rename_dept") {
+        const oldName = formData.get("oldName");
+        const newName = formData.get("newName");
+
+        // Update departments table (source of truth for department names)
+        await env.DB.prepare(
+            "UPDATE departments SET name = ? WHERE name = ?"
+        ).bind(newName, oldName).run();
+
+        // Update references in staff table
+        await env.DB.prepare(
+            "UPDATE staff SET department = ? WHERE department = ?"
+        ).bind(newName, oldName).run();
+
+        // Update references in transactions table
+        await env.DB.prepare(
+            "UPDATE transactions SET department = ? WHERE department = ?"
+        ).bind(newName, oldName).run();
+
+        return json({ success: true, message: "部门已重命名" });
+    }
+
+    if (intent === "delete_dept") {
+        const deptName = formData.get("deptName");
+
+        const { results: staffCount } = await env.DB.prepare(
+            "SELECT COUNT(*) as count FROM staff WHERE department = ?"
+        ).bind(deptName).all();
+
+        if (staffCount[0].count > 0) {
+            return json({
+                error: `无法删除部门"${deptName}"，该部门还有 ${staffCount[0].count} 名人员`
+            }, { status: 400 });
+        }
+
+        // Delete from departments table
+        await env.DB.prepare(
+            "DELETE FROM departments WHERE name = ?"
+        ).bind(deptName).run();
+
+        return json({ success: true, message: "部门已删除" });
+    }
+
+    if (intent === "add_dept") {
+        const deptName = formData.get("deptName");
+
+        if (!deptName) {
+            return json({ error: "部门名称不能为空" }, { status: 400 });
+        }
+
+        // Check if department already exists
+        const { results: existing } = await env.DB.prepare(
+            "SELECT COUNT(*) as count FROM departments WHERE name = ?"
+        ).bind(deptName).all();
+
+        if (existing[0].count > 0) {
+            return json({ error: "该部门已存在" }, { status: 400 });
+        }
+
+        // Insert into departments table
+        await env.DB.prepare(
+            "INSERT INTO departments (name) VALUES (?)"
+        ).bind(deptName).run();
+
+        return json({ success: true, message: "部门已创建" });
+    }
 
     // Category actions
     if (intent === "add_category") {
@@ -114,7 +203,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
 }
 
 export default function Settings() {
-    const { categories, suppliers, user } = useLoaderData<typeof loader>();
+    const { categories, staff, departments, suppliers, user } = useLoaderData<typeof loader>();
     const actionData = useActionData<typeof action>();
     const navigation = useNavigation();
     const fetcher = useFetcher();
@@ -123,6 +212,12 @@ export default function Settings() {
     const isAdding = navigation.formData?.get("intent")?.toString().startsWith("add");
 
     const [isAddingSupplier, setIsAddingSupplier] = useState(false);
+
+    // Staff and Department state
+    const [editingDept, setEditingDept] = useState<string | null>(null);
+    const [newDeptName, setNewDeptName] = useState("");
+    const [addingDept, setAddingDept] = useState(false);
+    const [newDept, setNewDept] = useState("");
 
     // Theme-related state
     const { currentTheme, setTheme, updateCustomColors } = useTheme();
@@ -152,13 +247,17 @@ export default function Settings() {
         if (actionData?.success && isAddingSupplier) {
             setIsAddingSupplier(false);
         }
-    }, [actionData, isAddingSupplier]);
+        if (actionData?.success && addingDept) {
+            setAddingDept(false);
+            setNewDept("");
+        }
+    }, [actionData, isAddingSupplier, addingDept]);
 
     return (
         <Layout user={user}>
             <div style={{ display: "grid", gap: "2rem" }}>
                 <div>
-                    <h2 style={{ marginBottom: "0.5rem" }}>系统设置</h2>
+                    <h2 style={{ marginBottom: "0.5rem" }}>设置</h2>
                     <p style={{ color: "var(--text-secondary)" }}>管理分类、供应商等系统配置</p>
                 </div>
 
@@ -179,6 +278,38 @@ export default function Settings() {
                         }}
                     >
                         分类管理
+                    </button>
+                    <button
+                        onClick={() => setSearchParams({ tab: "staff" })}
+                        style={{
+                            padding: "0.75rem 1.5rem",
+                            background: "none",
+                            border: "none",
+                            borderBottom: activeTab === "staff" ? "2px solid var(--text-accent)" : "2px solid transparent",
+                            color: activeTab === "staff" ? "var(--text-accent)" : "var(--text-secondary)",
+                            fontWeight: activeTab === "staff" ? "bold" : "normal",
+                            fontSize: "1.125rem",
+                            cursor: "pointer",
+                            marginBottom: "-2px"
+                        }}
+                    >
+                        人员管理
+                    </button>
+                    <button
+                        onClick={() => setSearchParams({ tab: "departments" })}
+                        style={{
+                            padding: "0.75rem 1.5rem",
+                            background: "none",
+                            border: "none",
+                            borderBottom: activeTab === "departments" ? "2px solid var(--text-accent)" : "2px solid transparent",
+                            color: activeTab === "departments" ? "var(--text-accent)" : "var(--text-secondary)",
+                            fontWeight: activeTab === "departments" ? "bold" : "normal",
+                            fontSize: "1.125rem",
+                            cursor: "pointer",
+                            marginBottom: "-2px"
+                        }}
+                    >
+                        部门管理
                     </button>
                     <button
                         onClick={() => setSearchParams({ tab: "suppliers" })}
@@ -281,6 +412,263 @@ export default function Settings() {
                                 ))}
                             </div>
                         </div>
+                    </div>
+                )}
+
+                {/* Staff Tab */}
+                {activeTab === "staff" && (
+                    <div className="glass-panel" style={{ padding: "2rem" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
+                            <h3 style={{ margin: 0 }}>人员列表</h3>
+                            <div style={{ display: "flex", gap: "1rem" }}>
+                                <Link to="/staff/import" className="btn" style={{ background: "var(--bg-glass)", border: "1px solid var(--border-light)", padding: "0.5rem 1rem", fontSize: "0.875rem" }}>
+                                    导入 CSV
+                                </Link>
+                                <Link to="/staff/new" className="btn btn-primary" style={{ padding: "0.5rem 1rem", fontSize: "0.875rem" }}>
+                                    + 添加人员
+                                </Link>
+                            </div>
+                        </div>
+
+                        <div style={{ overflowX: "auto" }}>
+                            <table style={{ width: "100%", borderCollapse: "collapse", color: "var(--text-primary)" }}>
+                                <thead>
+                                    <tr style={{ borderBottom: "1px solid var(--border-light)", textAlign: "left" }}>
+                                        <th style={{ padding: "1rem" }}>部门</th>
+                                        <th style={{ padding: "1rem" }}>姓名</th>
+                                        <th style={{ padding: "1rem" }}>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {staff.map((s: any, index: number) => {
+                                        // Check if this is the first person in this department
+                                        const isFirstInDept = index === 0 || staff[index - 1].department !== s.department;
+
+                                        return (
+                                            <tr key={s.id} style={{ borderBottom: "1px solid var(--border-light)" }}>
+                                                <td style={{ padding: "1rem" }}>
+                                                    {isFirstInDept ? s.department : ""}
+                                                </td>
+                                                <td style={{ padding: "1rem", fontWeight: 600 }}>{s.name}</td>
+                                                <td style={{ padding: "1rem" }}>
+                                                    <div style={{ display: "flex", gap: "1rem" }}>
+                                                        <Link to={`/staff/${s.id}/edit`} style={{ fontSize: "0.875rem", color: "var(--text-accent)" }}>
+                                                            编辑
+                                                        </Link>
+                                                        <Form method="post" onSubmit={(e) => !confirm("确定要删除这个人员吗？") && e.preventDefault()}>
+                                                            <input type="hidden" name="intent" value="delete_staff" />
+                                                            <input type="hidden" name="id" value={s.id} />
+                                                            <button type="submit" style={{ background: "none", border: "none", color: "var(--danger-color)", fontSize: "0.875rem", cursor: "pointer" }}>
+                                                                删除
+                                                            </button>
+                                                        </Form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                    {staff.length === 0 && (
+                                        <tr>
+                                            <td colSpan={3} style={{ padding: "2rem", textAlign: "center", color: "var(--text-secondary)" }}>
+                                                暂无人员。点击上方按钮添加。
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+
+                {/* Departments Tab */}
+                {activeTab === "departments" && (
+                    <div className="glass-panel" style={{ padding: "2rem" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
+                            <h3 style={{ margin: 0 }}>部门列表</h3>
+                            <div style={{ display: "flex", gap: "1rem" }}>
+                                {/* Placeholder to match staff tab layout */}
+                                <div style={{ width: "88px" }}></div>
+                                {!addingDept && (
+                                    <button
+                                        onClick={() => setAddingDept(true)}
+                                        className="btn btn-primary"
+                                        style={{ padding: "0.5rem 1rem", fontSize: "0.875rem" }}
+                                    >
+                                        + 添加部门
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
+                        {addingDept && (
+                            <div style={{ marginBottom: "1.5rem", padding: "1rem", background: "var(--bg-secondary)", borderRadius: "var(--radius-sm)" }}>
+                                <Form method="post" style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+                                    <input type="hidden" name="intent" value="add_dept" />
+                                    <input
+                                        type="text"
+                                        name="deptName"
+                                        value={newDept}
+                                        onChange={(e) => setNewDept(e.target.value)}
+                                        placeholder="输入新部门名称"
+                                        style={{ flex: 1 }}
+                                        autoFocus
+                                        required
+                                    />
+                                    <button
+                                        type="submit"
+                                        className="btn btn-primary"
+                                        style={{ padding: "0.5rem 1rem", fontSize: "0.875rem" }}
+                                        disabled={!newDept.trim()}
+                                    >
+                                        确认
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setNewDept("");
+                                            setAddingDept(false);
+                                        }}
+                                        className="btn btn-secondary"
+                                        style={{ padding: "0.5rem 1rem", fontSize: "0.875rem" }}
+                                    >
+                                        取消
+                                    </button>
+                                </Form>
+                            </div>
+                        )}
+
+                        {actionData?.error && (
+                            <div style={{
+                                padding: "0.75rem",
+                                marginBottom: "1rem",
+                                background: "rgba(239, 68, 68, 0.1)",
+                                border: "1px solid rgba(239, 68, 68, 0.3)",
+                                borderRadius: "var(--radius-sm)",
+                                color: "#fca5a5",
+                                fontSize: "0.875rem"
+                            }}>
+                                {actionData.error}
+                            </div>
+                        )}
+
+                        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                            <thead>
+                                <tr style={{ borderBottom: "2px solid var(--border-light)" }}>
+                                    <th style={{ padding: "1rem", textAlign: "left" }}>部门名称</th>
+                                    <th style={{ padding: "1rem", textAlign: "center" }}>人员数量</th>
+                                    <th style={{ padding: "1rem", textAlign: "right" }}>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {departments.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={3} style={{ padding: "2rem", textAlign: "center", color: "var(--text-secondary)" }}>
+                                            暂无部门。添加人员时会自动创建部门。
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    departments.map((dept: any) => (
+                                        <tr key={dept.department} style={{ borderBottom: "1px solid var(--border-light)" }}>
+                                            <td style={{ padding: "1rem" }}>
+                                                {editingDept === dept.department ? (
+                                                    <input
+                                                        type="text"
+                                                        value={newDeptName}
+                                                        onChange={(e) => setNewDeptName(e.target.value)}
+                                                        style={{ width: "100%", maxWidth: "300px" }}
+                                                        autoFocus
+                                                    />
+                                                ) : (
+                                                    <strong>{dept.department}</strong>
+                                                )}
+                                            </td>
+                                            <td style={{ padding: "1rem", textAlign: "center" }}>
+                                                <span style={{
+                                                    background: "var(--bg-secondary)",
+                                                    padding: "0.25rem 0.75rem",
+                                                    borderRadius: "var(--radius-sm)",
+                                                    fontWeight: "bold"
+                                                }}>
+                                                    {dept.staff_count} 人
+                                                </span>
+                                            </td>
+                                            <td style={{ padding: "1rem", textAlign: "right" }}>
+                                                {editingDept === dept.department ? (
+                                                    <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
+                                                        <Form method="post" style={{ display: "inline" }}>
+                                                            <input type="hidden" name="intent" value="rename_dept" />
+                                                            <input type="hidden" name="oldName" value={dept.department} />
+                                                            <input type="hidden" name="newName" value={newDeptName} />
+                                                            <button
+                                                                type="submit"
+                                                                className="btn btn-primary"
+                                                                style={{ padding: "0.25rem 0.75rem", fontSize: "0.875rem" }}
+                                                                disabled={!newDeptName || newDeptName === dept.department}
+                                                            >
+                                                                保存
+                                                            </button>
+                                                        </Form>
+                                                        <button
+                                                            onClick={() => {
+                                                                setEditingDept(null);
+                                                                setNewDeptName("");
+                                                            }}
+                                                            className="btn btn-secondary"
+                                                            style={{ padding: "0.25rem 0.75rem", fontSize: "0.875rem" }}
+                                                        >
+                                                            取消
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <div style={{ display: "flex", gap: "1rem", justifyContent: "flex-end" }}>
+                                                        <button
+                                                            onClick={() => {
+                                                                setEditingDept(dept.department);
+                                                                setNewDeptName(dept.department);
+                                                            }}
+                                                            style={{
+                                                                background: "none",
+                                                                border: "none",
+                                                                fontSize: "0.875rem",
+                                                                color: "var(--text-accent)",
+                                                                cursor: "pointer",
+                                                                padding: 0
+                                                            }}
+                                                        >
+                                                            编辑
+                                                        </button>
+                                                        <Form method="post" style={{ display: "inline" }}>
+                                                            <input type="hidden" name="intent" value="delete_dept" />
+                                                            <input type="hidden" name="deptName" value={dept.department} />
+                                                            <button
+                                                                type="submit"
+                                                                style={{
+                                                                    background: "none",
+                                                                    border: "none",
+                                                                    padding: 0,
+                                                                    fontSize: "0.875rem",
+                                                                    color: dept.staff_count > 0 ? "var(--text-secondary)" : "var(--danger-color)",
+                                                                    cursor: dept.staff_count > 0 ? "not-allowed" : "pointer",
+                                                                    opacity: dept.staff_count > 0 ? 0.5 : 1
+                                                                }}
+                                                                disabled={dept.staff_count > 0}
+                                                                onClick={(e) => {
+                                                                    if (!confirm(`确定要删除部门"${dept.department}"吗？`)) {
+                                                                        e.preventDefault();
+                                                                    }
+                                                                }}
+                                                            >
+                                                                删除
+                                                            </button>
+                                                        </Form>
+                                                    </div>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
                     </div>
                 )}
 
@@ -627,31 +1015,6 @@ export default function Settings() {
                         )}
                     </div>
                 )}
-
-                {/* Logout Button */}
-                <div className="glass-panel" style={{ padding: "1.5rem" }}>
-                    <h3 style={{ marginBottom: "1rem" }}>账户</h3>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <div>
-                            <p style={{ color: "var(--text-primary)", marginBottom: "0.25rem" }}>当前用户</p>
-                            <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem" }}>{user}</p>
-                        </div>
-                        <form action="/logout" method="post">
-                            <button
-                                type="submit"
-                                className="btn"
-                                style={{
-                                    background: "none",
-                                    border: "1px solid var(--danger-color)",
-                                    color: "var(--danger-color)",
-                                    padding: "0.5rem 1.5rem"
-                                }}
-                            >
-                                退出登录
-                            </button>
-                        </form>
-                    </div>
-                </div>
             </div>
         </Layout>
     );

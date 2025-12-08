@@ -32,7 +32,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
         "INSERT INTO staff (department, name) VALUES (?, ?)"
     ).bind(department, name).run();
 
-    return redirect("/staff");
+    return redirect("/settings?tab=staff");
 }
 
 export default function NewStaff() {
@@ -45,7 +45,7 @@ export default function NewStaff() {
             <div className="glass-panel" style={{ padding: "2rem", maxWidth: "600px", margin: "0 auto" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
                     <h2>添加人员</h2>
-                    <Link to="/staff" style={{ color: "var(--text-secondary)" }}>取消</Link>
+                    <Link to="/settings?tab=staff" style={{ color: "var(--text-secondary)" }}>取消</Link>
                 </div>
 
                 <Form method="post" style={{ display: "grid", gap: "1.5rem" }}>

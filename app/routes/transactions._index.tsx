@@ -1,6 +1,7 @@
 import type { LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
+import { useState, useEffect } from "react";
 import Layout from "../components/Layout";
 import { requireUser } from "../utils/auth.server";
 
@@ -18,6 +19,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     const year = url.searchParams.get("year") || currentYear.toString();
     const month = url.searchParams.get("month") || (type === "OUT" ? currentMonth : "");
     const categoryId = url.searchParams.get("category") || "";
+    const nameQuery = url.searchParams.get("name") || "";
 
     let query = `
     SELECT t.*, p.brand, p.model, c.name as category_name 
@@ -54,6 +56,12 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
         params.push(categoryId);
     }
 
+    // Name filter (optional) - search in handler_name
+    if (nameQuery) {
+        filters.push("t.handler_name LIKE ?");
+        params.push(`%${nameQuery}%`);
+    }
+
     if (filters.length > 0) {
         query += " WHERE " + filters.join(" AND ");
     }
@@ -67,11 +75,11 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
         "SELECT id, name FROM categories ORDER BY name"
     ).all();
 
-    return json({ transactions, user, type, categories, year, month, categoryId });
+    return json({ transactions, user, type, categories, year, month, categoryId, nameQuery });
 }
 
 export default function Transactions() {
-    const { transactions, user, type, categories, year, month, categoryId } = useLoaderData<typeof loader>();
+    const { transactions, user, type, categories, year, month, categoryId, nameQuery } = useLoaderData<typeof loader>();
     const [searchParams, setSearchParams] = useSearchParams();
     const currentType = searchParams.get("type") || type;
 
@@ -87,6 +95,13 @@ export default function Transactions() {
         label: `${i + 1}月`
     }));
 
+    const [nameInput, setNameInput] = useState(nameQuery);
+
+    // Update local state when URL param changes
+    useEffect(() => {
+        setNameInput(nameQuery);
+    }, [nameQuery]);
+
     const handleFilterChange = (key: string, value: string) => {
         const newParams = new URLSearchParams(searchParams);
         if (value) {
@@ -95,6 +110,11 @@ export default function Transactions() {
             newParams.delete(key);
         }
         setSearchParams(newParams);
+    };
+
+    const handleNameSearch = (e: React.FormEvent) => {
+        e.preventDefault();
+        handleFilterChange("name", nameInput);
     };
 
     return (
@@ -151,6 +171,48 @@ export default function Transactions() {
                             <option key={c.id} value={c.id}>{c.name}</option>
                         ))}
                     </select>
+
+                    {/* Name search - only for OUT transactions */}
+                    {currentType === "OUT" && (
+                        <>
+                            <span style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginLeft: "1rem" }}>姓名查询：</span>
+                            <form onSubmit={handleNameSearch} style={{ display: "inline-block", position: "relative" }}>
+                                <input
+                                    type="text"
+                                    value={nameInput}
+                                    onChange={(e) => setNameInput(e.target.value)}
+                                    placeholder="输入姓名"
+                                    style={{ fontSize: "0.875rem", padding: "0.5rem", paddingRight: "2rem", width: "150px" }}
+                                    autoComplete="off"
+                                />
+                                {nameInput && (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setNameInput("");
+                                            handleFilterChange("name", "");
+                                        }}
+                                        style={{
+                                            position: "absolute",
+                                            right: "0.5rem",
+                                            top: "50%",
+                                            transform: "translateY(-50%)",
+                                            background: "none",
+                                            border: "none",
+                                            color: "var(--danger-color)",
+                                            cursor: "pointer",
+                                            fontSize: "1rem",
+                                            padding: "0",
+                                            lineHeight: "1"
+                                        }}
+                                        title="清除"
+                                    >
+                                        ✕
+                                    </button>
+                                )}
+                            </form>
+                        </>
+                    )}
                 </div>
 
                 <div style={{ overflowX: "auto" }}>

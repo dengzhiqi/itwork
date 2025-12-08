@@ -9,8 +9,7 @@ export default function Layout({ children, user }: { children: React.ReactNode; 
         { label: "库存管理", path: "/inventory" },
         { label: "出库管理", path: "/transactions?type=OUT" },
         { label: "入库管理", path: "/transactions?type=IN" },
-        { label: "人员管理", path: "/staff" },
-        { label: "系统设置", path: "/settings" },
+        { label: "设置", path: "/settings" },
     ];
 
     return (
@@ -67,9 +66,23 @@ export default function Layout({ children, user }: { children: React.ReactNode; 
 
                 <div style={{ paddingTop: "1rem", borderTop: "1px solid var(--border-light)" }}>
                     {user ? (
-                        <div>
-                            <p style={{ fontSize: "0.875rem", color: "var(--text-primary)" }}>{user}</p>
-                        </div>
+                        <form action="/logout" method="post">
+                            <button
+                                type="submit"
+                                style={{
+                                    width: "100%",
+                                    background: "none",
+                                    border: "none",
+                                    color: "var(--danger-color)",
+                                    padding: "0.5rem 1rem",
+                                    fontSize: "0.875rem",
+                                    cursor: "pointer",
+                                    textAlign: "left"
+                                }}
+                            >
+                                退出登录
+                            </button>
+                        </form>
                     ) : (
                         <Link to="/login" className="btn btn-primary" style={{ width: "100%", fontSize: "0.875rem" }}>
                             登录
