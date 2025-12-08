@@ -124,7 +124,7 @@ export default function Transactions() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
                     <h2 style={{ margin: 0 }}>{pageTitle}</h2>
                     <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
-                        <Link to={`/transactions/export?type=${currentType}&year=${year}&month=${month}&category=${categoryId}`} className="btn" style={{ background: "var(--bg-glass)", border: "1px solid var(--border-light)", padding: "0.5rem 1rem", fontSize: "0.875rem" }} target="_blank">
+                        <Link to={`/transactions/export?type=${currentType}&year=${year}&month=${month}&category=${categoryId}&name=${nameQuery}`} className="btn" style={{ background: "var(--bg-glass)", border: "1px solid var(--border-light)", padding: "0.5rem 1rem", fontSize: "0.875rem" }} target="_blank">
                             导出查询结果
                         </Link>
                         <Link to={`/transactions/new${currentType ? `?type=${currentType}` : ""}`} className="btn btn-primary" style={{ padding: "0.5rem 1rem", fontSize: "0.875rem" }}>

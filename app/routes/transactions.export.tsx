@@ -10,6 +10,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     const year = url.searchParams.get("year");
     const month = url.searchParams.get("month");
     const categoryId = url.searchParams.get("category");
+    const nameQuery = url.searchParams.get("name");
 
     let query = `
     SELECT 
@@ -56,6 +57,12 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
         params.push(categoryId);
     }
 
+    // Name filter
+    if (nameQuery) {
+        filters.push("t.handler_name LIKE ?");
+        params.push(`%${nameQuery}%`);
+    }
+
     if (filters.length > 0) {
         query += " WHERE " + filters.join(" AND ");
     }
@@ -90,7 +97,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
         const bom = "\uFEFF";
         const finalContent = bom + csvContent;
 
-        const filename = `transactions${type ? `-${type}` : ""}${year ? `-${year}` : ""}${month ? `-${month}` : ""}-${new Date().toISOString().split('T')[0]}.csv`;
+        const filename = `transactions${type ? `-${type}` : ""}${year ? `-${year}` : ""}${month ? `-${month}` : ""}${nameQuery ? `-${nameQuery}` : ""}-${new Date().toISOString().split('T')[0]}.csv`;
 
         return new Response(finalContent, {
             headers: {
