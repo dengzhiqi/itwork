@@ -61,8 +61,8 @@ export const themes: Record<string, Theme> = {
             bgApp: '#fff0f5', // Lavender Blush
             bgPanel: 'rgba(255, 240, 245, 0.9)',
             bgCard: 'rgba(255, 255, 255, 0.65)',
-            textPrimary: '#5d3a43',
-            textSecondary: '#8e6e76',
+            textPrimary: '#2d1b20', // Darker purplish brown
+            textSecondary: '#5d3a43', // Previous primary color -> new secondary
             textAccent: '#d65d7a', // Deep Pink
             borderLight: 'rgba(214, 93, 122, 0.15)',
             primaryGradient: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
