@@ -54,22 +54,22 @@ export const themes: Record<string, Theme> = {
             backgroundGradient2: 'rgba(224, 120, 48, 0.12)',
         },
     },
-    'forest-green': {
-        name: 'forest-green',
-        displayName: 'Emerald Forest',
+    'sakura-pink': {
+        name: 'sakura-pink',
+        displayName: 'Sakura Pink',
         colors: {
-            bgApp: '#0d1a14',
-            bgPanel: 'rgba(20, 45, 35, 0.85)',
-            bgCard: 'rgba(30, 60, 45, 0.6)',
-            textPrimary: '#e0f0e8',
-            textSecondary: '#88b0a0',
-            textAccent: '#4ecca3',
-            borderLight: 'rgba(100, 160, 140, 0.12)',
-            primaryGradient: 'linear-gradient(135deg, #4ecca3 0%, #38b588 100%)',
+            bgApp: '#fff0f5', // Lavender Blush
+            bgPanel: 'rgba(255, 240, 245, 0.9)',
+            bgCard: 'rgba(255, 255, 255, 0.65)',
+            textPrimary: '#5d3a43',
+            textSecondary: '#8e6e76',
+            textAccent: '#d65d7a', // Deep Pink
+            borderLight: 'rgba(214, 93, 122, 0.15)',
+            primaryGradient: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
             dangerColor: '#ef5350',
             successColor: '#66bb6a',
-            backgroundGradient1: 'rgba(78, 204, 163, 0.12)',
-            backgroundGradient2: 'rgba(56, 181, 136, 0.12)',
+            backgroundGradient1: 'rgba(255, 154, 158, 0.12)',
+            backgroundGradient2: 'rgba(254, 207, 239, 0.12)',
         },
     },
     'purple-dream': {

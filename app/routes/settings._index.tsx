@@ -863,7 +863,7 @@ export default function Settings() {
                                         }}>
                                             {theme.name === 'ocean-blue' && '经典蓝色主题'}
                                             {theme.name === 'warm-sunset' && '温暖琥珀夜色'}
-                                            {theme.name === 'forest-green' && '深邃翡翠森林'}
+                                            {theme.name === 'sakura-pink' && '柔美樱花漫舞'}
                                             {theme.name === 'purple-dream' && '优雅丝绒之夜'}
                                             {theme.name === 'warm-ivory' && '清新米白日光'}
                                         </div>
