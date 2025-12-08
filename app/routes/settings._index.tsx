@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 import Layout from "../components/Layout";
 import { requireUser } from "../utils/auth.server";
 
+import { useTheme } from "../contexts/ThemeContext";
+import { themes } from "../utils/themes";
 
 export async function loader({ request, context }: LoaderFunctionArgs) {
     const { env } = context as { env: any };
@@ -216,6 +218,8 @@ export default function Settings() {
     const [addingDept, setAddingDept] = useState(false);
     const [newDept, setNewDept] = useState("");
 
+    // Theme-related state
+    const { currentTheme, setTheme } = useTheme();
 
     useEffect(() => {
         if (actionData?.success && isAddingSupplier) {
@@ -301,24 +305,22 @@ export default function Settings() {
                     >
                         供应商管理
                     </button>
-                    <Link
-                        to="/settings/system"
+                    <button
+                        onClick={() => setSearchParams({ tab: "system" })}
                         style={{
                             padding: "0.75rem 1.5rem",
                             background: "none",
                             border: "none",
-                            borderBottom: "2px solid transparent",
-                            color: "var(--text-secondary)",
-                            fontWeight: "normal",
+                            borderBottom: activeTab === "system" ? "2px solid var(--text-accent)" : "2px solid transparent",
+                            color: activeTab === "system" ? "var(--text-accent)" : "var(--text-secondary)",
+                            fontWeight: activeTab === "system" ? "bold" : "normal",
                             fontSize: "1.125rem",
                             cursor: "pointer",
-                            marginBottom: "-2px",
-                            textDecoration: "none",
-                            display: "inline-block"
+                            marginBottom: "-2px"
                         }}
                     >
                         系统
-                    </Link>
+                    </button>
                 </div>
 
                 {/* Categories Tab */}
@@ -761,6 +763,116 @@ export default function Settings() {
                     </div>
                 )}
 
+                {/* System Tab */}
+                {activeTab === "system" && (
+                    <div className="glass-panel" style={{ padding: "2rem" }}>
+                        <h3 style={{ fontSize: "1.25rem", marginBottom: "1rem" }}>主题配色</h3>
+                        <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "1.5rem" }}>
+                            选择您喜欢的配色方案，更改会立即生效
+                        </p>
+
+                        <div style={{
+                            display: "grid",
+                            gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+                            gap: "1rem"
+                        }}>
+                            {Object.values(themes).map((theme) => {
+                                const isActive = currentTheme === theme.name;
+                                return (
+                                    <button
+                                        key={theme.name}
+                                        onClick={() => setTheme(theme.name)}
+                                        style={{
+                                            position: "relative",
+                                            padding: "1.5rem",
+                                            background: theme.colors.bgPanel,
+                                            border: isActive
+                                                ? `2px solid ${theme.colors.textAccent}`
+                                                : "2px solid transparent",
+                                            borderRadius: "var(--radius-md)",
+                                            cursor: "pointer",
+                                            transition: "all 0.2s",
+                                            textAlign: "left",
+                                            boxShadow: isActive
+                                                ? `0 0 20px ${theme.colors.textAccent}40`
+                                                : "none",
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            if (!isActive) {
+                                                e.currentTarget.style.transform = "translateY(-4px)";
+                                                e.currentTarget.style.boxShadow = "0 8px 20px rgba(0,0,0,0.3)";
+                                            }
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            if (!isActive) {
+                                                e.currentTarget.style.transform = "translateY(0)";
+                                                e.currentTarget.style.boxShadow = "none";
+                                            }
+                                        }}
+                                    >
+                                        {isActive && (
+                                            <div style={{
+                                                position: "absolute",
+                                                top: "0.75rem",
+                                                right: "0.75rem",
+                                                width: "24px",
+                                                height: "24px",
+                                                borderRadius: "50%",
+                                                background: theme.colors.primaryGradient,
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                color: "white",
+                                                fontSize: "0.75rem",
+                                                fontWeight: "bold",
+                                            }}>
+                                                ✓
+                                            </div>
+                                        )}
+
+                                        <div style={{ marginBottom: "1rem" }}>
+                                            <h4 style={{
+                                                fontSize: "1rem",
+                                                fontWeight: "600",
+                                                color: theme.colors.textPrimary,
+                                                marginBottom: "0.25rem"
+                                            }}>
+                                                {theme.displayName}
+                                            </h4>
+                                        </div>
+
+                                        <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.75rem" }}>
+                                            <div style={{
+                                                width: "40px",
+                                                height: "40px",
+                                                borderRadius: "var(--radius-sm)",
+                                                background: theme.colors.primaryGradient,
+                                            }} />
+                                            <div style={{
+                                                width: "40px",
+                                                height: "40px",
+                                                borderRadius: "var(--radius-sm)",
+                                                background: theme.colors.bgApp,
+                                                border: `1px solid ${theme.colors.borderLight}`,
+                                            }} />
+                                        </div>
+
+                                        <div style={{
+                                            fontSize: "0.75rem",
+                                            color: theme.colors.textSecondary,
+                                        }}>
+                                            {theme.name === 'ocean-blue' && '经典蓝色主题'}
+                                            {theme.name === 'warm-sunset' && '温暖琥珀夜色'}
+                                            {theme.name === 'forest-green' && '深邃翡翠森林'}
+                                            {theme.name === 'purple-dream' && '优雅丝绒之夜'}
+                                            {theme.name === 'warm-ivory' && '清新米白日光'}
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
 
             </div>
         </Layout>
