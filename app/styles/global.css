@@ -4,6 +4,8 @@
   --bg-app: #0f172a;
   --bg-panel: rgba(30, 41, 59, 0.7);
   --bg-card: rgba(51, 65, 85, 0.5);
+  --bg-input: rgba(15, 23, 42, 0.6);
+  --bg-secondary: rgba(30, 41, 59, 0.5);
 
   --text-primary: #f1f5f9;
   --text-secondary: #94a3b8;
@@ -108,7 +110,7 @@ select,
 textarea {
   width: 100%;
   padding: 0.75rem 1rem;
-  background: rgba(15, 23, 42, 0.6);
+  background: var(--bg-input);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-sm);
   color: var(--text-primary);

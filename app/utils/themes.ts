@@ -5,6 +5,8 @@ export interface Theme {
         bgApp: string;
         bgPanel: string;
         bgCard: string;
+        bgInput: string;
+        bgSecondary: string;
         textPrimary: string;
         textSecondary: string;
         textAccent: string;
@@ -25,6 +27,8 @@ export const themes: Record<string, Theme> = {
             bgApp: '#0f172a',
             bgPanel: 'rgba(30, 41, 59, 0.7)',
             bgCard: 'rgba(51, 65, 85, 0.5)',
+            bgInput: 'rgba(15, 23, 42, 0.6)',
+            bgSecondary: 'rgba(30, 41, 59, 0.5)',
             textPrimary: '#f1f5f9',
             textSecondary: '#94a3b8',
             textAccent: '#38bdf8',
@@ -43,6 +47,8 @@ export const themes: Record<string, Theme> = {
             bgApp: '#1a1512',
             bgPanel: 'rgba(42, 36, 30, 0.85)',
             bgCard: 'rgba(58, 48, 38, 0.6)',
+            bgInput: 'rgba(26, 21, 18, 0.6)',
+            bgSecondary: 'rgba(42, 36, 30, 0.5)',
             textPrimary: '#f5ebe0',
             textSecondary: '#b8a898',
             textAccent: '#f0a050',
@@ -61,6 +67,8 @@ export const themes: Record<string, Theme> = {
             bgApp: '#fff0f5', // Lavender Blush
             bgPanel: 'rgba(255, 240, 245, 0.9)',
             bgCard: 'rgba(255, 255, 255, 0.65)',
+            bgInput: 'rgba(255, 255, 255, 0.85)', // Light white for inputs
+            bgSecondary: 'rgba(255, 240, 245, 0.6)',
             textPrimary: '#2d1b20', // Darker purplish brown
             textSecondary: '#5d3a43', // Previous primary color -> new secondary
             textAccent: '#d65d7a', // Deep Pink
@@ -79,6 +87,8 @@ export const themes: Record<string, Theme> = {
             bgApp: '#12101a',
             bgPanel: 'rgba(30, 25, 45, 0.85)',
             bgCard: 'rgba(45, 38, 65, 0.6)',
+            bgInput: 'rgba(18, 16, 26, 0.6)',
+            bgSecondary: 'rgba(30, 25, 45, 0.5)',
             textPrimary: '#e8e0f0',
             textSecondary: '#a090b8',
             textAccent: '#a78bfa',
@@ -97,6 +107,8 @@ export const themes: Record<string, Theme> = {
             bgApp: '#fdfcfa',
             bgPanel: 'rgba(255, 253, 250, 0.95)',
             bgCard: 'rgba(250, 248, 245, 0.9)',
+            bgInput: 'rgba(255, 255, 255, 0.9)', // Very light for inputs
+            bgSecondary: 'rgba(250, 248, 245, 0.7)',
             textPrimary: '#2c2a28',
             textSecondary: '#6b6560',
             textAccent: '#8b7355',
