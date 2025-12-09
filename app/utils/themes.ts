@@ -9,6 +9,7 @@ export interface Theme {
         bgSecondary: string;
         textPrimary: string;
         textSecondary: string;
+        textInput: string;
         textAccent: string;
         borderLight: string;
         primaryGradient: string;
@@ -31,6 +32,7 @@ export const themes: Record<string, Theme> = {
             bgSecondary: 'rgba(30, 41, 59, 0.5)',
             textPrimary: '#f1f5f9',
             textSecondary: '#94a3b8',
+            textInput: '#f1f5f9',
             textAccent: '#38bdf8',
             borderLight: 'rgba(148, 163, 184, 0.1)',
             primaryGradient: 'linear-gradient(135deg, #38bdf8 0%, #818cf8 100%)',
@@ -51,6 +53,7 @@ export const themes: Record<string, Theme> = {
             bgSecondary: 'rgba(42, 36, 30, 0.5)',
             textPrimary: '#f5ebe0',
             textSecondary: '#b8a898',
+            textInput: '#f5ebe0',
             textAccent: '#f0a050',
             borderLight: 'rgba(180, 160, 140, 0.12)',
             primaryGradient: 'linear-gradient(135deg, #f0a050 0%, #e07830 100%)',
@@ -71,6 +74,7 @@ export const themes: Record<string, Theme> = {
             bgSecondary: 'rgba(255, 240, 245, 0.6)',
             textPrimary: '#2d1b20', // Darker purplish brown
             textSecondary: '#5d3a43', // Previous primary color -> new secondary
+            textInput: '#3d2a2f', // Darker for better contrast in light inputs
             textAccent: '#d65d7a', // Deep Pink
             borderLight: 'rgba(214, 93, 122, 0.15)',
             primaryGradient: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
@@ -91,6 +95,7 @@ export const themes: Record<string, Theme> = {
             bgSecondary: 'rgba(30, 25, 45, 0.5)',
             textPrimary: '#e8e0f0',
             textSecondary: '#a090b8',
+            textInput: '#e8e0f0',
             textAccent: '#a78bfa',
             borderLight: 'rgba(140, 120, 180, 0.12)',
             primaryGradient: 'linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%)',
@@ -111,6 +116,7 @@ export const themes: Record<string, Theme> = {
             bgSecondary: 'rgba(250, 248, 245, 0.7)',
             textPrimary: '#2c2a28',
             textSecondary: '#6b6560',
+            textInput: '#2c2a28',
             textAccent: '#8b7355',
             borderLight: 'rgba(139, 115, 85, 0.15)',
             primaryGradient: 'linear-gradient(135deg, #a08060 0%, #8b7355 100%)',

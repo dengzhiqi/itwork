@@ -22,7 +22,25 @@ export async function action({ request, context }: ActionFunctionArgs) {
     }
 
     try {
-        const text = await file.text();
+        // Read file as ArrayBuffer first to check encoding
+        const arrayBuffer = await file.arrayBuffer();
+        const bytes = new Uint8Array(arrayBuffer);
+
+        // Check for UTF-8 BOM (EF BB BF) - optional but good to detect
+        let hasUtf8Bom = false;
+        if (bytes.length >= 3 && bytes[0] === 0xEF && bytes[1] === 0xBB && bytes[2] === 0xBF) {
+            hasUtf8Bom = true;
+        }
+
+        // Try to decode as UTF-8 and check for invalid sequences
+        let text;
+        try {
+            const decoder = new TextDecoder('utf-8', { fatal: true });
+            text = decoder.decode(bytes);
+        } catch (e) {
+            return json({ error: "文件编码不是UTF-8，请将CSV文件转换为UTF-8编码后再上传" }, { status: 400 });
+        }
+
         const lines = text.split(/\r?\n/);
 
         // Skip header if it exists and looks like a header (contains "部门" or "姓名")
@@ -94,7 +112,7 @@ function StaffImportView() {
             <div className="glass-panel" style={{ padding: "2rem", maxWidth: "600px", margin: "0 auto" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
                     <h2>导入人员</h2>
-                    <Link to="/staff" style={{ color: "var(--text-secondary)" }}>返回列表</Link>
+                    <Link to="/settings?tab=staff" style={{ color: "var(--text-secondary)" }}>返回列表</Link>
                 </div>
 
                 <div style={{ marginBottom: "2rem", padding: "1rem", background: "rgba(59, 130, 246, 0.1)", borderRadius: "var(--radius-sm)", border: "1px solid rgba(59, 130, 246, 0.2)" }}>

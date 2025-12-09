@@ -192,6 +192,24 @@ export async function action({ request, context }: ActionFunctionArgs) {
         return json({ success: true, message: "供应商已添加" });
     }
 
+    if (intent === "edit_supplier") {
+        const id = formData.get("id");
+        const company_name = formData.get("company_name");
+        const contact_person = formData.get("contact_person");
+        const phone = formData.get("phone");
+        const email = formData.get("email");
+
+        if (!company_name) {
+            return json({ error: "公司名称不能为空" }, { status: 400 });
+        }
+
+        await env.DB.prepare(
+            "UPDATE suppliers SET company_name = ?, contact_person = ?, phone = ?, email = ? WHERE id = ?"
+        ).bind(company_name, contact_person, phone, email, id).run();
+
+        return json({ success: true, message: "供应商已更新" });
+    }
+
     if (intent === "delete_supplier") {
         const id = formData.get("id");
         await env.DB.prepare("DELETE FROM suppliers WHERE id = ?").bind(id).run();
@@ -217,6 +235,10 @@ export default function Settings() {
     const [newDeptName, setNewDeptName] = useState("");
     const [addingDept, setAddingDept] = useState(false);
     const [newDept, setNewDept] = useState("");
+
+    // Supplier editing state
+    const [editingSupplier, setEditingSupplier] = useState<number | null>(null);
+    const [editSupplierData, setEditSupplierData] = useState({ company_name: "", contact_person: "", phone: "", email: "" });
 
     // Theme-related state
     const { currentTheme, setTheme } = useTheme();
@@ -359,7 +381,7 @@ export default function Settings() {
 
                                 <Form method="post">
                                     <div style={{ marginBottom: "1rem" }}>
-                                        <input type="text" name="name" placeholder="例如: 办公椅" required />
+                                        <input type="text" name="name" placeholder="例如: 移动硬盘" required />
                                     </div>
                                     <button
                                         type="submit"
@@ -736,28 +758,122 @@ export default function Settings() {
                                 <tbody>
                                     {suppliers.map((s: any) => (
                                         <tr key={s.id} style={{ borderBottom: "1px solid var(--border-light)" }}>
-                                            <td style={{ padding: "1rem", fontWeight: 600 }}>{s.company_name}</td>
-                                            <td style={{ padding: "1rem" }}>{s.contact_person || "-"}</td>
-                                            <td style={{ padding: "1rem" }}>{s.phone || "-"}</td>
-                                            <td style={{ padding: "1rem" }}>{s.email || "-"}</td>
                                             <td style={{ padding: "1rem" }}>
-                                                <div style={{ display: "flex", gap: "1rem", justifyContent: "flex-end" }}>
-                                                    <a href={`/suppliers/${s.id}/edit`} style={{ fontSize: "0.875rem", color: "var(--text-accent)" }}>
-                                                        编辑
-                                                    </a>
-                                                    <Form method="post" style={{ display: "inline" }}>
-                                                        <input type="hidden" name="id" value={s.id} />
+                                                {editingSupplier === s.id ? (
+                                                    <input
+                                                        type="text"
+                                                        value={editSupplierData.company_name}
+                                                        onChange={(e) => setEditSupplierData({ ...editSupplierData, company_name: e.target.value })}
+                                                        style={{ width: "100%" }}
+                                                        autoFocus
+                                                    />
+                                                ) : (
+                                                    <strong>{s.company_name}</strong>
+                                                )}
+                                            </td>
+                                            <td style={{ padding: "1rem" }}>
+                                                {editingSupplier === s.id ? (
+                                                    <input
+                                                        type="text"
+                                                        value={editSupplierData.contact_person}
+                                                        onChange={(e) => setEditSupplierData({ ...editSupplierData, contact_person: e.target.value })}
+                                                        style={{ width: "100%" }}
+                                                    />
+                                                ) : (
+                                                    s.contact_person || "-"
+                                                )}
+                                            </td>
+                                            <td style={{ padding: "1rem" }}>
+                                                {editingSupplier === s.id ? (
+                                                    <input
+                                                        type="tel"
+                                                        value={editSupplierData.phone}
+                                                        onChange={(e) => setEditSupplierData({ ...editSupplierData, phone: e.target.value })}
+                                                        style={{ width: "100%" }}
+                                                    />
+                                                ) : (
+                                                    s.phone || "-"
+                                                )}
+                                            </td>
+                                            <td style={{ padding: "1rem" }}>
+                                                {editingSupplier === s.id ? (
+                                                    <input
+                                                        type="email"
+                                                        value={editSupplierData.email}
+                                                        onChange={(e) => setEditSupplierData({ ...editSupplierData, email: e.target.value })}
+                                                        style={{ width: "100%" }}
+                                                    />
+                                                ) : (
+                                                    s.email || "-"
+                                                )}
+                                            </td>
+                                            <td style={{ padding: "1rem" }}>
+                                                {editingSupplier === s.id ? (
+                                                    <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
+                                                        <Form method="post" style={{ display: "inline" }}>
+                                                            <input type="hidden" name="intent" value="edit_supplier" />
+                                                            <input type="hidden" name="id" value={s.id} />
+                                                            <input type="hidden" name="company_name" value={editSupplierData.company_name} />
+                                                            <input type="hidden" name="contact_person" value={editSupplierData.contact_person} />
+                                                            <input type="hidden" name="phone" value={editSupplierData.phone} />
+                                                            <input type="hidden" name="email" value={editSupplierData.email} />
+                                                            <button
+                                                                type="submit"
+                                                                className="btn btn-primary"
+                                                                style={{ padding: "0.25rem 0.75rem", fontSize: "0.875rem" }}
+                                                                disabled={!editSupplierData.company_name}
+                                                            >
+                                                                保存
+                                                            </button>
+                                                        </Form>
                                                         <button
-                                                            type="submit"
-                                                            name="intent"
-                                                            value="delete_supplier"
-                                                            style={{ background: "none", border: "none", color: "var(--danger-color)", fontSize: "0.875rem", cursor: "pointer" }}
-                                                            onClick={(e) => !confirm("确定要删除这个供应商吗？") && e.preventDefault()}
+                                                            onClick={() => {
+                                                                setEditingSupplier(null);
+                                                                setEditSupplierData({ company_name: "", contact_person: "", phone: "", email: "" });
+                                                            }}
+                                                            className="btn btn-secondary"
+                                                            style={{ padding: "0.25rem 0.75rem", fontSize: "0.875rem" }}
                                                         >
-                                                            删除
+                                                            取消
                                                         </button>
-                                                    </Form>
-                                                </div>
+                                                    </div>
+                                                ) : (
+                                                    <div style={{ display: "flex", gap: "1rem", justifyContent: "flex-end" }}>
+                                                        <button
+                                                            onClick={() => {
+                                                                setEditingSupplier(s.id);
+                                                                setEditSupplierData({
+                                                                    company_name: s.company_name,
+                                                                    contact_person: s.contact_person || "",
+                                                                    phone: s.phone || "",
+                                                                    email: s.email || ""
+                                                                });
+                                                            }}
+                                                            style={{
+                                                                background: "none",
+                                                                border: "none",
+                                                                fontSize: "0.875rem",
+                                                                color: "var(--text-accent)",
+                                                                cursor: "pointer",
+                                                                padding: 0
+                                                            }}
+                                                        >
+                                                            编辑
+                                                        </button>
+                                                        <Form method="post" style={{ display: "inline" }}>
+                                                            <input type="hidden" name="id" value={s.id} />
+                                                            <button
+                                                                type="submit"
+                                                                name="intent"
+                                                                value="delete_supplier"
+                                                                style={{ background: "none", border: "none", color: "var(--danger-color)", fontSize: "0.875rem", cursor: "pointer", padding: 0 }}
+                                                                onClick={(e) => !confirm("确定要删除这个供应商吗？") && e.preventDefault()}
+                                                            >
+                                                                删除
+                                                            </button>
+                                                        </Form>
+                                                    </div>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}
