@@ -52,7 +52,7 @@ export default function Inventory() {
                                         <div style={{ fontSize: "0.875rem", color: "var(--text-secondary)" }}>{item.brand}</div>
                                     </td>
                                     <td style={{ padding: "1rem" }}>¥{item.price?.toFixed(2)}</td>
-                                    <td style={{ padding: "1rem", fontWeight: "bold", color: item.stock_quantity === 0 ? "var(--danger-color)" : "inherit" }}>{item.stock_quantity}</td>
+                                    <td style={{ padding: "1rem", color: item.stock_quantity === 0 ? "var(--danger-color)" : "inherit" }}>{item.stock_quantity}</td>
                                     <td style={{ padding: "1rem" }}>{item.supplier || "-"}</td>
                                     <td style={{ padding: "1rem" }}>
                                         <Link to={`/inventory/${item.id}/edit`} style={{ fontSize: "0.875rem", color: "var(--text-accent)" }}>

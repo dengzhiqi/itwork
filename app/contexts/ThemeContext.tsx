@@ -34,6 +34,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
             root.style.setProperty('--bg-app', colors.bgApp);
             root.style.setProperty('--bg-panel', colors.bgPanel);
             root.style.setProperty('--bg-card', colors.bgCard);
+            root.style.setProperty('--bg-input', colors.bgInput);
+            root.style.setProperty('--bg-secondary', colors.bgSecondary);
             root.style.setProperty('--text-primary', colors.textPrimary);
             root.style.setProperty('--text-secondary', colors.textSecondary);
             root.style.setProperty('--text-accent', colors.textAccent);

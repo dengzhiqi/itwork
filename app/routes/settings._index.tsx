@@ -345,9 +345,20 @@ export default function Settings() {
                                     </div>
                                 )}
 
+                                <div style={{
+                                    padding: "0.75rem",
+                                    marginBottom: "1rem",
+                                    background: "var(--bg-secondary)",
+                                    borderRadius: "var(--radius-sm)",
+                                    fontSize: "0.875rem",
+                                    color: "var(--text-secondary)",
+                                    lineHeight: "1.5"
+                                }}>
+                                    如需删除某项分类，请先在库存管理中，删除该类目录下所有商品。
+                                </div>
+
                                 <Form method="post">
                                     <div style={{ marginBottom: "1rem" }}>
-                                        <label>分类名称</label>
                                         <input type="text" name="name" placeholder="例如: 办公椅" required />
                                     </div>
                                     <button

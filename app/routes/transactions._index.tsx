@@ -248,7 +248,7 @@ export default function Transactions() {
                                         <div style={{ fontWeight: 600 }}>{t.model}</div>
                                         <div style={{ fontSize: "0.875rem", color: "var(--text-secondary)" }}>{t.brand}</div>
                                     </td>
-                                    <td style={{ padding: "1rem", fontWeight: "bold" }}>{t.quantity}</td>
+                                    <td style={{ padding: "1rem" }}>{t.quantity}</td>
 
                                     {(!currentType || currentType === "OUT") && (
                                         <td style={{ padding: "1rem" }}>
