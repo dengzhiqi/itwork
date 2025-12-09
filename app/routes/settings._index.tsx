@@ -319,7 +319,7 @@ export default function Settings() {
                             marginBottom: "-2px"
                         }}
                     >
-                        系统
+                        主题
                     </button>
                 </div>
 

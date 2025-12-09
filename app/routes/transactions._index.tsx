@@ -172,16 +172,18 @@ export default function Transactions() {
                         ))}
                     </select>
 
-                    {/* Name search - only for OUT transactions */}
-                    {currentType === "OUT" && (
+                    {/* Name/Supplier search - for both IN and OUT transactions */}
+                    {(currentType === "OUT" || currentType === "IN") && (
                         <>
-                            <span style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginLeft: "1rem" }}>姓名查询：</span>
+                            <span style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginLeft: "1rem" }}>
+                                {currentType === "IN" ? "供应商查询：" : "姓名查询："}
+                            </span>
                             <form onSubmit={handleNameSearch} style={{ display: "inline-block", position: "relative" }}>
                                 <input
                                     type="text"
                                     value={nameInput}
                                     onChange={(e) => setNameInput(e.target.value)}
-                                    placeholder="输入姓名"
+                                    placeholder={currentType === "IN" ? "输入供应商" : "输入姓名"}
                                     style={{ fontSize: "0.875rem", padding: "0.5rem", paddingRight: "2rem", width: "150px" }}
                                     autoComplete="off"
                                 />
