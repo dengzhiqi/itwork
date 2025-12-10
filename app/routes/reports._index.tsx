@@ -180,6 +180,8 @@ export default function Reports() {
         const deptCost: Record<string, number> = {};
 
         transactions.forEach((t: any) => {
+            if (selectedCategory && t.category !== selectedCategory) return;
+
             const dept = t.department || "未分配";
             deptCost[dept] = (deptCost[dept] || 0) + (t.quantity * t.price);
         });
@@ -187,7 +189,7 @@ export default function Reports() {
         return Object.entries(deptCost)
             .map(([name, cost]) => ({ name, cost }))
             .sort((a, b) => b.cost - a.cost);
-    }, [transactions]);
+    }, [transactions, selectedCategory]);
 
     // Get unique categories for selector
     const categoryList = useMemo(() => {
@@ -227,6 +229,8 @@ export default function Reports() {
         const productUsage: Record<string, { name: string; quantity: number; cost: number }> = {};
 
         transactions.forEach((t: any) => {
+            if (selectedCategory && t.category !== selectedCategory) return;
+
             const key = `${t.brand} ${t.model}`;
             if (!productUsage[key]) {
                 productUsage[key] = { name: key, quantity: 0, cost: 0 };
@@ -238,7 +242,7 @@ export default function Reports() {
         return Object.values(productUsage)
             .sort((a, b) => b.quantity - a.quantity)
             .slice(0, 10);
-    }, [transactions]);
+    }, [transactions, selectedCategory]);
 
     // Colors for charts
     const COLORS = ["#38bdf8", "#818cf8", "#f0a050", "#a78bfa", "#22c55e", "#ef4444", "#f59e0b", "#ec4899", "#14b8a6", "#8b5cf6"];
@@ -254,7 +258,13 @@ export default function Reports() {
 
                 {/* Filters */}
                 <div className="glass-panel" style={{ padding: "1.5rem" }}>
-                    <h3 style={{ fontSize: "1.125rem", marginBottom: "1rem" }}>筛选条件</h3>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                        <h3 style={{ fontSize: "1.125rem", margin: 0 }}>筛选条件</h3>
+                        <div style={{ display: "flex", alignItems: "baseline", gap: "0.5rem" }}>
+                            <span style={{ fontSize: "0.875rem", color: "var(--text-secondary)" }}>总成本:</span>
+                            <span style={{ fontSize: "1.25rem", fontWeight: "bold", color: "var(--text-accent)" }}>¥{stats.totalCost.toFixed(2)}</span>
+                        </div>
+                    </div>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem", marginBottom: "1rem" }}>
                         {/* Date Range */}
                         <div>
@@ -302,13 +312,7 @@ export default function Reports() {
                     </div>
                 </div>
 
-                {/* Statistics Cards - Only Total Cost */}
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "1rem" }}>
-                    <div className="glass-card" style={{ padding: "1.5rem" }}>
-                        <div style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "0.5rem" }}>总成本</div>
-                        <div style={{ fontSize: "2rem", fontWeight: "bold", color: "var(--text-accent)" }}>¥{stats.totalCost.toFixed(2)}</div>
-                    </div>
-                </div>
+
 
                 {/* Charts */}
                 {transactions.length > 0 ? (
@@ -360,7 +364,9 @@ export default function Reports() {
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))", gap: "1rem" }}>
                             {/* Department Cost Comparison */}
                             <div className="glass-panel" style={{ padding: "1.5rem" }}>
-                                <h3 style={{ fontSize: "1.125rem", marginBottom: "1rem" }}>部门成本对比</h3>
+                                <h3 style={{ fontSize: "1.125rem", marginBottom: "1rem" }}>
+                                    部门成本对比 {selectedCategory && <span style={{ fontSize: "0.875rem", color: "var(--text-secondary)", fontWeight: "normal" }}>({selectedCategory})</span>}
+                                </h3>
                                 <ResponsiveContainer width="100%" height={300}>
                                     <BarChart data={departmentCostData}>
                                         <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" />
@@ -382,7 +388,9 @@ export default function Reports() {
 
                             {/* Product Ranking */}
                             <div className="glass-panel" style={{ padding: "1.5rem" }}>
-                                <h3 style={{ fontSize: "1.125rem", marginBottom: "1rem" }}>商品使用排行 (Top 10)</h3>
+                                <h3 style={{ fontSize: "1.125rem", marginBottom: "1rem" }}>
+                                    商品使用排行 (Top 10) {selectedCategory && <span style={{ fontSize: "0.875rem", color: "var(--text-secondary)", fontWeight: "normal" }}>({selectedCategory})</span>}
+                                </h3>
                                 <ResponsiveContainer width="100%" height={300}>
                                     <BarChart data={productRankingData} layout="vertical">
                                         <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" />
