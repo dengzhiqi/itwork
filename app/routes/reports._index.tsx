@@ -138,12 +138,15 @@ export default function Reports() {
 
     // Calculate statistics - only total cost
     const stats = useMemo(() => {
-        const totalCost = transactions.reduce((sum: number, t: any) => sum + (t.quantity * t.price), 0);
+        const totalCost = transactions.reduce((sum: number, t: any) => {
+            if (selectedCategory && t.category !== selectedCategory) return sum;
+            return sum + (t.quantity * t.price);
+        }, 0);
 
         return {
             totalCost
         };
-    }, [transactions]);
+    }, [transactions, selectedCategory]);
 
     // Prepare chart data - Daily usage trend with cost
     const usageTrendData = useMemo(() => {
@@ -246,6 +249,20 @@ export default function Reports() {
 
     // Colors for charts
     const COLORS = ["#38bdf8", "#818cf8", "#f0a050", "#a78bfa", "#22c55e", "#ef4444", "#f59e0b", "#ec4899", "#14b8a6", "#8b5cf6"];
+
+    // Gradient colors for cost ranking (Red -> Orange -> Yellow -> Green -> Blue)
+    const COST_GRADIENT = [
+        "#ef4444", // Red (Highest)
+        "#f97316", // Orange
+        "#f59e0b", // Amber
+        "#eab308", // Yellow
+        "#84cc16", // Lime
+        "#22c55e", // Green
+        "#10b981", // Emerald
+        "#06b6d4", // Cyan
+        "#3b82f6", // Blue
+        "#6366f1"  // Indigo (Lowest)
+    ];
 
     return (
         <Layout user={user}>
@@ -381,7 +398,11 @@ export default function Reports() {
                                             }}
                                             formatter={(value: number) => `¥${value.toFixed(2)}`}
                                         />
-                                        <Bar dataKey="cost" fill="#22c55e" name="总成本" />
+                                        <Bar dataKey="cost" name="总成本">
+                                            {departmentCostData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={COST_GRADIENT[index % COST_GRADIENT.length]} />
+                                            ))}
+                                        </Bar>
                                     </BarChart>
                                 </ResponsiveContainer>
                             </div>
