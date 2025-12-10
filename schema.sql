@@ -24,6 +24,7 @@ CREATE TABLE transactions (
   product_id INTEGER NOT NULL,
   type TEXT CHECK(type IN ('IN', 'OUT', 'ADJUST')) NOT NULL,
   quantity INTEGER NOT NULL,
+  price REAL DEFAULT 0,
   department TEXT,
   handler_name TEXT,
   date TEXT DEFAULT (datetime('now')),

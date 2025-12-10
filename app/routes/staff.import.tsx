@@ -115,8 +115,9 @@ function StaffImportView() {
                     <Link to="/settings?tab=staff" style={{ color: "var(--text-secondary)" }}>返回列表</Link>
                 </div>
 
-                <div style={{ marginBottom: "2rem", padding: "1rem", background: "rgba(59, 130, 246, 0.1)", borderRadius: "var(--radius-sm)", border: "1px solid rgba(59, 130, 246, 0.2)" }}>
-                    <h4 style={{ color: "#60a5fa", marginBottom: "0.5rem" }}>📝 CSV 格式说明</h4>
+
+                <div style={{ marginBottom: "2rem", padding: "1rem", background: "rgba(0,0,0,0.2)", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-light)" }}>
+                    <h4 style={{ color: "var(--text-primary)", marginBottom: "0.5rem" }}>📝 CSV 格式说明</h4>
                     <p style={{ fontSize: "0.875rem", marginBottom: "0.5rem" }}>请上传 UTF-8 编码的 CSV 文件，每行包含两列：</p>
                     <code style={{ display: "block", padding: "0.5rem", background: "rgba(0,0,0,0.3)", borderRadius: "4px", fontSize: "0.875rem" }}>
                         部门,姓名<br />

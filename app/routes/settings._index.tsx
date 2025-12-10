@@ -820,7 +820,7 @@ export default function Settings() {
                                                             <button
                                                                 type="submit"
                                                                 className="btn btn-primary"
-                                                                style={{ padding: "0.25rem 0.75rem", fontSize: "0.875rem" }}
+                                                                style={{ padding: "0.25rem 0.75rem", fontSize: "0.875rem", whiteSpace: "nowrap" }}
                                                                 disabled={!editSupplierData.company_name}
                                                             >
                                                                 保存
@@ -832,7 +832,7 @@ export default function Settings() {
                                                                 setEditSupplierData({ company_name: "", contact_person: "", phone: "", email: "" });
                                                             }}
                                                             className="btn btn-secondary"
-                                                            style={{ padding: "0.25rem 0.75rem", fontSize: "0.875rem" }}
+                                                            style={{ padding: "0.25rem 0.75rem", fontSize: "0.875rem", whiteSpace: "nowrap" }}
                                                         >
                                                             取消
                                                         </button>
@@ -855,7 +855,8 @@ export default function Settings() {
                                                                 fontSize: "0.875rem",
                                                                 color: "var(--text-accent)",
                                                                 cursor: "pointer",
-                                                                padding: 0
+                                                                padding: 0,
+                                                                whiteSpace: "nowrap"
                                                             }}
                                                         >
                                                             编辑
@@ -866,7 +867,7 @@ export default function Settings() {
                                                                 type="submit"
                                                                 name="intent"
                                                                 value="delete_supplier"
-                                                                style={{ background: "none", border: "none", color: "var(--danger-color)", fontSize: "0.875rem", cursor: "pointer", padding: 0 }}
+                                                                style={{ background: "none", border: "none", color: "var(--danger-color)", fontSize: "0.875rem", cursor: "pointer", padding: 0, whiteSpace: "nowrap" }}
                                                                 onClick={(e) => !confirm("确定要删除这个供应商吗？") && e.preventDefault()}
                                                             >
                                                                 删除

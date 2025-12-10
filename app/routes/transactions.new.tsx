@@ -20,8 +20,10 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     const { results: suppliers } = await env.DB.prepare("SELECT * FROM suppliers ORDER BY company_name").all();
     // Fetch departments
     const { results: departments } = await env.DB.prepare("SELECT name FROM departments ORDER BY name ASC").all();
+    // Fetch categories
+    const { results: categories } = await env.DB.prepare("SELECT id, name FROM categories ORDER BY name ASC").all();
 
-    return json({ products, staff, suppliers, departments, user });
+    return json({ products, staff, suppliers, departments, categories, user });
 }
 
 export async function action({ request, context }: ActionFunctionArgs) {
@@ -42,21 +44,25 @@ export async function action({ request, context }: ActionFunctionArgs) {
         return json({ error: "缺少必填字段" }, { status: 400 });
     }
 
+    // Get product price for snapshot
+    const { results: productResults } = await env.DB.prepare("SELECT price, stock_quantity FROM products WHERE id = ?").bind(product_id).all();
+    const product = productResults[0];
+    const price = product?.price || 0;
+
     if (type === "OUT") {
-        const { results } = await env.DB.prepare("SELECT stock_quantity FROM products WHERE id = ?").bind(product_id).all();
-        const currentStock = results[0]?.stock_quantity || 0;
+        const currentStock = product?.stock_quantity || 0;
         if (currentStock < quantity) {
             return json({ error: `库存不足 (当前: ${currentStock})` }, { status: 400 });
         }
 
         await env.DB.batch([
-            env.DB.prepare("INSERT INTO transactions (product_id, type, quantity, department, handler_name, date, note) VALUES (?, ?, ?, ?, ?, ?, ?)").bind(product_id, type, quantity, department, handler_name, date || new Date().toISOString(), note),
+            env.DB.prepare("INSERT INTO transactions (product_id, type, quantity, price, department, handler_name, date, note) VALUES (?, ?, ?, ?, ?, ?, ?, ?)").bind(product_id, type, quantity, price, department, handler_name, date || new Date().toISOString(), note),
             env.DB.prepare("UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ?").bind(quantity, product_id)
         ]);
     } else {
         // IN: Store supplier name in handler_name if provided
         await env.DB.batch([
-            env.DB.prepare("INSERT INTO transactions (product_id, type, quantity, handler_name, date, note) VALUES (?, ?, ?, ?, ?, ?)").bind(product_id, type, quantity, handler_name, date || new Date().toISOString(), note),
+            env.DB.prepare("INSERT INTO transactions (product_id, type, quantity, price, handler_name, date, note) VALUES (?, ?, ?, ?, ?, ?, ?)").bind(product_id, type, quantity, price, handler_name, date || new Date().toISOString(), note),
             env.DB.prepare("UPDATE products SET stock_quantity = stock_quantity + ? WHERE id = ?").bind(quantity, product_id)
         ]);
     }
@@ -65,7 +71,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
 }
 
 export default function NewTransaction() {
-    const { products, staff, suppliers, departments: loadedDepartments, user } = useLoaderData<typeof loader>();
+    const { products, staff, suppliers, departments: loadedDepartments, categories: loadedCategories, user } = useLoaderData<typeof loader>();
     const navigation = useNavigation();
     const isSubmitting = navigation.state === "submitting";
 
@@ -73,10 +79,13 @@ export default function NewTransaction() {
     const initialType = searchParams.get("type") || "OUT";
 
     const [selectedDepartment, setSelectedDepartment] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState("");
     const [transactionType, setTransactionType] = useState(initialType);
     const [filteredStaff, setFilteredStaff] = useState<any[]>([]);
+    const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
 
     const departments = (loadedDepartments as any[]).map(d => d.name);
+    const categories = (loadedCategories as any[]).map(c => c.name);
 
     useEffect(() => {
         if (selectedDepartment) {
@@ -86,6 +95,15 @@ export default function NewTransaction() {
             setFilteredStaff([]);
         }
     }, [selectedDepartment, staff]);
+
+    useEffect(() => {
+        if (selectedCategory) {
+            const filtered = (products as any[]).filter(p => p.category === selectedCategory);
+            setFilteredProducts(filtered);
+        } else {
+            setFilteredProducts([]);
+        }
+    }, [selectedCategory, products]);
 
     return (
         <Layout user={user}>
@@ -115,16 +133,31 @@ export default function NewTransaction() {
                         </div>
                     </div>
 
-                    <div>
-                        <label>产品</label>
-                        <select name="product_id" required style={{ fontFamily: "monospace" }}>
-                            <option value="">选择商品...</option>
-                            {(products as any[]).map((p: any) => (
-                                <option key={p.id} value={p.id}>
-                                    [{p.category}] {p.brand} {p.model} (库存: {p.stock_quantity})
-                                </option>
-                            ))}
-                        </select>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                        <div>
+                            <label>分类</label>
+                            <select
+                                value={selectedCategory}
+                                onChange={(e) => setSelectedCategory(e.target.value)}
+                                required
+                            >
+                                <option value="">选择分类...</option>
+                                {categories.map((cat: string) => (
+                                    <option key={cat} value={cat}>{cat}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
+                            <label>商品</label>
+                            <select name="product_id" disabled={!selectedCategory} required style={{ fontFamily: "monospace" }}>
+                                <option value="">选择商品...</option>
+                                {filteredProducts.map((p: any) => (
+                                    <option key={p.id} value={p.id}>
+                                        {p.brand} {p.model} (库存: {p.stock_quantity})
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
 
                     <div>

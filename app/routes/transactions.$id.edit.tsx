@@ -35,8 +35,9 @@ export async function loader({ request, context, params }: LoaderFunctionArgs) {
     const { results: staff } = await env.DB.prepare("SELECT * FROM staff ORDER BY department, name").all();
     const { results: suppliers } = await env.DB.prepare("SELECT * FROM suppliers ORDER BY company_name").all();
     const { results: departments } = await env.DB.prepare("SELECT name FROM departments ORDER BY name ASC").all();
+    const { results: categories } = await env.DB.prepare("SELECT id, name FROM categories ORDER BY name ASC").all();
 
-    return json({ transaction: transactions[0], products, staff, suppliers, departments, user });
+    return json({ transaction: transactions[0], products, staff, suppliers, departments, categories, user });
 }
 
 export async function action({ request, context, params }: ActionFunctionArgs) {
@@ -135,27 +136,33 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
             .bind(quantity, product_id).run();
     }
 
+    // Get current product price for snapshot
+    const { results: productResults } = await env.DB.prepare("SELECT price FROM products WHERE id = ?").bind(product_id).all();
+    const price = productResults[0]?.price || 0;
+
     // Update the transaction
     await env.DB.prepare(`
         UPDATE transactions 
-        SET type = ?, product_id = ?, quantity = ?, date = ?, department = ?, handler_name = ?, note = ?
+        SET type = ?, product_id = ?, quantity = ?, price = ?, date = ?, department = ?, handler_name = ?, note = ?
         WHERE id = ?
-    `).bind(type, product_id, quantity, date, department, handler_name, note, id).run();
+    `).bind(type, product_id, quantity, price, date, department, handler_name, note, id).run();
 
     const redirectPath = type === "OUT" ? "/transactions?type=OUT" : "/transactions?type=IN";
     return redirect(redirectPath);
 }
 
 export default function EditTransaction() {
-    const { transaction, products, staff, suppliers, departments: loadedDepartments, user } = useLoaderData<typeof loader>();
+    const { transaction, products, staff, suppliers, departments: loadedDepartments, categories: loadedCategories, user } = useLoaderData<typeof loader>();
     const navigation = useNavigation();
     const isSubmitting = navigation.state === "submitting";
 
     const [selectedDepartment, setSelectedDepartment] = useState(transaction.department || "");
     const [selectedHandler, setSelectedHandler] = useState(transaction.handler_name || "");
+    const [selectedCategory, setSelectedCategory] = useState(transaction.category_name || "");
     const [transactionType, setTransactionType] = useState(transaction.type);
 
     const departments = (loadedDepartments as any[]).map(d => d.name);
+    const categories = (loadedCategories as any[]).map(c => c.name);
 
     // Clear handler when department changes
     useEffect(() => {
@@ -165,6 +172,11 @@ export default function EditTransaction() {
     // Derive filteredStaff directly from props/state to ensure it's available on first render
     const filteredStaff = selectedDepartment
         ? (staff as any[]).filter(s => s.department === selectedDepartment)
+        : [];
+
+    // Filter products by category
+    const filteredProducts = selectedCategory
+        ? (products as any[]).filter(p => p.category === selectedCategory)
         : [];
 
     return (
@@ -225,16 +237,31 @@ export default function EditTransaction() {
                         </div>
                     </div>
 
-                    <div>
-                        <label>产品</label>
-                        <select name="product_id" defaultValue={transaction.product_id} required style={{ fontFamily: "monospace" }}>
-                            <option value="">选择商品...</option>
-                            {(products as any[]).map((p: any) => (
-                                <option key={p.id} value={p.id}>
-                                    [{p.category}] {p.brand} {p.model} (库存: {p.stock_quantity})
-                                </option>
-                            ))}
-                        </select>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                        <div>
+                            <label>分类</label>
+                            <select
+                                value={selectedCategory}
+                                onChange={(e) => setSelectedCategory(e.target.value)}
+                                required
+                            >
+                                <option value="">选择分类...</option>
+                                {categories.map((cat: string) => (
+                                    <option key={cat} value={cat}>{cat}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
+                            <label>商品</label>
+                            <select name="product_id" defaultValue={transaction.product_id} disabled={!selectedCategory} required style={{ fontFamily: "monospace" }}>
+                                <option value="">选择商品...</option>
+                                {filteredProducts.map((p: any) => (
+                                    <option key={p.id} value={p.id}>
+                                        {p.brand} {p.model} (库存: {p.stock_quantity})
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
 
                     <div>

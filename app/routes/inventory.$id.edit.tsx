@@ -140,8 +140,8 @@ export default function EditInventory() {
 
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                         <div>
-                            <label>价格 (¥)</label>
-                            <input type="number" step="0.01" name="price" defaultValue={product.price || ""} placeholder="0.00" />
+                            <label>价格 (¥) *</label>
+                            <input type="number" step="0.01" name="price" defaultValue={product.price || ""} placeholder="0.00" required min="0" />
                         </div>
                         <div>
                             <label>当前库存</label>

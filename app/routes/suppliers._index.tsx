@@ -119,10 +119,10 @@ export default function Suppliers() {
                     <table style={{ width: "100%", borderCollapse: "collapse", color: "var(--text-primary)" }}>
                         <thead>
                             <tr style={{ borderBottom: "1px solid var(--border-light)", textAlign: "left" }}>
-                                <th style={{ padding: "1rem" }}>公司名称</th>
-                                <th style={{ padding: "1rem" }}>联系人</th>
-                                <th style={{ padding: "1rem" }}>电话</th>
-                                <th style={{ padding: "1rem" }}>操作</th>
+                                <th style={{ padding: "1rem", width: "35%" }}>公司名称</th>
+                                <th style={{ padding: "1rem", width: "20%" }}>联系人</th>
+                                <th style={{ padding: "1rem", width: "25%" }}>电话</th>
+                                <th style={{ padding: "1rem", width: "20%" }}>操作</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -131,15 +131,15 @@ export default function Suppliers() {
                                     <td style={{ padding: "1rem", fontWeight: 600 }}>{s.company_name}</td>
                                     <td style={{ padding: "1rem" }}>{s.contact_person || "-"}</td>
                                     <td style={{ padding: "1rem" }}>{s.phone || "-"}</td>
-                                    <td style={{ padding: "1rem" }}>
-                                        <div style={{ display: "flex", gap: "1rem" }}>
-                                            <Link to={`/suppliers/${s.id}/edit`} style={{ fontSize: "0.875rem", color: "var(--text-accent)" }}>
+                                    <td style={{ padding: "1rem", whiteSpace: "nowrap" }}>
+                                        <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+                                            <Link to={`/suppliers/${s.id}/edit`} style={{ fontSize: "0.875rem", color: "var(--text-accent)", whiteSpace: "nowrap" }}>
                                                 编辑
                                             </Link>
-                                            <Form method="post" onSubmit={(e) => !confirm("确定要删除这个供应商吗？") && e.preventDefault()}>
+                                            <Form method="post" onSubmit={(e) => !confirm("确定要删除这个供应商吗？") && e.preventDefault()} style={{ margin: 0 }}>
                                                 <input type="hidden" name="intent" value="delete" />
                                                 <input type="hidden" name="id" value={s.id} />
-                                                <button type="submit" style={{ background: "none", border: "none", color: "var(--danger-color)", fontSize: "0.875rem", cursor: "pointer" }}>
+                                                <button type="submit" style={{ background: "none", border: "none", color: "var(--danger-color)", fontSize: "0.875rem", cursor: "pointer", padding: 0, whiteSpace: "nowrap" }}>
                                                     删除
                                                 </button>
                                             </Form>

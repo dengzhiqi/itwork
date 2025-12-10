@@ -9,6 +9,7 @@ export default function Layout({ children, user }: { children: React.ReactNode; 
         { label: "库存管理", path: "/inventory" },
         { label: "出库管理", path: "/transactions?type=OUT" },
         { label: "入库管理", path: "/transactions?type=IN" },
+        { label: "报表", path: "/reports" },
         { label: "设置", path: "/settings" },
     ];
 
