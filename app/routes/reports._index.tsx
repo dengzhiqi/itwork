@@ -1,7 +1,7 @@
 import type { LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import { useLoaderData, useSearchParams } from "@remix-run/react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Layout from "../components/Layout";
 import { requireUser } from "../utils/auth.server";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
@@ -70,9 +70,18 @@ export default function Reports() {
 
     // Filter states
     const [dateRange, setDateRange] = useState(searchParams.get("range") || "all");
-    const [customStartDate, setCustomStartDate] = useState(searchParams.get("startDate") || "");
-    const [customEndDate, setCustomEndDate] = useState(searchParams.get("endDate") || "");
+    // Set default custom dates to year start and today
+    const getYearStart = () => {
+        const now = new Date();
+        return `${now.getFullYear()}-01-01`;
+    };
+    const getToday = () => {
+        return new Date().toISOString().split("T")[0];
+    };
+    const [customStartDate, setCustomStartDate] = useState(searchParams.get("startDate") || getYearStart());
+    const [customEndDate, setCustomEndDate] = useState(searchParams.get("endDate") || getToday());
     const [selectedDepartment, setSelectedDepartment] = useState(searchParams.get("department") || "");
+    const [selectedCategory, setSelectedCategory] = useState("");
 
     // Calculate date ranges
     const getDateRange = (range: string) => {
@@ -80,18 +89,12 @@ export default function Reports() {
         const today = now.toISOString().split("T")[0];
 
         switch (range) {
-            case "7days":
-                const week = new Date(now);
-                week.setDate(week.getDate() - 7);
-                return { start: week.toISOString().split("T")[0], end: today };
-            case "30days":
-                const month = new Date(now);
-                month.setDate(month.getDate() - 30);
-                return { start: month.toISOString().split("T")[0], end: today };
-            case "90days":
-                const quarter = new Date(now);
-                quarter.setDate(quarter.getDate() - 90);
-                return { start: quarter.toISOString().split("T")[0], end: today };
+            case "month":
+                const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+                return { start: monthStart.toISOString().split("T")[0], end: today };
+            case "year":
+                const yearStart = `${now.getFullYear()}-01-01`;
+                return { start: yearStart, end: today };
             case "custom":
                 return { start: customStartDate, end: customEndDate };
             default:
@@ -121,48 +124,46 @@ export default function Reports() {
         setSearchParams(new URLSearchParams());
     };
 
-    // Calculate statistics
+    // Auto-apply filters when department changes
+    useEffect(() => {
+        if (selectedDepartment !== searchParams.get("department")) {
+            applyFilters();
+        }
+    }, [selectedDepartment]);
+
+    // Auto-apply filters when date range changes
+    useEffect(() => {
+        applyFilters();
+    }, [dateRange, customStartDate, customEndDate]);
+
+    // Calculate statistics - only total cost
     const stats = useMemo(() => {
-        const totalQuantity = transactions.reduce((sum: number, t: any) => sum + t.quantity, 0);
         const totalCost = transactions.reduce((sum: number, t: any) => sum + (t.quantity * t.price), 0);
-        const transactionCount = transactions.length;
-
-        // Find most used product
-        const productUsage: Record<string, { quantity: number; name: string }> = {};
-        transactions.forEach((t: any) => {
-            const key = `${t.brand} ${t.model}`;
-            if (!productUsage[key]) {
-                productUsage[key] = { quantity: 0, name: key };
-            }
-            productUsage[key].quantity += t.quantity;
-        });
-
-        const mostUsed = Object.values(productUsage).sort((a, b) => b.quantity - a.quantity)[0];
 
         return {
-            totalQuantity,
-            totalCost,
-            transactionCount,
-            mostUsedProduct: mostUsed?.name || "无",
-            mostUsedQuantity: mostUsed?.quantity || 0
+            totalCost
         };
     }, [transactions]);
 
-    // Prepare chart data - Daily usage trend
+    // Prepare chart data - Daily usage trend with cost
     const usageTrendData = useMemo(() => {
-        const dailyData: Record<string, number> = {};
+        const dailyData: Record<string, { quantity: number; cost: number }> = {};
 
         transactions.forEach((t: any) => {
             const date = t.date.split("T")[0];
-            dailyData[date] = (dailyData[date] || 0) + t.quantity;
+            if (!dailyData[date]) {
+                dailyData[date] = { quantity: 0, cost: 0 };
+            }
+            dailyData[date].quantity += t.quantity;
+            dailyData[date].cost += t.quantity * t.price;
         });
 
         return Object.entries(dailyData)
-            .map(([date, quantity]) => ({ date, quantity }))
+            .map(([date, data]) => ({ date, quantity: data.quantity, cost: data.cost }))
             .sort((a, b) => a.date.localeCompare(b.date));
     }, [transactions]);
 
-    // Department distribution
+    // Department distribution by quantity
     const departmentData = useMemo(() => {
         const deptUsage: Record<string, number> = {};
 
@@ -173,6 +174,53 @@ export default function Reports() {
 
         return Object.entries(deptUsage).map(([name, value]) => ({ name, value }));
     }, [transactions]);
+
+    // Department cost comparison
+    const departmentCostData = useMemo(() => {
+        const deptCost: Record<string, number> = {};
+
+        transactions.forEach((t: any) => {
+            const dept = t.department || "未分配";
+            deptCost[dept] = (deptCost[dept] || 0) + (t.quantity * t.price);
+        });
+
+        return Object.entries(deptCost)
+            .map(([name, cost]) => ({ name, cost }))
+            .sort((a, b) => b.cost - a.cost);
+    }, [transactions]);
+
+    // Get unique categories for selector
+    const categoryList = useMemo(() => {
+        const categories = new Set<string>();
+        transactions.forEach((t: any) => {
+            if (t.category) {
+                categories.add(t.category);
+            }
+        });
+        return Array.from(categories).sort();
+    }, [transactions]);
+
+    // Category-specific usage trend with cost
+    const categoryUsageTrendData = useMemo(() => {
+        if (!selectedCategory) return [];
+
+        const dailyData: Record<string, { quantity: number; cost: number }> = {};
+
+        transactions.forEach((t: any) => {
+            if (t.category === selectedCategory) {
+                const date = t.date.split("T")[0];
+                if (!dailyData[date]) {
+                    dailyData[date] = { quantity: 0, cost: 0 };
+                }
+                dailyData[date].quantity += t.quantity;
+                dailyData[date].cost += t.quantity * t.price;
+            }
+        });
+
+        return Object.entries(dailyData)
+            .map(([date, data]) => ({ date, quantity: data.quantity, cost: data.cost }))
+            .sort((a, b) => a.date.localeCompare(b.date));
+    }, [transactions, selectedCategory]);
 
     // Product ranking - Top 10
     const productRankingData = useMemo(() => {
@@ -213,9 +261,8 @@ export default function Reports() {
                             <label>时间范围</label>
                             <select value={dateRange} onChange={(e) => setDateRange(e.target.value)}>
                                 <option value="all">全部时间</option>
-                                <option value="7days">最近7天</option>
-                                <option value="30days">最近30天</option>
-                                <option value="90days">最近90天</option>
+                                <option value="month">本月</option>
+                                <option value="year">本年</option>
                                 <option value="custom">自定义</option>
                             </select>
                         </div>
@@ -253,35 +300,13 @@ export default function Reports() {
                             </select>
                         </div>
                     </div>
-
-                    <div style={{ display: "flex", gap: "1rem" }}>
-                        <button onClick={applyFilters} className="btn btn-primary">
-                            应用筛选
-                        </button>
-                        <button onClick={resetFilters} className="btn btn-secondary">
-                            重置
-                        </button>
-                    </div>
                 </div>
 
-                {/* Statistics Cards */}
+                {/* Statistics Cards - Only Total Cost */}
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "1rem" }}>
-                    <div className="glass-card" style={{ padding: "1.5rem" }}>
-                        <div style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "0.5rem" }}>总使用量</div>
-                        <div style={{ fontSize: "2rem", fontWeight: "bold", color: "var(--text-accent)" }}>{stats.totalQuantity}</div>
-                    </div>
                     <div className="glass-card" style={{ padding: "1.5rem" }}>
                         <div style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "0.5rem" }}>总成本</div>
                         <div style={{ fontSize: "2rem", fontWeight: "bold", color: "var(--text-accent)" }}>¥{stats.totalCost.toFixed(2)}</div>
-                    </div>
-                    <div className="glass-card" style={{ padding: "1.5rem" }}>
-                        <div style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "0.5rem" }}>交易次数</div>
-                        <div style={{ fontSize: "2rem", fontWeight: "bold", color: "var(--text-accent)" }}>{stats.transactionCount}</div>
-                    </div>
-                    <div className="glass-card" style={{ padding: "1.5rem" }}>
-                        <div style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "0.5rem" }}>最常用商品</div>
-                        <div style={{ fontSize: "1.125rem", fontWeight: "bold", color: "var(--text-primary)" }}>{stats.mostUsedProduct}</div>
-                        <div style={{ fontSize: "0.875rem", color: "var(--text-secondary)" }}>使用量: {stats.mostUsedQuantity}</div>
                     </div>
                 </div>
 
@@ -290,12 +315,28 @@ export default function Reports() {
                     <>
                         {/* Usage Trend */}
                         <div className="glass-panel" style={{ padding: "1.5rem" }}>
-                            <h3 style={{ fontSize: "1.125rem", marginBottom: "1rem" }}>使用趋势</h3>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "nowrap", gap: "1rem" }}>
+                                <h3 style={{ fontSize: "1.125rem", margin: 0, flexShrink: 0 }}>使用趋势</h3>
+                                <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexShrink: 0 }}>
+                                    <label style={{ fontSize: "0.875rem", color: "var(--text-secondary)", whiteSpace: "nowrap" }}>选择分类:</label>
+                                    <select
+                                        value={selectedCategory}
+                                        onChange={(e) => setSelectedCategory(e.target.value)}
+                                        style={{ fontSize: "0.875rem", padding: "0.25rem 0.5rem", minWidth: "120px" }}
+                                    >
+                                        <option value="">全部分类</option>
+                                        {categoryList.map((category) => (
+                                            <option key={category} value={category}>{category}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
                             <ResponsiveContainer width="100%" height={300}>
-                                <LineChart data={usageTrendData}>
+                                <LineChart data={selectedCategory ? categoryUsageTrendData : usageTrendData}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" />
                                     <XAxis dataKey="date" stroke="var(--text-secondary)" />
-                                    <YAxis stroke="var(--text-secondary)" />
+                                    <YAxis yAxisId="left" stroke="var(--text-secondary)" />
+                                    <YAxis yAxisId="right" orientation="right" stroke="var(--text-secondary)" />
                                     <Tooltip
                                         contentStyle={{
                                             background: "var(--bg-panel)",
@@ -303,34 +344,28 @@ export default function Reports() {
                                             borderRadius: "var(--radius-sm)",
                                             color: "var(--text-primary)"
                                         }}
+                                        formatter={(value: number, name: string) => {
+                                            if (name === "成本") return `¥${value.toFixed(2)}`;
+                                            return value;
+                                        }}
                                     />
                                     <Legend />
-                                    <Line type="monotone" dataKey="quantity" stroke="#38bdf8" strokeWidth={2} name="使用量" />
+                                    <Line yAxisId="left" type="monotone" dataKey="quantity" stroke="#38bdf8" strokeWidth={2} name="使用量" />
+                                    <Line yAxisId="right" type="monotone" dataKey="cost" stroke="#22c55e" strokeWidth={2} name="成本" />
                                 </LineChart>
                             </ResponsiveContainer>
                         </div>
 
-                        {/* Department Distribution & Product Ranking */}
+                        {/* Department Cost Comparison & Product Ranking */}
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))", gap: "1rem" }}>
-                            {/* Department Distribution */}
+                            {/* Department Cost Comparison */}
                             <div className="glass-panel" style={{ padding: "1.5rem" }}>
-                                <h3 style={{ fontSize: "1.125rem", marginBottom: "1rem" }}>部门分布</h3>
+                                <h3 style={{ fontSize: "1.125rem", marginBottom: "1rem" }}>部门成本对比</h3>
                                 <ResponsiveContainer width="100%" height={300}>
-                                    <PieChart>
-                                        <Pie
-                                            data={departmentData}
-                                            cx="50%"
-                                            cy="50%"
-                                            labelLine={false}
-                                            label={(entry) => `${entry.name}: ${entry.value}`}
-                                            outerRadius={80}
-                                            fill="#8884d8"
-                                            dataKey="value"
-                                        >
-                                            {departmentData.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                            ))}
-                                        </Pie>
+                                    <BarChart data={departmentCostData}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" />
+                                        <XAxis dataKey="name" stroke="var(--text-secondary)" />
+                                        <YAxis stroke="var(--text-secondary)" />
                                         <Tooltip
                                             contentStyle={{
                                                 background: "var(--bg-panel)",
@@ -338,8 +373,10 @@ export default function Reports() {
                                                 borderRadius: "var(--radius-sm)",
                                                 color: "var(--text-primary)"
                                             }}
+                                            formatter={(value: number) => `¥${value.toFixed(2)}`}
                                         />
-                                    </PieChart>
+                                        <Bar dataKey="cost" fill="#22c55e" name="总成本" />
+                                    </BarChart>
                                 </ResponsiveContainer>
                             </div>
 
