@@ -46,9 +46,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
             root.style.setProperty('--success-color', colors.successColor);
             root.style.setProperty('--bg-gradient-1', colors.backgroundGradient1);
             root.style.setProperty('--bg-gradient-2', colors.backgroundGradient2);
-
-            // Add transition for smooth theme switching
-            root.style.transition = 'background-color 0.3s ease, color 0.3s ease';
         }
     }, [theme]);
 
