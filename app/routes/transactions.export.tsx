@@ -39,14 +39,14 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
         params.push("OUT");
     }
 
-    // Year filter
-    if (year) {
+    // Year filter - skip if "all" is selected
+    if (year && year !== "all") {
         filters.push("strftime('%Y', t.date) = ?");
         params.push(year);
     }
 
-    // Month filter
-    if (month) {
+    // Month filter - only apply if year is not "all"
+    if (month && year !== "all") {
         filters.push("strftime('%m', t.date) = ?");
         params.push(month.padStart(2, '0'));
     }
