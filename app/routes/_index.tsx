@@ -95,10 +95,28 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
         const totalItemsResult = await env.DB.prepare("SELECT COUNT(*) as count FROM products").first();
         const totalItems = totalItemsResult?.count || 0;
 
-        return json({ user, totalItems, categoryStats, departmentStats, totalStats, year, month, category });
+        // Query available years from transactions
+        const { results: availableYears } = await env.DB.prepare(`
+            SELECT DISTINCT strftime('%Y', date) as year 
+            FROM transactions 
+            ORDER BY year DESC
+        `).all();
+
+        // If no records, at least show current year
+        const years = availableYears.length > 0
+            ? availableYears.map((row: any) => row.year)
+            : [currentYearStr];
+
+        // Ensure current selected year is in the list
+        if (!years.includes(year)) {
+            years.push(year);
+            years.sort((a: string, b: string) => parseInt(b) - parseInt(a));
+        }
+
+        return json({ user, totalItems, categoryStats, departmentStats, totalStats, year, month, category, years });
     } catch (error) {
         console.error("Database error:", error);
-        return json({ user, totalItems: 0, categoryStats: [], departmentStats: [], totalStats: [], year, month, category: null });
+        return json({ user, totalItems: 0, categoryStats: [], departmentStats: [], totalStats: [], year, month, category: null, years: [currentYearStr] });
     }
 }
 
@@ -123,11 +141,9 @@ const CustomPieTooltip = ({ active, payload }: any) => {
 };
 
 export default function Index() {
-    const { user, totalItems, categoryStats, departmentStats, totalStats, year, month, category } = useLoaderData<typeof loader>();
+    const { user, totalItems, categoryStats, departmentStats, totalStats, year, month, category, years } = useLoaderData<typeof loader>();
     const submit = useSubmit();
     const [searchParams, setSearchParams] = useSearchParams();
-
-    const years = Array.from({ length: 5 }, (_, i) => (new Date().getFullYear() - i).toString());
     const months = [
         { value: "all", label: "全年" },
         ...Array.from({ length: 12 }, (_, i) => ({ value: (i + 1).toString().padStart(2, '0'), label: `${i + 1}月` }))
@@ -171,7 +187,7 @@ export default function Index() {
                                 onChange={handleChange}
                                 style={{ padding: "0.5rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-light)", minWidth: "100px" }}
                             >
-                                {years.map(y => <option key={y} value={y}>{y}年</option>)}
+                                {years.map((y: string) => <option key={y} value={y}>{y}年</option>)}
                             </select>
 
                             <select

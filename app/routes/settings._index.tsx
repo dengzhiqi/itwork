@@ -13,30 +13,54 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     const user = await requireUser(request, env);
 
     // Get categories with product count
-    const { results: categories } = await env.DB.prepare(`
-        SELECT c.*, COUNT(p.id) as product_count
-        FROM categories c
-        LEFT JOIN products p ON c.id = p.category_id
-        GROUP BY c.id
-        ORDER BY c.name ASC
-    `).all();
+    let categories: any[] = [];
+    try {
+        const { results } = await env.DB.prepare(`
+            SELECT c.*, COUNT(p.id) as product_count
+            FROM categories c
+            LEFT JOIN products p ON c.id = p.category_id
+            GROUP BY c.id
+            ORDER BY c.name ASC
+        `).all();
+        categories = results || [];
+    } catch (e) {
+        console.error("Failed to load categories:", e);
+    }
 
     // Get all staff
-    const { results: staff } = await env.DB.prepare("SELECT * FROM staff ORDER BY department, name ASC").all();
+    let staff: any[] = [];
+    try {
+        const { results } = await env.DB.prepare("SELECT * FROM staff ORDER BY department, name ASC").all();
+        staff = results || [];
+    } catch (e) {
+        console.error("Failed to load staff:", e);
+    }
 
     // Get departments with staff count
-    const { results: departments } = await env.DB.prepare(`
-        SELECT 
-            d.name as department,
-            COUNT(s.id) as staff_count
-        FROM departments d
-        LEFT JOIN staff s ON d.name = s.department
-        GROUP BY d.id, d.name
-        ORDER BY department ASC
-    `).all();
+    let departments: any[] = [];
+    try {
+        const { results } = await env.DB.prepare(`
+            SELECT 
+                d.name as department,
+                COUNT(s.id) as staff_count
+            FROM departments d
+            LEFT JOIN staff s ON d.name = s.department
+            GROUP BY d.id, d.name
+            ORDER BY department ASC
+        `).all();
+        departments = results || [];
+    } catch (e) {
+        console.error("Failed to load departments:", e);
+    }
 
     // Get suppliers
-    const { results: suppliers } = await env.DB.prepare("SELECT * FROM suppliers ORDER BY company_name ASC").all();
+    let suppliers: any[] = [];
+    try {
+        const { results } = await env.DB.prepare("SELECT * FROM suppliers ORDER BY company_name ASC").all();
+        suppliers = results || [];
+    } catch (e) {
+        console.error("Failed to load suppliers:", e);
+    }
 
     return json({ categories, staff, departments, suppliers, user });
 }

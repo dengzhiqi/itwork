@@ -69,16 +69,18 @@ export default function Reports() {
     const [searchParams, setSearchParams] = useSearchParams();
 
     // Filter states
-    const [dateRange, setDateRange] = useState(searchParams.get("range") || "all");
-    // Set default custom dates to year start and today
-    const getYearStart = () => {
-        const now = new Date();
-        return `${now.getFullYear()}-01-01`;
+    const [dateRange, setDateRange] = useState(searchParams.get("range") || "year");
+    // Set default custom dates to one year period: tomorrow last year to today
+    const getLastYearTomorrow = () => {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setFullYear(tomorrow.getFullYear() - 1);
+        return tomorrow.toISOString().split("T")[0];
     };
     const getToday = () => {
         return new Date().toISOString().split("T")[0];
     };
-    const [customStartDate, setCustomStartDate] = useState(searchParams.get("startDate") || getYearStart());
+    const [customStartDate, setCustomStartDate] = useState(searchParams.get("startDate") || getLastYearTomorrow());
     const [customEndDate, setCustomEndDate] = useState(searchParams.get("endDate") || getToday());
     const [selectedDepartment, setSelectedDepartment] = useState(searchParams.get("department") || "");
     const [selectedCategory, setSelectedCategory] = useState("");
@@ -287,9 +289,9 @@ export default function Reports() {
                         <div>
                             <label>时间范围</label>
                             <select value={dateRange} onChange={(e) => setDateRange(e.target.value)}>
-                                <option value="all">全部时间</option>
-                                <option value="month">本月</option>
                                 <option value="year">本年</option>
+                                <option value="month">本月</option>
+                                <option value="all">全部时间</option>
                                 <option value="custom">自定义</option>
                             </select>
                         </div>

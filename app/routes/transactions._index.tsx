@@ -17,9 +17,16 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
 
     // Get filter parameters with defaults
     const year = url.searchParams.get("year") || currentYear.toString();
-    const month = url.searchParams.get("month") || (type === "OUT" ? currentMonth : "");
+    // Only set default month if month parameter is not present AND type is OUT
+    // If month parameter exists but is empty, keep it empty (for "全年")
+    const monthParam = url.searchParams.get("month");
+    const month = monthParam !== null ? monthParam : (type === "OUT" ? currentMonth : "");
     const categoryId = url.searchParams.get("category") || "";
     const nameQuery = url.searchParams.get("name") || "";
+
+    // Pagination parameters
+    const page = parseInt(url.searchParams.get("page") || "1");
+    const pageSize = parseInt(url.searchParams.get("pageSize") || "15");
 
     let query = `
     SELECT t.*, p.brand, p.model, c.name as category_name 
@@ -38,14 +45,14 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
         filters.push("t.type = 'OUT'");
     }
 
-    // Year filter
-    if (year) {
+    // Year filter - skip if "all" is selected
+    if (year && year !== "all") {
         filters.push("strftime('%Y', t.date) = ?");
         params.push(year);
     }
 
-    // Month filter (optional)
-    if (month) {
+    // Month filter (optional) - only apply if year is not "all"
+    if (month && year !== "all") {
         filters.push("strftime('%m', t.date) = ?");
         params.push(month.padStart(2, '0'));
     }
@@ -62,11 +69,25 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
         params.push(`%${nameQuery}%`);
     }
 
-    if (filters.length > 0) {
-        query += " WHERE " + filters.join(" AND ");
-    }
+    const whereClause = filters.length > 0 ? " WHERE " + filters.join(" AND ") : "";
 
-    query += ` ORDER BY t.date DESC, t.id DESC LIMIT 500`;
+    // Count total records
+    let countQuery = `
+        SELECT COUNT(*) as total
+        FROM transactions t
+        JOIN products p ON t.product_id = p.id
+        JOIN categories c ON p.category_id = c.id
+        ${whereClause}
+    `;
+    const { total } = await env.DB.prepare(countQuery).bind(...params).first() as { total: number };
+
+    // Add pagination to main query
+    query += whereClause;
+    query += ` ORDER BY t.date DESC, t.id DESC`;
+
+    const offset = (page - 1) * pageSize;
+    query += ` LIMIT ? OFFSET ?`;
+    params.push(pageSize, offset);
 
     const { results: transactions } = await env.DB.prepare(query).bind(...params).all();
 
@@ -75,19 +96,59 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
         "SELECT id, name FROM categories ORDER BY name"
     ).all();
 
-    return json({ transactions, user, type, categories, year, month, categoryId, nameQuery });
+    // Query available years from transactions (filtered by type if applicable)
+    let yearQuery = `
+        SELECT DISTINCT strftime('%Y', date) as year 
+        FROM transactions
+    `;
+    const yearParams: any[] = [];
+
+    if (type === "IN") {
+        yearQuery += " WHERE type = 'IN'";
+    } else if (type === "OUT") {
+        yearQuery += " WHERE type = 'OUT'";
+    }
+
+    yearQuery += " ORDER BY year DESC";
+
+    const { results: availableYears } = await env.DB.prepare(yearQuery).bind(...yearParams).all();
+
+    // If no records, at least show current year
+    const years = availableYears.length > 0
+        ? availableYears.map((row: any) => row.year)
+        : [currentYear.toString()];
+
+    // Ensure current selected year is in the list (but not 'all')
+    if (year !== "all" && !years.includes(year)) {
+        years.push(year);
+        years.sort((a: string, b: string) => parseInt(b) - parseInt(a));
+    }
+
+    return json({
+        transactions,
+        user,
+        type,
+        categories,
+        year,
+        month,
+        categoryId,
+        nameQuery,
+        years,
+        pagination: {
+            page,
+            pageSize,
+            total,
+            totalPages: Math.ceil(total / pageSize)
+        }
+    });
 }
 
 export default function Transactions() {
-    const { transactions, user, type, categories, year, month, categoryId, nameQuery } = useLoaderData<typeof loader>();
+    const { transactions, user, type, categories, year, month, categoryId, nameQuery, years, pagination } = useLoaderData<typeof loader>();
     const [searchParams, setSearchParams] = useSearchParams();
     const currentType = searchParams.get("type") || type;
 
     const pageTitle = currentType === "IN" ? "入库管理" : (currentType === "OUT" ? "出库管理" : "出入库记录");
-
-    // Generate year options (current year and past 5 years)
-    const currentYear = new Date().getFullYear();
-    const years = Array.from({ length: 6 }, (_, i) => currentYear - i);
 
     // Generate month options
     const months = Array.from({ length: 12 }, (_, i) => ({
@@ -107,8 +168,29 @@ export default function Transactions() {
         if (value) {
             newParams.set(key, value);
         } else {
-            newParams.delete(key);
+            // For month filter, keep empty string to distinguish from "no parameter"
+            // For other filters, delete the parameter
+            if (key === "month") {
+                newParams.set(key, "");
+            } else {
+                newParams.delete(key);
+            }
         }
+        // Reset to first page when filters change
+        newParams.set("page", "1");
+        setSearchParams(newParams);
+    };
+
+    const handlePageSizeChange = (newPageSize: string) => {
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set("pageSize", newPageSize);
+        newParams.set("page", "1"); // Reset to first page
+        setSearchParams(newParams);
+    };
+
+    const handlePageChange = (newPage: number) => {
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set("page", newPage.toString());
         setSearchParams(newParams);
     };
 
@@ -143,16 +225,24 @@ export default function Transactions() {
                         onChange={(e) => handleFilterChange("year", e.target.value)}
                         style={{ fontSize: "0.875rem", padding: "0.5rem", width: "100px" }}
                     >
-                        {years.map(y => (
+                        {years.map((y: string) => (
                             <option key={y} value={y}>{y}年</option>
                         ))}
+                        <option value="all">全部</option>
                     </select>
 
                     {/* Month filter */}
                     <select
                         value={month}
                         onChange={(e) => handleFilterChange("month", e.target.value)}
-                        style={{ fontSize: "0.875rem", padding: "0.5rem", width: "90px" }}
+                        disabled={year === "all"}
+                        style={{
+                            fontSize: "0.875rem",
+                            padding: "0.5rem",
+                            width: "90px",
+                            opacity: year === "all" ? 0.5 : 1,
+                            cursor: year === "all" ? "not-allowed" : "pointer"
+                        }}
                     >
                         <option value="">全年</option>
                         {months.map(m => (
@@ -215,6 +305,18 @@ export default function Transactions() {
                             </form>
                         </>
                     )}
+
+                    {/* Page size selector */}
+                    <span style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginLeft: "auto" }}>每页显示：</span>
+                    <select
+                        value={searchParams.get("pageSize") || "15"}
+                        onChange={(e) => handlePageSizeChange(e.target.value)}
+                        style={{ fontSize: "0.875rem", padding: "0.5rem", width: "80px" }}
+                    >
+                        <option value="15">15条</option>
+                        <option value="20">20条</option>
+                        <option value="30">30条</option>
+                    </select>
                 </div>
 
                 <div style={{ overflowX: "auto" }}>
@@ -295,6 +397,94 @@ export default function Transactions() {
                         </tbody>
                     </table>
                 </div>
+
+                {/* Pagination controls - only show if more than 10 records */}
+                {pagination.total > 10 && (
+                    <div style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginTop: "1.5rem",
+                        paddingTop: "1.5rem",
+                        borderTop: "1px solid var(--border-light)"
+                    }}>
+                        <div style={{ color: "var(--text-secondary)", fontSize: "0.875rem" }}>
+                            共 {pagination.total} 条记录，第 {pagination.page} / {pagination.totalPages} 页
+                        </div>
+
+                        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                            {/* Previous button */}
+                            <button
+                                disabled={pagination.page === 1}
+                                onClick={() => handlePageChange(pagination.page - 1)}
+                                className="btn"
+                                style={{
+                                    padding: "0.5rem 1rem",
+                                    fontSize: "0.875rem",
+                                    opacity: pagination.page === 1 ? 0.5 : 1,
+                                    cursor: pagination.page === 1 ? "not-allowed" : "pointer"
+                                }}
+                            >
+                                上一页
+                            </button>
+
+                            {/* Page numbers */}
+                            {(() => {
+                                const { page, totalPages } = pagination;
+                                const pages = [];
+
+                                // Show max 5 page numbers
+                                let startPage = Math.max(1, page - 2);
+                                let endPage = Math.min(totalPages, page + 2);
+
+                                // Adjust if near start or end
+                                if (page <= 3) {
+                                    endPage = Math.min(5, totalPages);
+                                }
+                                if (page >= totalPages - 2) {
+                                    startPage = Math.max(1, totalPages - 4);
+                                }
+
+                                for (let i = startPage; i <= endPage; i++) {
+                                    pages.push(
+                                        <button
+                                            key={i}
+                                            onClick={() => handlePageChange(i)}
+                                            className="btn"
+                                            style={{
+                                                padding: "0.5rem 0.75rem",
+                                                fontSize: "0.875rem",
+                                                minWidth: "40px",
+                                                background: i === page ? "var(--primary-color)" : "var(--bg-glass)",
+                                                color: i === page ? "white" : "var(--text-primary)",
+                                                border: i === page ? "1px solid var(--primary-color)" : "1px solid var(--border-light)"
+                                            }}
+                                        >
+                                            {i}
+                                        </button>
+                                    );
+                                }
+
+                                return pages;
+                            })()}
+
+                            {/* Next button */}
+                            <button
+                                disabled={pagination.page === pagination.totalPages}
+                                onClick={() => handlePageChange(pagination.page + 1)}
+                                className="btn"
+                                style={{
+                                    padding: "0.5rem 1rem",
+                                    fontSize: "0.875rem",
+                                    opacity: pagination.page === pagination.totalPages ? 0.5 : 1,
+                                    cursor: pagination.page === pagination.totalPages ? "not-allowed" : "pointer"
+                                }}
+                            >
+                                下一页
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         </Layout>
     );

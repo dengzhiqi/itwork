@@ -14,7 +14,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const [currentTheme, setCurrentTheme] = useState<string>(defaultTheme);
     const [theme, setThemeData] = useState<Theme>(getTheme(defaultTheme));
 
-    // Load theme from localStorage on mount
+    // Load theme from localStorage on mount and sync state
+    const [isRestored, setIsRestored] = useState(false);
+
     useEffect(() => {
         if (typeof window !== 'undefined') {
             const savedTheme = localStorage.getItem('theme');
@@ -22,12 +24,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
                 setCurrentTheme(savedTheme);
                 setThemeData(getTheme(savedTheme));
             }
+            setIsRestored(true);
         }
     }, []);
 
-    // Apply theme to document
+    // Apply theme to document (only after restoration to avoid overwriting root script)
     useEffect(() => {
-        if (typeof document !== 'undefined') {
+        if (isRestored && typeof document !== 'undefined') {
             const root = document.documentElement;
             const colors = theme.colors;
 
@@ -47,7 +50,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
             root.style.setProperty('--bg-gradient-1', colors.backgroundGradient1);
             root.style.setProperty('--bg-gradient-2', colors.backgroundGradient2);
         }
-    }, [theme]);
+    }, [theme, isRestored]);
 
     const setTheme = (themeName: string) => {
         setCurrentTheme(themeName);
