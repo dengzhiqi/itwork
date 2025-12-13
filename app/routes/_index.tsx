@@ -18,7 +18,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     const currentMonthStr = (new Date().getMonth() + 1).toString().padStart(2, '0');
 
     const year = url.searchParams.get("year") || currentYearStr;
-    const month = url.searchParams.get("month") || currentMonthStr; // "all" or "01"-"12"
+    const month = url.searchParams.get("month") || "all"; // "all" or "01"-"12"
     const category = url.searchParams.get("category") || null; // Selected category name
 
     const isAllMonths = month === "all";
