@@ -367,6 +367,22 @@ export default function Settings() {
                     >
                         主题
                     </button>
+                    <button
+                        onClick={() => setSearchParams({ tab: "data" })}
+                        style={{
+                            padding: "0.75rem 1.5rem",
+                            background: "none",
+                            border: "none",
+                            borderBottom: activeTab === "data" ? "2px solid var(--text-accent)" : "2px solid transparent",
+                            color: activeTab === "data" ? "var(--text-accent)" : "var(--text-secondary)",
+                            fontWeight: activeTab === "data" ? "bold" : "normal",
+                            fontSize: "1.125rem",
+                            cursor: "pointer",
+                            marginBottom: "-2px"
+                        }}
+                    >
+                        数据管理
+                    </button>
                 </div>
 
                 {/* Categories Tab */}
@@ -1022,6 +1038,78 @@ export default function Settings() {
                                     </button>
                                 );
                             })}
+                        </div>
+                    </div>
+                )}
+
+                {/* Data Management Tab */}
+                {activeTab === "data" && (
+                    <div className="glass-panel" style={{ padding: "2rem" }}>
+                        <h3 style={{ fontSize: "1.25rem", marginBottom: "1.5rem" }}>数据导入</h3>
+
+                        <div style={{ display: "grid", gap: "2rem", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))" }}>
+                            {/* OUT Transaction Import */}
+                            <div className="glass-card" style={{ padding: "1.5rem" }}>
+                                <div style={{ marginBottom: "1rem" }}>
+                                    <h4 style={{ fontSize: "1.125rem", marginBottom: "0.5rem", color: "var(--text-primary)" }}>📤 出库记录导入</h4>
+                                    <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)", lineHeight: "1.5" }}>
+                                        批量导入历史出库记录，支持指定部门和经手人信息。
+                                    </p>
+                                </div>
+
+                                <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                                    <Link
+                                        to="/transactions/import?type=OUT"
+                                        className="btn btn-primary"
+                                        style={{ textAlign: "center", width: "100%" }}
+                                    >
+                                        开始导入出库记录
+                                    </Link>
+                                    <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)", margin: 0 }}>
+                                        支持 CSV 格式，需包含：日期、品牌、型号、数量、部门、经手人
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* IN Transaction Import */}
+                            <div className="glass-card" style={{ padding: "1.5rem" }}>
+                                <div style={{ marginBottom: "1rem" }}>
+                                    <h4 style={{ fontSize: "1.125rem", marginBottom: "0.5rem", color: "var(--text-primary)" }}>📥 入库记录导入</h4>
+                                    <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)", lineHeight: "1.5" }}>
+                                        批量导入历史入库记录，支持指定单价和供应商信息。
+                                    </p>
+                                </div>
+
+                                <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                                    <Link
+                                        to="/transactions/import?type=IN"
+                                        className="btn btn-primary"
+                                        style={{ textAlign: "center", width: "100%" }}
+                                    >
+                                        开始导入入库记录
+                                    </Link>
+                                    <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)", margin: 0 }}>
+                                        支持 CSV 格式，需包含：日期、品牌、型号、数量、单价、供应商
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style={{
+                            marginTop: "2rem",
+                            padding: "1rem",
+                            background: "var(--bg-secondary)",
+                            borderRadius: "var(--radius-sm)",
+                            border: "1px solid var(--border-light)"
+                        }}>
+                            <h4 style={{ fontSize: "1rem", marginBottom: "0.5rem", color: "var(--text-primary)" }}>💡 导入说明</h4>
+                            <ul style={{ margin: 0, paddingLeft: "1.5rem", fontSize: "0.875rem", color: "var(--text-secondary)", lineHeight: "1.6" }}>
+                                <li>CSV 文件必须使用 <strong>UTF-8 编码</strong></li>
+                                <li>系统会根据品牌和型号自动匹配产品</li>
+                                <li>如果产品不存在，可以选择自动创建</li>
+                                <li>日期格式支持: YYYY-MM-DD 或 YYYY/MM/DD</li>
+                                <li>导入前可下载模板文件查看格式要求</li>
+                            </ul>
                         </div>
                     </div>
                 )}
