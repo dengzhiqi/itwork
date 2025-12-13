@@ -1,10 +1,10 @@
 import type { LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
-import { useLoaderData, useSearchParams } from "@remix-run/react";
-import { useState, useMemo, useEffect } from "react";
+import { useLoaderData, useSearchParams, Form, useSubmit } from "@remix-run/react";
+import { useState, useMemo } from "react";
 import Layout from "../components/Layout";
 import { requireUser } from "../utils/auth.server";
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from "recharts";
 
 export async function loader({ request, context }: LoaderFunctionArgs) {
     const { env } = context as { env: any };
@@ -12,8 +12,10 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
 
     // Get URL parameters for filtering
     const url = new URL(request.url);
-    const startDate = url.searchParams.get("startDate") || "";
-    const endDate = url.searchParams.get("endDate") || "";
+    const currentYearStr = new Date().getFullYear().toString();
+
+    const year = url.searchParams.get("year") || currentYearStr;
+    const month = url.searchParams.get("month") || ""; // Default to "全年"
     const department = url.searchParams.get("department") || "";
 
     // Check if price column exists in transactions table
@@ -39,14 +41,16 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
 
     const bindings: any[] = [];
 
-    if (startDate) {
-        query += ` AND t.date >= ?`;
-        bindings.push(startDate);
-    }
+    // Year filter - skip if "all" is selected
+    if (year && year !== "all") {
+        query += ` AND strftime('%Y', t.date) = ?`;
+        bindings.push(year);
 
-    if (endDate) {
-        query += ` AND t.date <= ?`;
-        bindings.push(endDate + "T23:59:59");
+        // Month filter (only apply if year is not "all")
+        if (month) {
+            query += ` AND strftime('%m', t.date) = ?`;
+            bindings.push(month.padStart(2, '0'));
+        }
     }
 
     if (department) {
@@ -61,82 +65,43 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     // Get all departments for filter
     const { results: departments } = await env.DB.prepare("SELECT DISTINCT name FROM departments ORDER BY name").all();
 
-    return json({ transactions, departments, user });
+    // Query available years from transactions
+    const { results: availableYears } = await env.DB.prepare(`
+        SELECT DISTINCT strftime('%Y', date) as year 
+        FROM transactions 
+        WHERE type = 'OUT'
+        ORDER BY year DESC
+    `).all();
+
+    // If no records, at least show current year
+    const years = availableYears.length > 0
+        ? availableYears.map((row: any) => row.year)
+        : [currentYearStr];
+
+    // Ensure current selected year is in the list (but not 'all')
+    if (year !== "all" && !years.includes(year)) {
+        years.push(year);
+        years.sort((a: string, b: string) => parseInt(b) - parseInt(a));
+    }
+
+    return json({ transactions, departments, user, year, month, department, years });
 }
 
 export default function Reports() {
-    const { transactions, departments, user } = useLoaderData<typeof loader>();
+    const { transactions, departments, user, year, month, department, years } = useLoaderData<typeof loader>();
+    const submit = useSubmit();
     const [searchParams, setSearchParams] = useSearchParams();
-
-    // Filter states
-    const [dateRange, setDateRange] = useState(searchParams.get("range") || "year");
-    // Set default custom dates to one year period: tomorrow last year to today
-    const getLastYearTomorrow = () => {
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        tomorrow.setFullYear(tomorrow.getFullYear() - 1);
-        return tomorrow.toISOString().split("T")[0];
-    };
-    const getToday = () => {
-        return new Date().toISOString().split("T")[0];
-    };
-    const [customStartDate, setCustomStartDate] = useState(searchParams.get("startDate") || getLastYearTomorrow());
-    const [customEndDate, setCustomEndDate] = useState(searchParams.get("endDate") || getToday());
-    const [selectedDepartment, setSelectedDepartment] = useState(searchParams.get("department") || "");
     const [selectedCategory, setSelectedCategory] = useState("");
+    const [chartView, setChartView] = useState<"line" | "bar">("line");
 
-    // Calculate date ranges
-    const getDateRange = (range: string) => {
-        const now = new Date();
-        const today = now.toISOString().split("T")[0];
+    const months = Array.from({ length: 12 }, (_, i) => ({
+        value: (i + 1).toString().padStart(2, '0'),
+        label: `${i + 1}月`
+    }));
 
-        switch (range) {
-            case "month":
-                const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-                return { start: monthStart.toISOString().split("T")[0], end: today };
-            case "year":
-                const yearStart = `${now.getFullYear()}-01-01`;
-                return { start: yearStart, end: today };
-            case "custom":
-                return { start: customStartDate, end: customEndDate };
-            default:
-                return { start: "", end: "" };
-        }
+    const handleFilterChange = (event: any) => {
+        submit(event.currentTarget.form);
     };
-
-    // Apply filters
-    const applyFilters = () => {
-        const params = new URLSearchParams();
-        params.set("range", dateRange);
-
-        const { start, end } = getDateRange(dateRange);
-        if (start) params.set("startDate", start);
-        if (end) params.set("endDate", end);
-        if (selectedDepartment) params.set("department", selectedDepartment);
-
-        setSearchParams(params);
-    };
-
-    // Reset filters
-    const resetFilters = () => {
-        setDateRange("all");
-        setCustomStartDate("");
-        setCustomEndDate("");
-        setSelectedDepartment("");
-        setSearchParams(new URLSearchParams());
-    };
-
-    // Auto-apply filters when department changes
-    useEffect(() => {
-        if (selectedDepartment !== searchParams.get("department")) {
-            applyFilters();
-        }
-    }, [selectedDepartment]);
-
-    // Auto-apply filters when date range changes
-    useEffect(() => {
-        applyFilters();
-    }, [dateRange, customStartDate, customEndDate]);
 
     // Calculate statistics - only total cost
     const stats = useMemo(() => {
@@ -155,6 +120,8 @@ export default function Reports() {
         const dailyData: Record<string, { quantity: number; cost: number }> = {};
 
         transactions.forEach((t: any) => {
+            if (selectedCategory && t.category !== selectedCategory) return;
+
             const date = t.date.split("T")[0];
             if (!dailyData[date]) {
                 dailyData[date] = { quantity: 0, cost: 0 };
@@ -166,19 +133,48 @@ export default function Reports() {
         return Object.entries(dailyData)
             .map(([date, data]) => ({ date, quantity: data.quantity, cost: data.cost }))
             .sort((a, b) => a.date.localeCompare(b.date));
-    }, [transactions]);
+    }, [transactions, selectedCategory]);
 
-    // Department distribution by quantity
-    const departmentData = useMemo(() => {
-        const deptUsage: Record<string, number> = {};
+    // Prepare bar chart comparison data
+    const comparisonData = useMemo(() => {
+        if (year === "all") {
+            // Year comparison mode
+            const yearData: Record<string, { quantity: number; cost: number }> = {};
 
-        transactions.forEach((t: any) => {
-            const dept = t.department || "未分配";
-            deptUsage[dept] = (deptUsage[dept] || 0) + t.quantity;
-        });
+            transactions.forEach((t: any) => {
+                if (selectedCategory && t.category !== selectedCategory) return;
 
-        return Object.entries(deptUsage).map(([name, value]) => ({ name, value }));
-    }, [transactions]);
+                const yearStr = t.date.substring(0, 4);
+                if (!yearData[yearStr]) {
+                    yearData[yearStr] = { quantity: 0, cost: 0 };
+                }
+                yearData[yearStr].quantity += t.quantity;
+                yearData[yearStr].cost += t.quantity * t.price;
+            });
+
+            return Object.entries(yearData)
+                .map(([year, data]) => ({ name: `${year}年`, quantity: data.quantity, cost: data.cost }))
+                .sort((a, b) => a.name.localeCompare(b.name));
+        } else {
+            // Month comparison mode
+            const monthData: Record<string, { quantity: number; cost: number }> = {};
+
+            transactions.forEach((t: any) => {
+                if (selectedCategory && t.category !== selectedCategory) return;
+
+                const monthStr = t.date.substring(5, 7);
+                if (!monthData[monthStr]) {
+                    monthData[monthStr] = { quantity: 0, cost: 0 };
+                }
+                monthData[monthStr].quantity += t.quantity;
+                monthData[monthStr].cost += t.quantity * t.price;
+            });
+
+            return Object.entries(monthData)
+                .map(([month, data]) => ({ name: `${parseInt(month)}月`, quantity: data.quantity, cost: data.cost }))
+                .sort((a, b) => parseInt(a.name) - parseInt(b.name));
+        }
+    }, [transactions, selectedCategory, year]);
 
     // Department cost comparison
     const departmentCostData = useMemo(() => {
@@ -206,28 +202,6 @@ export default function Reports() {
         });
         return Array.from(categories).sort();
     }, [transactions]);
-
-    // Category-specific usage trend with cost
-    const categoryUsageTrendData = useMemo(() => {
-        if (!selectedCategory) return [];
-
-        const dailyData: Record<string, { quantity: number; cost: number }> = {};
-
-        transactions.forEach((t: any) => {
-            if (t.category === selectedCategory) {
-                const date = t.date.split("T")[0];
-                if (!dailyData[date]) {
-                    dailyData[date] = { quantity: 0, cost: 0 };
-                }
-                dailyData[date].quantity += t.quantity;
-                dailyData[date].cost += t.quantity * t.price;
-            }
-        });
-
-        return Object.entries(dailyData)
-            .map(([date, data]) => ({ date, quantity: data.quantity, cost: data.cost }))
-            .sort((a, b) => a.date.localeCompare(b.date));
-    }, [transactions, selectedCategory]);
 
     // Product ranking - Top 10
     const productRankingData = useMemo(() => {
@@ -284,98 +258,153 @@ export default function Reports() {
                             <span style={{ fontSize: "1.25rem", fontWeight: "bold", color: "var(--text-accent)" }}>¥{stats.totalCost.toFixed(2)}</span>
                         </div>
                     </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem", marginBottom: "1rem" }}>
-                        {/* Date Range */}
+                    <Form method="get" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: "1rem" }}>
+                        {/* Year Filter */}
                         <div>
-                            <label>时间范围</label>
-                            <select value={dateRange} onChange={(e) => setDateRange(e.target.value)}>
-                                <option value="year">本年</option>
-                                <option value="month">本月</option>
-                                <option value="all">全部时间</option>
-                                <option value="custom">自定义</option>
+                            <label>年份</label>
+                            <select name="year" defaultValue={year} onChange={handleFilterChange}>
+                                <option value="all">全部</option>
+                                {years.map((y: string) => <option key={y} value={y}>{y}年</option>)}
                             </select>
                         </div>
 
-                        {/* Custom Date Range */}
-                        {dateRange === "custom" && (
-                            <>
-                                <div>
-                                    <label>开始日期</label>
-                                    <input
-                                        type="date"
-                                        value={customStartDate}
-                                        onChange={(e) => setCustomStartDate(e.target.value)}
-                                    />
-                                </div>
-                                <div>
-                                    <label>结束日期</label>
-                                    <input
-                                        type="date"
-                                        value={customEndDate}
-                                        onChange={(e) => setCustomEndDate(e.target.value)}
-                                    />
-                                </div>
-                            </>
-                        )}
+                        {/* Month Filter */}
+                        <div>
+                            <label>月份</label>
+                            <select
+                                name="month"
+                                defaultValue={month}
+                                onChange={handleFilterChange}
+                                disabled={year === "all"}
+                                style={{ opacity: year === "all" ? 0.5 : 1, cursor: year === "all" ? "not-allowed" : "pointer" }}
+                            >
+                                <option value="">全年</option>
+                                {months.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+                            </select>
+                        </div>
 
                         {/* Department Filter */}
                         <div>
                             <label>部门</label>
-                            <select value={selectedDepartment} onChange={(e) => setSelectedDepartment(e.target.value)}>
+                            <select name="department" defaultValue={department} onChange={handleFilterChange}>
                                 <option value="">全部部门</option>
                                 {departments.map((d: any) => (
                                     <option key={d.name} value={d.name}>{d.name}</option>
                                 ))}
                             </select>
                         </div>
-                    </div>
+                    </Form>
                 </div>
-
-
 
                 {/* Charts */}
                 {transactions.length > 0 ? (
                     <>
                         {/* Usage Trend */}
                         <div className="glass-panel" style={{ padding: "1.5rem" }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "nowrap", gap: "1rem" }}>
-                                <h3 style={{ fontSize: "1.125rem", margin: 0, flexShrink: 0 }}>使用趋势</h3>
-                                <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexShrink: 0 }}>
-                                    <label style={{ fontSize: "0.875rem", color: "var(--text-secondary)", whiteSpace: "nowrap" }}>选择分类:</label>
-                                    <select
-                                        value={selectedCategory}
-                                        onChange={(e) => setSelectedCategory(e.target.value)}
-                                        style={{ fontSize: "0.875rem", padding: "0.25rem 0.5rem", minWidth: "120px" }}
-                                    >
-                                        <option value="">全部分类</option>
-                                        {categoryList.map((category) => (
-                                            <option key={category} value={category}>{category}</option>
-                                        ))}
-                                    </select>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "1rem" }}>
+                                <h3 style={{ fontSize: "1.125rem", margin: 0 }}>使用趋势</h3>
+                                <div style={{ display: "flex", gap: "1rem", alignItems: "center", flexWrap: "wrap" }}>
+                                    {/* Chart View Toggle */}
+                                    <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                                        <button
+                                            onClick={() => setChartView("line")}
+                                            style={{
+                                                padding: "0.375rem 0.75rem",
+                                                fontSize: "0.875rem",
+                                                background: chartView === "line" ? "var(--primary-color)" : "var(--bg-glass)",
+                                                color: chartView === "line" ? "white" : "var(--text-primary)",
+                                                border: "1px solid var(--border-light)",
+                                                borderRadius: "var(--radius-sm)",
+                                                cursor: "pointer"
+                                            }}
+                                        >
+                                            折线图
+                                        </button>
+                                        <button
+                                            onClick={() => setChartView("bar")}
+                                            style={{
+                                                padding: "0.375rem 0.75rem",
+                                                fontSize: "0.875rem",
+                                                background: chartView === "bar" ? "var(--primary-color)" : "var(--bg-glass)",
+                                                color: chartView === "bar" ? "white" : "var(--text-primary)",
+                                                border: "1px solid var(--border-light)",
+                                                borderRadius: "var(--radius-sm)",
+                                                cursor: "pointer"
+                                            }}
+                                        >
+                                            柱状图
+                                        </button>
+                                    </div>
+                                    {/* Category Selector */}
+                                    <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                                        <label style={{ fontSize: "0.875rem", color: "var(--text-secondary)", whiteSpace: "nowrap" }}>选择分类:</label>
+                                        <select
+                                            value={selectedCategory}
+                                            onChange={(e) => setSelectedCategory(e.target.value)}
+                                            style={{ fontSize: "0.875rem", padding: "0.25rem 0.5rem", minWidth: "120px" }}
+                                        >
+                                            <option value="">全部分类</option>
+                                            {categoryList.map((category) => (
+                                                <option key={category} value={category}>{category}</option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                             <ResponsiveContainer width="100%" height={300}>
-                                <LineChart data={selectedCategory ? categoryUsageTrendData : usageTrendData}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" />
-                                    <XAxis dataKey="date" stroke="var(--text-secondary)" />
-                                    <YAxis yAxisId="left" stroke="var(--text-secondary)" />
-                                    <YAxis yAxisId="right" orientation="right" stroke="var(--text-secondary)" />
-                                    <Tooltip
-                                        contentStyle={{
-                                            background: "var(--bg-panel)",
-                                            border: "1px solid var(--border-light)",
-                                            borderRadius: "var(--radius-sm)",
-                                            color: "var(--text-primary)"
-                                        }}
-                                        formatter={(value: number, name: string) => {
-                                            if (name === "成本") return `¥${value.toFixed(2)}`;
-                                            return value;
-                                        }}
-                                    />
-                                    <Legend />
-                                    <Line yAxisId="left" type="monotone" dataKey="quantity" stroke="#38bdf8" strokeWidth={2} name="使用量" />
-                                    <Line yAxisId="right" type="monotone" dataKey="cost" stroke="#22c55e" strokeWidth={2} name="成本" />
-                                </LineChart>
+                                {chartView === "line" ? (
+                                    <LineChart data={usageTrendData}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" />
+                                        <XAxis dataKey="date" stroke="var(--text-secondary)" />
+                                        <YAxis yAxisId="left" stroke="var(--text-secondary)" />
+                                        <YAxis yAxisId="right" orientation="right" stroke="var(--text-secondary)" />
+                                        <Tooltip
+                                            contentStyle={{
+                                                background: "var(--bg-panel)",
+                                                border: "1px solid var(--border-light)",
+                                                borderRadius: "var(--radius-sm)",
+                                                color: "var(--text-primary)"
+                                            }}
+                                            formatter={(value: number, name: string) => {
+                                                if (name === "成本") return `¥${value.toFixed(2)}`;
+                                                return value;
+                                            }}
+                                        />
+                                        <Legend />
+                                        <Line yAxisId="left" type="monotone" dataKey="quantity" stroke="#38bdf8" strokeWidth={2} name="使用量" />
+                                        <Line yAxisId="right" type="monotone" dataKey="cost" stroke="#22c55e" strokeWidth={2} name="成本" />
+                                    </LineChart>
+                                ) : (
+                                    <BarChart data={comparisonData}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" />
+                                        <XAxis dataKey="name" stroke="var(--text-secondary)" />
+                                        <YAxis yAxisId="left" stroke="var(--text-secondary)" />
+                                        <YAxis yAxisId="right" orientation="right" stroke="var(--text-secondary)" />
+                                        <Tooltip
+                                            contentStyle={{
+                                                background: "var(--bg-panel)",
+                                                border: "1px solid var(--border-light)",
+                                                borderRadius: "var(--radius-sm)",
+                                                color: "var(--text-primary)"
+                                            }}
+                                            formatter={(value: number, name: string) => {
+                                                if (name === "成本") return `¥${value.toFixed(2)}`;
+                                                return value;
+                                            }}
+                                        />
+                                        <Legend />
+                                        <Bar yAxisId="left" dataKey="quantity" name="使用量" fill="#38bdf8">
+                                            {comparisonData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                            ))}
+                                        </Bar>
+                                        <Bar yAxisId="right" dataKey="cost" name="成本" fill="#22c55e">
+                                            {comparisonData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={COST_GRADIENT[index % COST_GRADIENT.length]} />
+                                            ))}
+                                        </Bar>
+                                    </BarChart>
+                                )}
                             </ResponsiveContainer>
                         </div>
 
