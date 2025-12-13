@@ -337,7 +337,7 @@ export default function Reports() {
                                     </div>
                                     {/* Category Selector */}
                                     <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                                        <label style={{ fontSize: "0.875rem", color: "var(--text-secondary)", whiteSpace: "nowrap", display: "flex", alignItems: "center" }}>选择分类:</label>
+                                        <label style={{ fontSize: "0.875rem", color: "var(--text-secondary)", whiteSpace: "nowrap", padding: "0.25rem 0" }}>选择分类:</label>
                                         <select
                                             value={selectedCategory}
                                             onChange={(e) => setSelectedCategory(e.target.value)}
