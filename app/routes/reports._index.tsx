@@ -5,6 +5,7 @@ import { useState, useMemo } from "react";
 import Layout from "../components/Layout";
 import { requireUser } from "../utils/auth.server";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from "recharts";
+import { useTheme } from "../contexts/ThemeContext";
 
 export async function loader({ request, context }: LoaderFunctionArgs) {
     const { env } = context as { env: any };
@@ -89,6 +90,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
 
 export default function Reports() {
     const { transactions, departments, user, year, month, department, years } = useLoaderData<typeof loader>();
+    const { theme } = useTheme();
     const submit = useSubmit();
     const [searchParams, setSearchParams] = useSearchParams();
     const [selectedCategory, setSelectedCategory] = useState("");
@@ -311,7 +313,7 @@ export default function Reports() {
                                             style={{
                                                 padding: "0.375rem 0.75rem",
                                                 fontSize: "0.875rem",
-                                                background: chartView === "line" ? "var(--primary-color)" : "var(--bg-glass)",
+                                                background: chartView === "line" ? "var(--primary-gradient)" : "var(--bg-secondary)",
                                                 color: chartView === "line" ? "white" : "var(--text-primary)",
                                                 border: "1px solid var(--border-light)",
                                                 borderRadius: "var(--radius-sm)",
@@ -325,7 +327,7 @@ export default function Reports() {
                                             style={{
                                                 padding: "0.375rem 0.75rem",
                                                 fontSize: "0.875rem",
-                                                background: chartView === "bar" ? "var(--primary-color)" : "var(--bg-glass)",
+                                                background: chartView === "bar" ? "var(--primary-gradient)" : "var(--bg-secondary)",
                                                 color: chartView === "bar" ? "white" : "var(--text-primary)",
                                                 border: "1px solid var(--border-light)",
                                                 borderRadius: "var(--radius-sm)",
@@ -370,7 +372,7 @@ export default function Reports() {
                                                 return value;
                                             }}
                                         />
-                                        <Legend />
+                                        <Legend wrapperStyle={{ color: theme.colors.textPrimary }} />
                                         <Line yAxisId="left" type="monotone" dataKey="quantity" stroke="#38bdf8" strokeWidth={2} name="使用量" />
                                         <Line yAxisId="right" type="monotone" dataKey="cost" stroke="#22c55e" strokeWidth={2} name="成本" />
                                     </LineChart>
@@ -392,7 +394,7 @@ export default function Reports() {
                                                 return value;
                                             }}
                                         />
-                                        <Legend />
+                                        <Legend wrapperStyle={{ color: theme.colors.textPrimary }} />
                                         <Bar yAxisId="left" dataKey="quantity" name="使用量" fill="#38bdf8">
                                             {comparisonData.map((entry, index) => (
                                                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
