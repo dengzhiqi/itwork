@@ -201,10 +201,10 @@ export default function Transactions() {
 
     return (
         <Layout user={user}>
-            <div className="glass-panel" style={{ padding: "2rem" }}>
+            <div className="glass-panel" style={{ padding: "1.5rem" }}>
                 {/* Title and action buttons row */}
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-                    <h2 style={{ margin: 0 }}>{pageTitle}</h2>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
+                    <h2 style={{ margin: 0, fontSize: "1.5rem" }}>{pageTitle}</h2>
                     <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
                         <Link to={`/transactions/export?type=${currentType}&year=${year}&month=${month}&category=${categoryId}&name=${nameQuery}`} className="btn" style={{ background: "var(--bg-glass)", border: "1px solid var(--border-light)", padding: "0.5rem 1rem", fontSize: "0.875rem" }} target="_blank">
                             导出查询结果
@@ -216,7 +216,7 @@ export default function Transactions() {
                 </div>
 
                 {/* Filters row */}
-                <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", marginBottom: "1.5rem" }}>
+                <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", marginBottom: "1rem" }}>
                     <span style={{ fontSize: "0.875rem", color: "var(--text-secondary)" }}>筛选：</span>
 
                     {/* Year filter */}
@@ -323,37 +323,37 @@ export default function Transactions() {
                     <table style={{ width: "100%", borderCollapse: "collapse", color: "var(--text-primary)" }}>
                         <thead>
                             <tr style={{ borderBottom: "1px solid var(--border-light)", textAlign: "left" }}>
-                                <th style={{ padding: "1rem" }}>日期</th>
-                                <th style={{ padding: "1rem" }}>分类</th>
-                                <th style={{ padding: "1rem" }}>品牌型号</th>
-                                <th style={{ padding: "1rem" }}>数量</th>
+                                <th style={{ padding: "0.6rem 0.75rem" }}>日期</th>
+                                <th style={{ padding: "0.6rem 0.75rem" }}>分类</th>
+                                <th style={{ padding: "0.6rem 0.75rem" }}>品牌型号</th>
+                                <th style={{ padding: "0.6rem 0.75rem" }}>数量</th>
 
                                 {(!currentType || currentType === "OUT") && (
-                                    <th style={{ padding: "1rem" }}>部门/经手人</th>
+                                    <th style={{ padding: "0.6rem 0.75rem" }}>部门/经手人</th>
                                 )}
 
                                 {(!currentType || currentType === "IN") && (
-                                    <th style={{ padding: "1rem" }}>供货商</th>
+                                    <th style={{ padding: "0.6rem 0.75rem" }}>供货商</th>
                                 )}
 
-                                <th style={{ padding: "1rem" }}>备注</th>
-                                <th style={{ padding: "1rem" }}>操作</th>
+                                <th style={{ padding: "0.6rem 0.75rem" }}>备注</th>
+                                <th style={{ padding: "0.6rem 0.75rem" }}>操作</th>
                             </tr>
                         </thead>
                         <tbody>
                             {transactions.map((t: any) => (
                                 <tr key={t.id} style={{ borderBottom: "1px solid var(--border-light)" }}>
-                                    <td style={{ padding: "1rem", whiteSpace: "nowrap" }}>{new Date(t.date).toLocaleDateString()}</td>
+                                    <td style={{ padding: "0.6rem 0.75rem", whiteSpace: "nowrap" }}>{new Date(t.date).toLocaleDateString()}</td>
 
-                                    <td style={{ padding: "1rem" }}>{t.category_name}</td>
-                                    <td style={{ padding: "1rem" }}>
+                                    <td style={{ padding: "0.6rem 0.75rem" }}>{t.category_name}</td>
+                                    <td style={{ padding: "0.6rem 0.75rem" }}>
                                         <div style={{ fontWeight: 600 }}>{t.model}</div>
                                         <div style={{ fontSize: "0.875rem", color: "var(--text-secondary)" }}>{t.brand}</div>
                                     </td>
-                                    <td style={{ padding: "1rem" }}>{t.quantity}</td>
+                                    <td style={{ padding: "0.6rem 0.75rem" }}>{t.quantity}</td>
 
                                     {(!currentType || currentType === "OUT") && (
-                                        <td style={{ padding: "1rem" }}>
+                                        <td style={{ padding: "0.6rem 0.75rem" }}>
                                             {t.type === "OUT" ? (
                                                 <div>
                                                     <div>{t.handler_name}</div>
@@ -364,15 +364,15 @@ export default function Transactions() {
                                     )}
 
                                     {(!currentType || currentType === "IN") && (
-                                        <td style={{ padding: "1rem" }}>
+                                        <td style={{ padding: "0.6rem 0.75rem" }}>
                                             {t.type === "IN" ? (
                                                 <div style={{ color: "var(--text-accent)" }}>{t.handler_name || "-"}</div>
                                             ) : "-"}
                                         </td>
                                     )}
 
-                                    <td style={{ padding: "1rem", color: "var(--text-secondary)" }}>{t.note || "-"}</td>
-                                    <td style={{ padding: "1rem" }}>
+                                    <td style={{ padding: "0.6rem 0.75rem", color: "var(--text-secondary)" }}>{t.note || "-"}</td>
+                                    <td style={{ padding: "0.6rem 0.75rem" }}>
                                         {/* Pass type to edit page for better context if needed, though id is enough */}
                                         <Link
                                             to={`/transactions/${t.id}/edit`}

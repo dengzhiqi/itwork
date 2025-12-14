@@ -23,9 +23,9 @@ export default function Inventory() {
 
     return (
         <Layout user={user}>
-            <div className="glass-panel" style={{ padding: "2rem" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-                    <h2>库存管理</h2>
+            <div className="glass-panel" style={{ padding: "1.5rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem" }}>
+                    <h2 style={{ fontSize: "1.5rem" }}>库存管理</h2>
                     <Link to="/inventory/new" className="btn btn-primary">
                         + 添加新商品
                     </Link>
@@ -35,26 +35,26 @@ export default function Inventory() {
                     <table style={{ width: "100%", borderCollapse: "collapse", color: "var(--text-primary)" }}>
                         <thead>
                             <tr style={{ borderBottom: "1px solid var(--border-light)", textAlign: "left" }}>
-                                <th style={{ padding: "1rem" }}>分类</th>
-                                <th style={{ padding: "1rem" }}>品牌 / 型号</th>
-                                <th style={{ padding: "1rem" }}>价格</th>
-                                <th style={{ padding: "1rem" }}>库存</th>
-                                <th style={{ padding: "1rem" }}>备注</th>
-                                <th style={{ padding: "1rem" }}>操作</th>
+                                <th style={{ padding: "0.6rem 0.75rem" }}>分类</th>
+                                <th style={{ padding: "0.6rem 0.75rem" }}>品牌 / 型号</th>
+                                <th style={{ padding: "0.6rem 0.75rem" }}>价格</th>
+                                <th style={{ padding: "0.6rem 0.75rem" }}>库存</th>
+                                <th style={{ padding: "0.6rem 0.75rem" }}>备注</th>
+                                <th style={{ padding: "0.6rem 0.75rem" }}>操作</th>
                             </tr>
                         </thead>
                         <tbody>
                             {products.map((item: any) => (
                                 <tr key={item.id} style={{ borderBottom: "1px solid var(--border-light)" }}>
-                                    <td style={{ padding: "1rem", color: "var(--text-secondary)" }}>{item.category_name}</td>
-                                    <td style={{ padding: "1rem" }}>
+                                    <td style={{ padding: "0.6rem 0.75rem", color: "var(--text-secondary)" }}>{item.category_name}</td>
+                                    <td style={{ padding: "0.6rem 0.75rem" }}>
                                         <div style={{ fontWeight: 600 }}>{item.model}</div>
                                         <div style={{ fontSize: "0.875rem", color: "var(--text-secondary)" }}>{item.brand}</div>
                                     </td>
-                                    <td style={{ padding: "1rem" }}>¥{item.price?.toFixed(2)}</td>
-                                    <td style={{ padding: "1rem", color: item.stock_quantity === 0 ? "var(--danger-color)" : "inherit" }}>{item.stock_quantity}</td>
-                                    <td style={{ padding: "1rem" }}>{item.supplier || "-"}</td>
-                                    <td style={{ padding: "1rem" }}>
+                                    <td style={{ padding: "0.6rem 0.75rem" }}>¥{item.price?.toFixed(2)}</td>
+                                    <td style={{ padding: "0.6rem 0.75rem", color: item.stock_quantity === 0 ? "var(--danger-color)" : "inherit" }}>{item.stock_quantity}</td>
+                                    <td style={{ padding: "0.6rem 0.75rem" }}>{item.supplier || "-"}</td>
+                                    <td style={{ padding: "0.6rem 0.75rem" }}>
                                         <Link to={`/inventory/${item.id}/edit`} style={{ fontSize: "0.875rem", color: "var(--text-accent)" }}>
                                             编辑
                                         </Link>

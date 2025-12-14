@@ -1,3 +1,8 @@
+html {
+  /* Scale down entire page by 10% for better visual comfort */
+  font-size: 90%;
+}
+
 :root {
   /* Premium Dark Mode / Glassmorphism Palette */
   /* These will be overridden by ThemeProvider */

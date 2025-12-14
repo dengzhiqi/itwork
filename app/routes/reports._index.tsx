@@ -351,7 +351,7 @@ export default function Reports() {
                                     </div>
                                 </div>
                             </div>
-                            <ResponsiveContainer width="100%" height={300}>
+                            <ResponsiveContainer width="100%" height={270}>
                                 {chartView === "line" ? (
                                     <LineChart data={usageTrendData}>
                                         <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" />
@@ -415,7 +415,7 @@ export default function Reports() {
                                 <h3 style={{ fontSize: "1.125rem", marginBottom: "1rem" }}>
                                     部门成本对比 {selectedCategory && <span style={{ fontSize: "0.875rem", color: "var(--text-secondary)", fontWeight: "normal" }}>({selectedCategory})</span>}
                                 </h3>
-                                <ResponsiveContainer width="100%" height={300}>
+                                <ResponsiveContainer width="100%" height={270}>
                                     <BarChart data={departmentCostData}>
                                         <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" />
                                         <XAxis dataKey="name" stroke="var(--text-secondary)" />
@@ -443,7 +443,7 @@ export default function Reports() {
                                 <h3 style={{ fontSize: "1.125rem", marginBottom: "1rem" }}>
                                     商品使用排行 (Top 10) {selectedCategory && <span style={{ fontSize: "0.875rem", color: "var(--text-secondary)", fontWeight: "normal" }}>({selectedCategory})</span>}
                                 </h3>
-                                <ResponsiveContainer width="100%" height={300}>
+                                <ResponsiveContainer width="100%" height={220}>
                                     <BarChart data={productRankingData} layout="vertical">
                                         <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" />
                                         <XAxis type="number" stroke="var(--text-secondary)" />

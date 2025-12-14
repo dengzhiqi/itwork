@@ -1063,10 +1063,10 @@ export default function Settings() {
                                         className="btn btn-primary"
                                         style={{ textAlign: "center", width: "100%" }}
                                     >
-                                        开始导入出库记录
+                                        导入出库记录
                                     </Link>
                                     <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)", margin: 0 }}>
-                                        支持 CSV 格式，需包含：日期、品牌、型号、数量、部门、经手人
+                                        支持 CSV 格式，需包含：日期、分类、品牌、型号、数量、部门、经手人
                                     </p>
                                 </div>
                             </div>
@@ -1086,10 +1086,10 @@ export default function Settings() {
                                         className="btn btn-primary"
                                         style={{ textAlign: "center", width: "100%" }}
                                     >
-                                        开始导入入库记录
+                                        导入入库记录
                                     </Link>
                                     <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)", margin: 0 }}>
-                                        支持 CSV 格式，需包含：日期、品牌、型号、数量、单价、供应商
+                                        支持 CSV 格式，需包含：日期、分类、品牌、型号、数量、单价、供应商
                                     </p>
                                 </div>
                             </div>
