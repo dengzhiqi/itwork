@@ -443,7 +443,7 @@ export default function Reports() {
                                 <h3 style={{ fontSize: "1.125rem", marginBottom: "1rem" }}>
                                     商品使用排行 (Top 10) {selectedCategory && <span style={{ fontSize: "0.875rem", color: "var(--text-secondary)", fontWeight: "normal" }}>({selectedCategory})</span>}
                                 </h3>
-                                <ResponsiveContainer width="100%" height={220}>
+                                <ResponsiveContainer width="100%" height={270}>
                                     <BarChart data={productRankingData} layout="vertical">
                                         <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" />
                                         <XAxis type="number" stroke="var(--text-secondary)" />
