@@ -5,12 +5,12 @@ export default function Layout({ children, user }: { children: React.ReactNode; 
     const location = useLocation();
 
     const navItems = [
-        { label: "仪表盘", path: "/" },
-        { label: "库存管理", path: "/inventory" },
-        { label: "出库管理", path: "/transactions?type=OUT" },
-        { label: "入库管理", path: "/transactions?type=IN" },
-        { label: "报表", path: "/reports" },
-        { label: "设置", path: "/settings" },
+        { label: "仪表盘", path: "/", icon: "/icons/dashboard.png" },
+        { label: "库存管理", path: "/inventory", icon: "/icons/inventory.png" },
+        { label: "出库管理", path: "/transactions?type=OUT", icon: "/icons/transactions.png" },
+        { label: "入库管理", path: "/transactions?type=IN", icon: "/icons/transactions.png" },
+        { label: "报表", path: "/reports", icon: "/icons/reports.png" },
+        { label: "设置", path: "/settings", icon: "/icons/settings.png" },
     ];
 
     return (
@@ -29,11 +29,14 @@ export default function Layout({ children, user }: { children: React.ReactNode; 
                     height: "calc(100vh - 2rem)",
                 }}
             >
-                <div style={{ marginBottom: "2rem" }}>
-                    <h1 style={{ fontSize: "1.5rem", margin: 0, background: "var(--primary-gradient)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                        ItWork
-                    </h1>
-                    <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>办公用品管理</p>
+                <div style={{ marginBottom: "2rem", display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <img src="/icons/dashboard.png" alt="Logo" style={{ width: '32px', height: '32px' }} />
+                    <div>
+                        <h1 style={{ fontSize: "1.5rem", margin: 0, background: "var(--primary-gradient)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                            ItWork
+                        </h1>
+                        <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>办公用品管理</p>
+                    </div>
                 </div>
 
                 <nav style={{ flex: 1 }}>
@@ -48,20 +51,25 @@ export default function Layout({ children, user }: { children: React.ReactNode; 
                                     <Link
                                         to={item.path}
                                         style={{
-                                            display: "block",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "0.75rem",
                                             padding: "0.75rem 1rem",
                                             borderRadius: "var(--radius-sm)",
                                             backgroundColor: isActive ? "rgba(56, 189, 248, 0.15)" : "transparent",
                                             color: isActive ? "var(--text-accent)" : "var(--text-secondary)",
                                             fontWeight: isActive ? 600 : 400,
                                             transition: "all 0.2s",
+                                            textDecoration: "none"
                                         }}
                                     >
+                                        <img src={item.icon} alt="" style={{ width: "20px", height: "20px", objectFit: "contain" }} />
                                         {item.label}
                                     </Link>
                                 </li>
                             );
                         })}
+
                     </ul>
                 </nav>
 
@@ -78,9 +86,13 @@ export default function Layout({ children, user }: { children: React.ReactNode; 
                                     padding: "0.5rem 1rem",
                                     fontSize: "0.875rem",
                                     cursor: "pointer",
-                                    textAlign: "left"
+                                    textAlign: "left",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "0.75rem"
                                 }}
                             >
+                                <img src="/icons/logout.png" alt="" style={{ width: "20px", height: "20px", objectFit: "contain" }} />
                                 退出登录
                             </button>
                         </form>
