@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 80" width="64" height="80">
+  <!-- Main icon -->
+  <g fill="#4a4a4a">
+    <!-- Warehouse building -->
+    <path d="M32 8 L52 18 L52 52 L12 52 L12 18 Z"/>
+    <rect x="22" y="28" width="8" height="8" fill="#fff"/>
+    <rect x="34" y="28" width="8" height="8" fill="#fff"/>
+    <rect x="22" y="40" width="8" height="8" fill="#fff"/>
+    <rect x="34" y="40" width="8" height="8" fill="#fff"/>
+    <rect x="26" y="48" width="12" height="4"/>
+  </g>
+  
+  <!-- Reflection effect -->
+  <g fill="#4a4a4a" opacity="0.15">
+    <path d="M32 72 L52 62 L52 58 L12 58 L12 62 Z"/>
+  </g>
+</svg>

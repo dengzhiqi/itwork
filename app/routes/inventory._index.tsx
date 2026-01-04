@@ -25,7 +25,10 @@ export default function Inventory() {
         <Layout user={user}>
             <div className="glass-panel" style={{ padding: "1.5rem" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem" }}>
-                    <h2 style={{ fontSize: "1.5rem" }}>库存管理</h2>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                        <img src="/icons/inventory.svg" alt="" style={{ width: "32px", height: "32px" }} />
+                        <h2 style={{ margin: 0, fontSize: "1.5rem" }}>库存管理</h2>
+                    </div>
                     <Link to="/inventory/new" className="btn btn-primary">
                         + 添加新商品
                     </Link>

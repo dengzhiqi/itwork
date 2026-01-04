@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 80" width="64" height="80">
+  <!-- Main icon -->
+  <g fill="#4a4a4a">
+    <!-- Bar chart -->
+    <rect x="14" y="32" width="8" height="20" rx="1"/>
+    <rect x="26" y="22" width="8" height="30" rx="1"/>
+    <rect x="38" y="28" width="8" height="24" rx="1"/>
+    <rect x="50" y="18" width="8" height="34" rx="1"/>
+    <!-- Base line -->
+    <rect x="12" y="52" width="48" height="2"/>
+  </g>
+  
+  <!-- Reflection effect -->
+  <g fill="#4a4a4a" opacity="0.15">
+    <rect x="14" y="66" width="8" height="6" rx="1" transform="scale(1, -1) translate(0, -138)"/>
+    <rect x="26" y="66" width="8" height="8" rx="1" transform="scale(1, -1) translate(0, -140)"/>
+    <rect x="38" y="66" width="8" height="7" rx="1" transform="scale(1, -1) translate(0, -139)"/>
+    <rect x="50" y="66" width="8" height="9" rx="1" transform="scale(1, -1) translate(0, -141)"/>
+  </g>
+</svg>

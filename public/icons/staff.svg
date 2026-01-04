@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 80" width="64" height="80">
+  <!-- Main icon -->
+  <g fill="#4a4a4a">
+    <!-- Three people -->
+    <!-- Left person -->
+    <circle cx="20" cy="22" r="6"/>
+    <path d="M12 52 L12 42 Q12 36 18 34 Q24 32 28 36 L28 52 Z"/>
+    
+    <!-- Center person (larger) -->
+    <circle cx="32" cy="18" r="7"/>
+    <path d="M22 52 L22 40 Q22 34 30 32 Q38 30 42 34 L42 52 Z"/>
+    
+    <!-- Right person -->
+    <circle cx="44" cy="22" r="6"/>
+    <path d="M36 52 L36 42 Q36 36 42 34 Q48 32 52 36 L52 52 Z"/>
+  </g>
+  
+  <!-- Reflection effect -->
+  <g fill="#4a4a4a" opacity="0.15">
+    <ellipse cx="32" cy="68" rx="24" ry="6"/>
+  </g>
+</svg>

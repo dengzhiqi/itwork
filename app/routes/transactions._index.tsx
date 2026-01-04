@@ -204,7 +204,10 @@ export default function Transactions() {
             <div className="glass-panel" style={{ padding: "1.5rem" }}>
                 {/* Title and action buttons row */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
-                    <h2 style={{ margin: 0, fontSize: "1.5rem" }}>{pageTitle}</h2>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                        <img src="/icons/transactions.svg" alt="" style={{ width: "32px", height: "32px" }} />
+                        <h2 style={{ margin: 0, fontSize: "1.5rem" }}>{pageTitle}</h2>
+                    </div>
                     <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
                         <Link to={`/transactions/export?type=${currentType}&year=${year}&month=${month}&category=${categoryId}&name=${nameQuery}`} className="btn" style={{ background: "var(--bg-glass)", border: "1px solid var(--border-light)", padding: "0.5rem 1rem", fontSize: "0.875rem" }} target="_blank">
                             导出查询结果

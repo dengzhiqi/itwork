@@ -174,9 +174,12 @@ export default function Index() {
             <div style={{ display: "grid", gap: "2rem" }}>
                 {/* Header & Controls */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
-                    <div>
-                        <h2 style={{ marginBottom: "0.5rem" }}>仪表盘</h2>
-                        <p style={{ color: "var(--text-secondary)" }}>消耗统计与分析</p>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                        <img src="/icons/dashboard.svg" alt="" style={{ width: "32px", height: "32px" }} />
+                        <div>
+                            <h2 style={{ margin: 0 }}>仪表盘</h2>
+                            <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", margin: 0 }}>消耗统计与分析</p>
+                        </div>
                     </div>
 
                     <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>

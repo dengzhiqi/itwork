@@ -5,12 +5,12 @@ export default function Layout({ children, user }: { children: React.ReactNode; 
     const location = useLocation();
 
     const navItems = [
-        { label: "仪表盘", path: "/", icon: "/icons/dashboard.png" },
-        { label: "库存管理", path: "/inventory", icon: "/icons/inventory.png" },
-        { label: "出库管理", path: "/transactions?type=OUT", icon: "/icons/transactions.png" },
-        { label: "入库管理", path: "/transactions?type=IN", icon: "/icons/transactions.png" },
-        { label: "报表", path: "/reports", icon: "/icons/reports.png" },
-        { label: "设置", path: "/settings", icon: "/icons/settings.png" },
+        { label: "仪表盘", path: "/", icon: "/icons/dashboard.svg" },
+        { label: "库存管理", path: "/inventory", icon: "/icons/inventory.svg" },
+        { label: "出库管理", path: "/transactions?type=OUT", icon: "/icons/transactions.svg" },
+        { label: "入库管理", path: "/transactions?type=IN", icon: "/icons/transactions.svg" },
+        { label: "报表", path: "/reports", icon: "/icons/reports.svg" },
+        { label: "设置", path: "/settings", icon: "/icons/settings.svg" },
     ];
 
     return (
@@ -30,7 +30,7 @@ export default function Layout({ children, user }: { children: React.ReactNode; 
                 }}
             >
                 <div style={{ marginBottom: "2rem", display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <img src="/icons/dashboard.png" alt="Logo" style={{ width: '32px', height: '32px' }} />
+                    <img src="/icons/dashboard.svg" alt="Logo" style={{ width: '32px', height: '32px' }} />
                     <div>
                         <h1 style={{ fontSize: "1.5rem", margin: 0, background: "var(--primary-gradient)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                             ItWork
@@ -92,7 +92,7 @@ export default function Layout({ children, user }: { children: React.ReactNode; 
                                     gap: "0.75rem"
                                 }}
                             >
-                                <img src="/icons/logout.png" alt="" style={{ width: "20px", height: "20px", objectFit: "contain" }} />
+                                <img src="/icons/logout.svg" alt="" style={{ width: "20px", height: "20px", objectFit: "contain" }} />
                                 退出登录
                             </button>
                         </form>

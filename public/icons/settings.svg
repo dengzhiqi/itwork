@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 80" width="64" height="80">
+  <!-- Main icon -->
+  <g fill="#4a4a4a">
+    <!-- Gear -->
+    <path d="M32 16 L36 18 L38 14 L42 16 L42 20 L46 22 L48 18 L52 22 L50 26 L54 28 L54 32 L54 36 L50 38 L52 42 L48 46 L46 42 L42 44 L42 48 L38 50 L36 46 L32 48 L28 46 L26 50 L22 48 L22 44 L18 42 L16 46 L12 42 L14 38 L10 36 L10 32 L10 28 L14 26 L12 22 L16 18 L18 22 L22 20 L22 16 L26 14 L28 18 Z"/>
+    <circle cx="32" cy="32" r="8" fill="#fff"/>
+  </g>
+  
+  <!-- Reflection effect -->
+  <g fill="#4a4a4a" opacity="0.15">
+    <ellipse cx="32" cy="68" rx="20" ry="6"/>
+  </g>
+</svg>

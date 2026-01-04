@@ -95,7 +95,10 @@ export default function Categories() {
         <Layout user={user}>
             <div className="glass-panel" style={{ padding: "2rem" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-                    <h2>分类管理</h2>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                        <img src="/icons/categories.svg" alt="" style={{ width: "32px", height: "32px" }} />
+                        <h2 style={{ margin: 0 }}>分类管理</h2>
+                    </div>
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "2rem" }}>

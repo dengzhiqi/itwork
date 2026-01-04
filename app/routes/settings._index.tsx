@@ -280,9 +280,12 @@ export default function Settings() {
     return (
         <Layout user={user}>
             <div style={{ display: "grid", gap: "2rem" }}>
-                <div>
-                    <h2 style={{ marginBottom: "0.5rem" }}>设置</h2>
-                    <p style={{ color: "var(--text-secondary)" }}>管理分类、供应商等系统配置</p>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                    <img src="/icons/settings.svg" alt="" style={{ width: "32px", height: "32px" }} />
+                    <div>
+                        <h2 style={{ margin: 0 }}>设置</h2>
+                        <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", margin: 0 }}>管理分类、供应商等系统配置</p>
+                    </div>
                 </div>
 
                 {/* Tabs */}

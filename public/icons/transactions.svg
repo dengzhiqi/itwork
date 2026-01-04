@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 80" width="64" height="80">
+  <!-- Main icon -->
+  <g fill="#4a4a4a">
+    <!-- Clipboard -->
+    <rect x="16" y="12" width="32" height="42" rx="2"/>
+    <rect x="24" y="8" width="16" height="6" rx="2"/>
+    <rect x="20" y="20" width="24" height="3" fill="#fff"/>
+    <rect x="20" y="28" width="24" height="3" fill="#fff"/>
+    <rect x="20" y="36" width="16" height="3" fill="#fff"/>
+    <!-- Arrow -->
+    <path d="M38 40 L44 46 L38 52 M44 46 L28 46" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  
+  <!-- Reflection effect -->
+  <g fill="#4a4a4a" opacity="0.15">
+    <rect x="16" y="66" width="32" height="8" rx="2" transform="scale(1, -1) translate(0, -140)"/>
+  </g>
+</svg>

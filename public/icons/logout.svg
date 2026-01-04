@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 80" width="64" height="80">
+  <!-- Main icon -->
+  <g fill="#4a4a4a">
+    <!-- Door frame -->
+    <path d="M16 12 L16 52 L28 52 L28 48 L20 48 L20 16 L44 16 L44 48 L36 48 L36 52 L48 52 L48 12 Z"/>
+    <!-- Arrow -->
+    <path d="M28 32 L42 32 M38 26 L44 32 L38 38" stroke="#4a4a4a" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  
+  <!-- Reflection effect -->
+  <g fill="#4a4a4a" opacity="0.15">
+    <rect x="16" y="66" width="32" height="8" rx="1" transform="scale(1, -1) translate(0, -140)"/>
+  </g>
+</svg>

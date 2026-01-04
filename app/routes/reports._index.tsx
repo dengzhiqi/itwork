@@ -246,9 +246,12 @@ export default function Reports() {
         <Layout user={user}>
             <div style={{ display: "grid", gap: "2rem" }}>
                 {/* Header */}
-                <div>
-                    <h2 style={{ marginBottom: "0.5rem" }}>报表分析</h2>
-                    <p style={{ color: "var(--text-secondary)" }}>商品使用统计与趋势分析</p>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                    <img src="/icons/reports.svg" alt="" style={{ width: "32px", height: "32px" }} />
+                    <div>
+                        <h2 style={{ margin: 0 }}>报表分析</h2>
+                        <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", margin: 0 }}>商品使用统计与趋势分析</p>
+                    </div>
                 </div>
 
                 {/* Filters */}

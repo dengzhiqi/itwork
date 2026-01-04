@@ -62,7 +62,10 @@ export default function Suppliers() {
         <Layout user={user}>
             <div className="glass-panel" style={{ padding: "2rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-                    <h2 style={{ margin: 0 }}>供应商管理</h2>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                        <img src="/icons/suppliers.svg" alt="" style={{ width: "32px", height: "32px" }} />
+                        <h2 style={{ margin: 0 }}>供应商管理</h2>
+                    </div>
                     {!isAdding && (
                         <button
                             onClick={() => setIsAdding(true)}
