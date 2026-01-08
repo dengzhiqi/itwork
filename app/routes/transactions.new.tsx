@@ -9,19 +9,51 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     const { env } = context as { env: any };
     const user = await requireUser(request, env);
 
-    const { results: products } = await env.DB.prepare(`
-    SELECT p.id, p.brand, p.model, p.stock_quantity, c.name as category 
-    FROM products p
-    JOIN categories c ON p.category_id = c.id
-    ORDER BY c.name, p.brand
-  `).all();
+    let products = [], staff = [], suppliers = [], departments = [], categories = [];
 
-    const { results: staff } = await env.DB.prepare("SELECT * FROM staff ORDER BY department, name").all();
-    const { results: suppliers } = await env.DB.prepare("SELECT * FROM suppliers ORDER BY company_name").all();
-    // Fetch departments
-    const { results: departments } = await env.DB.prepare("SELECT name FROM departments ORDER BY name ASC").all();
-    // Fetch categories
-    const { results: categories } = await env.DB.prepare("SELECT id, name FROM categories ORDER BY name ASC").all();
+    try {
+        const { results: productsRes } = await env.DB.prepare(`
+        SELECT p.id, p.brand, p.model, p.stock_quantity, c.name as category 
+        FROM products p
+        JOIN categories c ON p.category_id = c.id
+        ORDER BY c.name, p.brand
+      `).all();
+        products = productsRes || [];
+    } catch (e) {
+        console.error("Error fetching products:", e);
+    }
+
+    try {
+        const { results: staffRes } = await env.DB.prepare("SELECT * FROM staff ORDER BY department, name").all();
+        staff = staffRes || [];
+    } catch (e) {
+        console.error("Error fetching staff:", e);
+    }
+
+    try {
+        const { results: suppliersRes } = await env.DB.prepare("SELECT * FROM suppliers ORDER BY company_name").all();
+        suppliers = suppliersRes || [];
+    } catch (e) {
+        console.error("Error fetching suppliers:", e);
+        // Fallback or empty is fine
+    }
+
+    try {
+        // Fetch departments
+        const { results: departmentsRes } = await env.DB.prepare("SELECT name FROM departments ORDER BY name ASC").all();
+        departments = departmentsRes || [];
+    } catch (e) {
+        console.error("Error fetching departments:", e);
+        // If departments table missing, we can survive with empty list
+    }
+
+    try {
+        // Fetch categories
+        const { results: categoriesRes } = await env.DB.prepare("SELECT id, name FROM categories ORDER BY name ASC").all();
+        categories = categoriesRes || [];
+    } catch (e) {
+        console.error("Error fetching categories:", e);
+    }
 
     return json({ products, staff, suppliers, departments, categories, user });
 }
@@ -84,11 +116,11 @@ export default function NewTransaction() {
     const [filteredStaff, setFilteredStaff] = useState<any[]>([]);
     const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
 
-    const departments = (loadedDepartments as any[]).map(d => d.name);
-    const categories = (loadedCategories as any[]).map(c => c.name);
+    const departments = (loadedDepartments || [] as any[]).map((d: any) => d.name);
+    const categories = (loadedCategories || [] as any[]).map((c: any) => c.name);
 
     useEffect(() => {
-        if (selectedDepartment) {
+        if (selectedDepartment && staff) {
             const filtered = (staff as any[]).filter(s => s.department === selectedDepartment);
             setFilteredStaff(filtered);
         } else {
@@ -97,7 +129,7 @@ export default function NewTransaction() {
     }, [selectedDepartment, staff]);
 
     useEffect(() => {
-        if (selectedCategory) {
+        if (selectedCategory && products) {
             const filtered = (products as any[]).filter(p => p.category === selectedCategory);
             setFilteredProducts(filtered);
         } else {
@@ -203,7 +235,7 @@ export default function NewTransaction() {
                                 <label>供应商</label>
                                 <select name="handler_name">
                                     <option value="">选择供应商...</option>
-                                    {(suppliers as any[]).map((s: any) => (
+                                    {(suppliers as any[] || []).map((s: any) => (
                                         <option key={s.id} value={s.company_name}>{s.company_name}</option>
                                     ))}
                                 </select>
