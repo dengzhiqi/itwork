@@ -215,9 +215,12 @@ export default function Index() {
 
                     {/* Category Pie Chart */}
                     <div className="glass-panel" style={{ padding: "1.5rem", minHeight: "400px" }}>
-                        <h3 style={{ fontSize: "1.25rem", marginBottom: "1rem", borderBottom: "1px solid var(--border-light)", paddingBottom: "0.5rem" }}>
-                            分类消耗占比
-                        </h3>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "1.25rem", marginBottom: "1rem", borderBottom: "1px solid var(--border-light)", paddingBottom: "0.5rem" }}>
+                            <img src="/icons/pie-chart.svg" alt="" style={{ width: "20px", height: "20px" }} />
+                            <h3 style={{ fontSize: "1.25rem", margin: 0 }}>
+                                分类消耗占比
+                            </h3>
+                        </div>
                         {categoryStats.length > 0 ? (
                             <div style={{ width: '100%', height: 350 }}>
                                 <ResponsiveContainer>
@@ -257,9 +260,12 @@ export default function Index() {
                     {/* Department Bar Chart */}
                     <div className="glass-panel" style={{ padding: "1.5rem", minHeight: "400px" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", borderBottom: "1px solid var(--border-light)", paddingBottom: "0.5rem" }}>
-                            <h3 style={{ fontSize: "1.25rem", margin: 0 }}>
-                                部门消耗统计 {category && `(${category})`}
-                            </h3>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                <img src="/icons/bar-chart.svg" alt="" style={{ width: "20px", height: "20px" }} />
+                                <h3 style={{ fontSize: "1.25rem", margin: 0 }}>
+                                    部门消耗统计 {category && `(${category})`}
+                                </h3>
+                            </div>
                             {category && (
                                 <button
                                     onClick={handleClearFilter}
@@ -312,9 +318,12 @@ export default function Index() {
 
                 {/* Total Statistics Table */}
                 <div className="glass-panel" style={{ padding: "1.5rem" }}>
-                    <h3 style={{ fontSize: "1.25rem", marginBottom: "1.5rem", borderBottom: "1px solid var(--border-light)", paddingBottom: "0.5rem" }}>
-                        总统计
-                    </h3>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "1.25rem", marginBottom: "1.5rem", borderBottom: "1px solid var(--border-light)", paddingBottom: "0.5rem" }}>
+                        <img src="/icons/list.svg" alt="" style={{ width: "20px", height: "20px" }} />
+                        <h3 style={{ fontSize: "1.25rem", margin: 0 }}>
+                            总统计
+                        </h3>
+                    </div>
                     {totalStats.length > 0 ? (
                         <table style={{ width: "100%", borderCollapse: "collapse" }}>
                             <thead>

@@ -307,9 +307,13 @@ export default function Settings() {
                             fontSize: "1.125rem",
                             fontFamily: "inherit",
                             cursor: "pointer",
-                            marginBottom: "-2px"
+                            marginBottom: "-2px",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.5rem"
                         }}
                     >
+                        <img src="/icons/category-tab.svg" alt="" style={{ width: "16px", height: "16px", opacity: activeTab === "categories" ? 1 : 0.6 }} />
                         分类管理
                     </button>
                     <button
@@ -324,9 +328,13 @@ export default function Settings() {
                             fontSize: "1.125rem",
                             fontFamily: "inherit",
                             cursor: "pointer",
-                            marginBottom: "-2px"
+                            marginBottom: "-2px",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.5rem"
                         }}
                     >
+                        <img src="/icons/staff-tab.svg" alt="" style={{ width: "16px", height: "16px", opacity: activeTab === "staff" ? 1 : 0.6 }} />
                         人员管理
                     </button>
                     <button
@@ -341,9 +349,13 @@ export default function Settings() {
                             fontSize: "1.125rem",
                             fontFamily: "inherit",
                             cursor: "pointer",
-                            marginBottom: "-2px"
+                            marginBottom: "-2px",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.5rem"
                         }}
                     >
+                        <img src="/icons/department-tab.svg" alt="" style={{ width: "16px", height: "16px", opacity: activeTab === "departments" ? 1 : 0.6 }} />
                         部门管理
                     </button>
                     <button
@@ -358,9 +370,13 @@ export default function Settings() {
                             fontSize: "1.125rem",
                             fontFamily: "inherit",
                             cursor: "pointer",
-                            marginBottom: "-2px"
+                            marginBottom: "-2px",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.5rem"
                         }}
                     >
+                        <img src="/icons/supplier-tab.svg" alt="" style={{ width: "16px", height: "16px", opacity: activeTab === "suppliers" ? 1 : 0.6 }} />
                         供应商管理
                     </button>
                     <button
@@ -375,9 +391,13 @@ export default function Settings() {
                             fontSize: "1.125rem",
                             fontFamily: "inherit",
                             cursor: "pointer",
-                            marginBottom: "-2px"
+                            marginBottom: "-2px",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.5rem"
                         }}
                     >
+                        <img src="/icons/theme-tab.svg" alt="" style={{ width: "16px", height: "16px", opacity: activeTab === "system" ? 1 : 0.6 }} />
                         主题
                     </button>
                     <button
@@ -392,9 +412,13 @@ export default function Settings() {
                             fontSize: "1.125rem",
                             fontFamily: "inherit",
                             cursor: "pointer",
-                            marginBottom: "-2px"
+                            marginBottom: "-2px",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.5rem"
                         }}
                     >
+                        <img src="/icons/data-tab.svg" alt="" style={{ width: "16px", height: "16px", opacity: activeTab === "data" ? 1 : 0.6 }} />
                         数据管理
                     </button>
                 </div>
