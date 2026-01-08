@@ -257,7 +257,10 @@ export default function Reports() {
                 {/* Filters */}
                 <div className="glass-panel" style={{ padding: "1.5rem" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-                        <h3 style={{ fontSize: "1.125rem", margin: 0 }}>筛选条件</h3>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                            <img src="/icons/filter.svg" alt="" style={{ width: "20px", height: "20px" }} />
+                            <h3 style={{ fontSize: "1.125rem", margin: 0 }}>筛选条件</h3>
+                        </div>
                         <div style={{ display: "flex", alignItems: "baseline", gap: "0.5rem" }}>
                             <span style={{ fontSize: "0.875rem", color: "var(--text-secondary)" }}>总成本:</span>
                             <span style={{ fontSize: "1.25rem", fontWeight: "bold", color: "var(--text-accent)" }}>¥{stats.totalCost.toFixed(2)}</span>
@@ -307,7 +310,10 @@ export default function Reports() {
                         {/* Usage Trend */}
                         <div className="glass-panel" style={{ padding: "1.5rem" }}>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "1rem" }}>
-                                <h3 style={{ fontSize: "1.125rem", margin: 0 }}>使用趋势</h3>
+                                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                    <img src="/icons/trend.svg" alt="" style={{ width: "20px", height: "20px" }} />
+                                    <h3 style={{ fontSize: "1.125rem", margin: 0 }}>使用趋势</h3>
+                                </div>
                                 <div style={{ display: "flex", gap: "1rem", alignItems: "center", flexWrap: "wrap" }}>
                                     {/* Chart View Toggle */}
                                     <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
@@ -417,9 +423,12 @@ export default function Reports() {
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))", gap: "1rem" }}>
                             {/* Department Cost Comparison */}
                             <div className="glass-panel" style={{ padding: "1.5rem" }}>
-                                <h3 style={{ fontSize: "1.125rem", marginBottom: "1rem" }}>
-                                    部门成本对比 {selectedCategory && <span style={{ fontSize: "0.875rem", color: "var(--text-secondary)", fontWeight: "normal" }}>({selectedCategory})</span>}
-                                </h3>
+                                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
+                                    <img src="/icons/bar-chart.svg" alt="" style={{ width: "20px", height: "20px" }} />
+                                    <h3 style={{ fontSize: "1.125rem", margin: 0 }}>
+                                        部门成本对比 {selectedCategory && <span style={{ fontSize: "0.875rem", color: "var(--text-secondary)", fontWeight: "normal" }}>({selectedCategory})</span>}
+                                    </h3>
+                                </div>
                                 <ResponsiveContainer width="100%" height={270}>
                                     <BarChart data={departmentCostData}>
                                         <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" />
@@ -445,9 +454,12 @@ export default function Reports() {
 
                             {/* Product Ranking */}
                             <div className="glass-panel" style={{ padding: "1.5rem" }}>
-                                <h3 style={{ fontSize: "1.125rem", marginBottom: "1rem" }}>
-                                    商品使用排行 (Top 10) {selectedCategory && <span style={{ fontSize: "0.875rem", color: "var(--text-secondary)", fontWeight: "normal" }}>({selectedCategory})</span>}
-                                </h3>
+                                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
+                                    <img src="/icons/bar-chart.svg" alt="" style={{ width: "20px", height: "20px" }} />
+                                    <h3 style={{ fontSize: "1.125rem", margin: 0 }}>
+                                        商品使用排行 (Top 10) {selectedCategory && <span style={{ fontSize: "0.875rem", color: "var(--text-secondary)", fontWeight: "normal" }}>({selectedCategory})</span>}
+                                    </h3>
+                                </div>
                                 <ResponsiveContainer width="100%" height={270}>
                                     <BarChart data={productRankingData} layout="vertical">
                                         <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" />
@@ -469,7 +481,10 @@ export default function Reports() {
 
                         {/* Detailed Table */}
                         <div className="glass-panel" style={{ padding: "1.5rem" }}>
-                            <h3 style={{ fontSize: "1.125rem", marginBottom: "1rem" }}>详细数据</h3>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
+                                <img src="/icons/table.svg" alt="" style={{ width: "20px", height: "20px" }} />
+                                <h3 style={{ fontSize: "1.125rem", margin: 0 }}>详细数据</h3>
+                            </div>
                             <div style={{ overflowX: "auto" }}>
                                 <table style={{ width: "100%", borderCollapse: "collapse", color: "var(--text-primary)" }}>
                                     <thead>
