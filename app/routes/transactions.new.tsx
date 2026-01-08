@@ -166,7 +166,7 @@ export default function NewTransaction() {
                     </div>
 
                     {transactionType === "OUT" && (
-                        <div style={{ padding: "1rem", background: "rgba(0,0,0,0.2)", borderRadius: "var(--radius-sm)" }}>
+                        <div style={{ padding: "1rem", background: "rgba(0,0,0,0.05)", borderRadius: "var(--radius-sm)" }}>
                             <h4 style={{ marginBottom: "1rem", fontSize: "0.875rem", color: "var(--text-secondary)" }}>出库信息</h4>
                             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                                 <div>
@@ -197,7 +197,7 @@ export default function NewTransaction() {
                     )}
 
                     {transactionType === "IN" && (
-                        <div style={{ padding: "1rem", background: "rgba(0,0,0,0.2)", borderRadius: "var(--radius-sm)" }}>
+                        <div style={{ padding: "1rem", background: "rgba(0,0,0,0.05)", borderRadius: "var(--radius-sm)" }}>
                             <h4 style={{ marginBottom: "1rem", fontSize: "0.875rem", color: "var(--text-secondary)" }}>入库信息</h4>
                             <div>
                                 <label>供应商</label>
