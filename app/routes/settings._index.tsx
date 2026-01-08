@@ -144,7 +144,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
             "INSERT INTO departments (name) VALUES (?)"
         ).bind(deptName).run();
 
-        return json({ success: true, message: "部门已创建" });
+        return json({ success: true, message: "部门已创建", resetForm: true });
     }
 
     // Category actions
@@ -213,7 +213,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
             "INSERT INTO suppliers (company_name, contact_person, phone, email) VALUES (?, ?, ?, ?)"
         ).bind(company_name, contact_person, phone, email).run();
 
-        return json({ success: true, message: "供应商已添加" });
+        return json({ success: true, message: "供应商已添加", resetForm: true });
     }
 
     if (intent === "edit_supplier") {
@@ -268,11 +268,16 @@ export default function Settings() {
     const { currentTheme, setTheme } = useTheme();
 
     useEffect(() => {
-        if (actionData?.success && isAddingSupplier) {
-            setIsAddingSupplier(false);
+        if (actionData?.success && actionData?.resetForm && isAddingSupplier) {
+            // Reset supplier form but keep it open
+            const form = document.querySelector('form[method="post"] input[name="company_name"]') as HTMLInputElement;
+            if (form) {
+                form.closest('form')?.reset();
+                form.focus();
+            }
         }
-        if (actionData?.success && addingDept) {
-            setAddingDept(false);
+        if (actionData?.success && actionData?.resetForm && addingDept) {
+            // Reset department form but keep it open
             setNewDept("");
         }
     }, [actionData, isAddingSupplier, addingDept]);

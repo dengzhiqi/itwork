@@ -228,10 +228,10 @@ export default function Transactions() {
                         onChange={(e) => handleFilterChange("year", e.target.value)}
                         style={{ fontSize: "0.875rem", padding: "0.5rem", width: "100px" }}
                     >
+                        <option value="all">全部</option>
                         {years.map((y: string) => (
                             <option key={y} value={y}>{y}年</option>
                         ))}
-                        <option value="all">全部</option>
                     </select>
 
                     {/* Month filter */}

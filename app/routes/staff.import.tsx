@@ -49,9 +49,9 @@ export async function action({ request, context }: ActionFunctionArgs) {
         let count = 0;
         const errors = [];
 
-        // Prepare statement for better performance
-        const stmt = env.DB.prepare("INSERT INTO staff (department, name) VALUES (?, ?)");
-        const batch = [];
+        // First pass: collect all unique departments and staff data
+        const uniqueDepartments = new Set<string>();
+        const staffData: Array<{ department: string; name: string }> = [];
 
         for (let i = startIndex; i < lines.length; i++) {
             const line = lines[i].trim();
@@ -63,16 +63,44 @@ export async function action({ request, context }: ActionFunctionArgs) {
                 const name = parts[1].trim();
 
                 if (department && name) {
-                    batch.push(stmt.bind(department, name));
-                    count++;
+                    uniqueDepartments.add(department);
+                    staffData.push({ department, name });
                 }
             }
         }
 
-        if (batch.length > 0) {
-            // D1 batch limit is usually around 100 statements, so we might need to chunk if file is huge
-            // For simplicity in this demo, assuming reasonable file size < 100 rows per upload or D1 handles it
-            // Safe approach: Loop and run or chunk. Let's chunk by 50.
+        // Second: check which departments already exist
+        if (uniqueDepartments.size > 0) {
+            const deptArray = Array.from(uniqueDepartments);
+            const placeholders = deptArray.map(() => '?').join(',');
+            const { results: existingDepts } = await env.DB.prepare(
+                `SELECT name FROM departments WHERE name IN (${placeholders})`
+            ).bind(...deptArray).all();
+
+            const existingDeptNames = new Set((existingDepts as any[]).map(d => d.name));
+
+            // Third: insert missing departments
+            const missingDepts = deptArray.filter(dept => !existingDeptNames.has(dept));
+            if (missingDepts.length > 0) {
+                const deptBatch = missingDepts.map(dept =>
+                    env.DB.prepare("INSERT INTO departments (name) VALUES (?)").bind(dept)
+                );
+
+                // Insert departments in chunks of 50
+                const chunkSize = 50;
+                for (let i = 0; i < deptBatch.length; i += chunkSize) {
+                    await env.DB.batch(deptBatch.slice(i, i + chunkSize));
+                }
+            }
+        }
+
+        // Fourth: insert staff records
+        if (staffData.length > 0) {
+            const stmt = env.DB.prepare("INSERT INTO staff (department, name) VALUES (?, ?)");
+            const batch = staffData.map(s => stmt.bind(s.department, s.name));
+            count = staffData.length;
+
+            // Insert staff in chunks of 50
             const chunkSize = 50;
             for (let i = 0; i < batch.length; i += chunkSize) {
                 await env.DB.batch(batch.slice(i, i + chunkSize));
