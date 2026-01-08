@@ -305,6 +305,7 @@ export default function Settings() {
                             color: activeTab === "categories" ? "var(--text-accent)" : "var(--text-secondary)",
                             fontWeight: activeTab === "categories" ? "bold" : "normal",
                             fontSize: "1.125rem",
+                            fontFamily: "inherit",
                             cursor: "pointer",
                             marginBottom: "-2px"
                         }}
@@ -321,6 +322,7 @@ export default function Settings() {
                             color: activeTab === "staff" ? "var(--text-accent)" : "var(--text-secondary)",
                             fontWeight: activeTab === "staff" ? "bold" : "normal",
                             fontSize: "1.125rem",
+                            fontFamily: "inherit",
                             cursor: "pointer",
                             marginBottom: "-2px"
                         }}
@@ -337,6 +339,7 @@ export default function Settings() {
                             color: activeTab === "departments" ? "var(--text-accent)" : "var(--text-secondary)",
                             fontWeight: activeTab === "departments" ? "bold" : "normal",
                             fontSize: "1.125rem",
+                            fontFamily: "inherit",
                             cursor: "pointer",
                             marginBottom: "-2px"
                         }}
@@ -353,6 +356,7 @@ export default function Settings() {
                             color: activeTab === "suppliers" ? "var(--text-accent)" : "var(--text-secondary)",
                             fontWeight: activeTab === "suppliers" ? "bold" : "normal",
                             fontSize: "1.125rem",
+                            fontFamily: "inherit",
                             cursor: "pointer",
                             marginBottom: "-2px"
                         }}
@@ -369,6 +373,7 @@ export default function Settings() {
                             color: activeTab === "system" ? "var(--text-accent)" : "var(--text-secondary)",
                             fontWeight: activeTab === "system" ? "bold" : "normal",
                             fontSize: "1.125rem",
+                            fontFamily: "inherit",
                             cursor: "pointer",
                             marginBottom: "-2px"
                         }}
@@ -385,6 +390,7 @@ export default function Settings() {
                             color: activeTab === "data" ? "var(--text-accent)" : "var(--text-secondary)",
                             fontWeight: activeTab === "data" ? "bold" : "normal",
                             fontSize: "1.125rem",
+                            fontFamily: "inherit",
                             cursor: "pointer",
                             marginBottom: "-2px"
                         }}
