@@ -9,6 +9,7 @@ import type { LinksFunction } from "@remix-run/cloudflare";
 import { ThemeProvider } from "./contexts/ThemeContext";
 
 export const links: LinksFunction = () => [
+    { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
     { rel: "preconnect", href: "https://fonts.googleapis.com" },
     {
         rel: "preconnect",
