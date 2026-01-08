@@ -175,7 +175,7 @@ export default function Index() {
                 {/* Header & Controls */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                        <img src="/icons/dashboard.svg" alt="" style={{ width: "32px", height: "32px" }} />
+                        <img className="theme-icon" src="/icons/dashboard.svg" alt="" style={{ width: "32px", height: "32px" }} />
                         <div>
                             <h2 style={{ margin: 0 }}>仪表盘</h2>
                             <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", margin: 0 }}>消耗统计与分析</p>
@@ -216,7 +216,7 @@ export default function Index() {
                     {/* Category Pie Chart */}
                     <div className="glass-panel" style={{ padding: "1.5rem", minHeight: "400px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "1.25rem", marginBottom: "1rem", borderBottom: "1px solid var(--border-light)", paddingBottom: "0.5rem" }}>
-                            <img src="/icons/pie-chart.svg" alt="" style={{ width: "20px", height: "20px" }} />
+                            <img className="theme-icon" src="/icons/pie-chart.svg" alt="" style={{ width: "20px", height: "20px" }} />
                             <h3 style={{ fontSize: "1.25rem", margin: 0 }}>
                                 分类消耗占比
                             </h3>
@@ -261,7 +261,7 @@ export default function Index() {
                     <div className="glass-panel" style={{ padding: "1.5rem", minHeight: "400px" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", borderBottom: "1px solid var(--border-light)", paddingBottom: "0.5rem" }}>
                             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                                <img src="/icons/bar-chart.svg" alt="" style={{ width: "20px", height: "20px" }} />
+                                <img className="theme-icon" src="/icons/bar-chart.svg" alt="" style={{ width: "20px", height: "20px" }} />
                                 <h3 style={{ fontSize: "1.25rem", margin: 0 }}>
                                     部门消耗统计 {category && `(${category})`}
                                 </h3>
@@ -319,7 +319,7 @@ export default function Index() {
                 {/* Total Statistics Table */}
                 <div className="glass-panel" style={{ padding: "1.5rem" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "1.25rem", marginBottom: "1.5rem", borderBottom: "1px solid var(--border-light)", paddingBottom: "0.5rem" }}>
-                        <img src="/icons/list.svg" alt="" style={{ width: "20px", height: "20px" }} />
+                        <img className="theme-icon" src="/icons/list.svg" alt="" style={{ width: "20px", height: "20px" }} />
                         <h3 style={{ fontSize: "1.25rem", margin: 0 }}>
                             总统计
                         </h3>

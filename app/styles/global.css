@@ -167,3 +167,23 @@ textarea:focus {
   background: var(--border-light);
   border-color: var(--text-secondary);
 }
+
+/* Theme-aware icons */
+.theme-icon {
+  /* For light themes (cherry-blossom, warm-ivory), keep dark gray */
+  /* For dark themes, invert to white */
+  filter: brightness(0) saturate(100%) invert(var(--icon-invert, 0));
+  transition: filter 0.3s ease;
+}
+
+/* Icon inversion values will be set by ThemeContext based on theme */
+[data-theme="ocean-blue"] .theme-icon,
+[data-theme="warm-sunset"] .theme-icon,
+[data-theme="purple-dream"] .theme-icon {
+  filter: brightness(0) saturate(100%) invert(1);
+}
+
+[data-theme="cherry-blossom"] .theme-icon,
+[data-theme="warm-ivory"] .theme-icon {
+  filter: brightness(0) saturate(100%) invert(0);
+}

@@ -286,7 +286,7 @@ export default function Settings() {
         <Layout user={user}>
             <div style={{ display: "grid", gap: "2rem" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                    <img src="/icons/settings.svg" alt="" style={{ width: "32px", height: "32px" }} />
+                    <img className="theme-icon" src="/icons/settings.svg" alt="" style={{ width: "32px", height: "32px" }} />
                     <div>
                         <h2 style={{ margin: 0 }}>设置</h2>
                         <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", margin: 0 }}>管理分类、供应商等系统配置</p>
@@ -313,7 +313,7 @@ export default function Settings() {
                             gap: "0.5rem"
                         }}
                     >
-                        <img src="/icons/category-tab.svg" alt="" style={{ width: "16px", height: "16px", opacity: activeTab === "categories" ? 1 : 0.6 }} />
+                        <img className="theme-icon" src="/icons/category-tab.svg" alt="" style={{ width: "16px", height: "16px", opacity: activeTab === "categories" ? 1 : 0.6 }} />
                         分类管理
                     </button>
                     <button
@@ -334,7 +334,7 @@ export default function Settings() {
                             gap: "0.5rem"
                         }}
                     >
-                        <img src="/icons/staff-tab.svg" alt="" style={{ width: "16px", height: "16px", opacity: activeTab === "staff" ? 1 : 0.6 }} />
+                        <img className="theme-icon" src="/icons/staff-tab.svg" alt="" style={{ width: "16px", height: "16px", opacity: activeTab === "staff" ? 1 : 0.6 }} />
                         人员管理
                     </button>
                     <button
@@ -355,7 +355,7 @@ export default function Settings() {
                             gap: "0.5rem"
                         }}
                     >
-                        <img src="/icons/department-tab.svg" alt="" style={{ width: "16px", height: "16px", opacity: activeTab === "departments" ? 1 : 0.6 }} />
+                        <img className="theme-icon" src="/icons/department-tab.svg" alt="" style={{ width: "16px", height: "16px", opacity: activeTab === "departments" ? 1 : 0.6 }} />
                         部门管理
                     </button>
                     <button
@@ -376,7 +376,7 @@ export default function Settings() {
                             gap: "0.5rem"
                         }}
                     >
-                        <img src="/icons/supplier-tab.svg" alt="" style={{ width: "16px", height: "16px", opacity: activeTab === "suppliers" ? 1 : 0.6 }} />
+                        <img className="theme-icon" src="/icons/supplier-tab.svg" alt="" style={{ width: "16px", height: "16px", opacity: activeTab === "suppliers" ? 1 : 0.6 }} />
                         供应商管理
                     </button>
                     <button
@@ -397,7 +397,7 @@ export default function Settings() {
                             gap: "0.5rem"
                         }}
                     >
-                        <img src="/icons/theme-tab.svg" alt="" style={{ width: "16px", height: "16px", opacity: activeTab === "system" ? 1 : 0.6 }} />
+                        <img className="theme-icon" src="/icons/theme-tab.svg" alt="" style={{ width: "16px", height: "16px", opacity: activeTab === "system" ? 1 : 0.6 }} />
                         主题
                     </button>
                     <button
@@ -418,7 +418,7 @@ export default function Settings() {
                             gap: "0.5rem"
                         }}
                     >
-                        <img src="/icons/data-tab.svg" alt="" style={{ width: "16px", height: "16px", opacity: activeTab === "data" ? 1 : 0.6 }} />
+                        <img className="theme-icon" src="/icons/data-tab.svg" alt="" style={{ width: "16px", height: "16px", opacity: activeTab === "data" ? 1 : 0.6 }} />
                         数据管理
                     </button>
                 </div>

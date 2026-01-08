@@ -34,6 +34,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
             const root = document.documentElement;
             const colors = theme.colors;
 
+            // Set data-theme attribute for CSS selectors
+            root.setAttribute('data-theme', currentTheme);
+
             root.style.setProperty('--bg-app', colors.bgApp);
             root.style.setProperty('--bg-panel', colors.bgPanel);
             root.style.setProperty('--bg-card', colors.bgCard);

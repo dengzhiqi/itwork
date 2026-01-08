@@ -247,7 +247,7 @@ export default function Reports() {
             <div style={{ display: "grid", gap: "2rem" }}>
                 {/* Header */}
                 <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                    <img src="/icons/reports.svg" alt="" style={{ width: "32px", height: "32px" }} />
+                    <img className="theme-icon" src="/icons/reports.svg" alt="" style={{ width: "32px", height: "32px" }} />
                     <div>
                         <h2 style={{ margin: 0 }}>报表分析</h2>
                         <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", margin: 0 }}>商品使用统计与趋势分析</p>
@@ -258,7 +258,7 @@ export default function Reports() {
                 <div className="glass-panel" style={{ padding: "1.5rem" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                            <img src="/icons/filter.svg" alt="" style={{ width: "20px", height: "20px" }} />
+                            <img className="theme-icon" src="/icons/filter.svg" alt="" style={{ width: "20px", height: "20px" }} />
                             <h3 style={{ fontSize: "1.125rem", margin: 0 }}>筛选条件</h3>
                         </div>
                         <div style={{ display: "flex", alignItems: "baseline", gap: "0.5rem" }}>
@@ -311,7 +311,7 @@ export default function Reports() {
                         <div className="glass-panel" style={{ padding: "1.5rem" }}>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "1rem" }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                                    <img src="/icons/trend.svg" alt="" style={{ width: "20px", height: "20px" }} />
+                                    <img className="theme-icon" src="/icons/trend.svg" alt="" style={{ width: "20px", height: "20px" }} />
                                     <h3 style={{ fontSize: "1.125rem", margin: 0 }}>使用趋势</h3>
                                 </div>
                                 <div style={{ display: "flex", gap: "1rem", alignItems: "center", flexWrap: "wrap" }}>
@@ -424,7 +424,7 @@ export default function Reports() {
                             {/* Department Cost Comparison */}
                             <div className="glass-panel" style={{ padding: "1.5rem" }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
-                                    <img src="/icons/bar-chart.svg" alt="" style={{ width: "20px", height: "20px" }} />
+                                    <img className="theme-icon" src="/icons/bar-chart.svg" alt="" style={{ width: "20px", height: "20px" }} />
                                     <h3 style={{ fontSize: "1.125rem", margin: 0 }}>
                                         部门成本对比 {selectedCategory && <span style={{ fontSize: "0.875rem", color: "var(--text-secondary)", fontWeight: "normal" }}>({selectedCategory})</span>}
                                     </h3>
@@ -455,7 +455,7 @@ export default function Reports() {
                             {/* Product Ranking */}
                             <div className="glass-panel" style={{ padding: "1.5rem" }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
-                                    <img src="/icons/bar-chart.svg" alt="" style={{ width: "20px", height: "20px" }} />
+                                    <img className="theme-icon" src="/icons/bar-chart.svg" alt="" style={{ width: "20px", height: "20px" }} />
                                     <h3 style={{ fontSize: "1.125rem", margin: 0 }}>
                                         商品使用排行 (Top 10) {selectedCategory && <span style={{ fontSize: "0.875rem", color: "var(--text-secondary)", fontWeight: "normal" }}>({selectedCategory})</span>}
                                     </h3>
@@ -482,7 +482,7 @@ export default function Reports() {
                         {/* Detailed Table */}
                         <div className="glass-panel" style={{ padding: "1.5rem" }}>
                             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
-                                <img src="/icons/table.svg" alt="" style={{ width: "20px", height: "20px" }} />
+                                <img className="theme-icon" src="/icons/table.svg" alt="" style={{ width: "20px", height: "20px" }} />
                                 <h3 style={{ fontSize: "1.125rem", margin: 0 }}>详细数据</h3>
                             </div>
                             <div style={{ overflowX: "auto" }}>
