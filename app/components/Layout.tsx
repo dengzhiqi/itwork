@@ -30,7 +30,7 @@ export default function Layout({ children, user }: { children: React.ReactNode; 
                 }}
             >
                 <div style={{ marginBottom: "2rem", display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <img src="/icons/dashboard.svg" alt="Logo" style={{ width: '32px', height: '32px' }} />
+                    <img className="theme-icon" src="/icons/dashboard.svg" alt="Logo" style={{ width: '32px', height: '32px' }} />
                     <div>
                         <h1 style={{ fontSize: "1.5rem", margin: 0, background: "var(--primary-gradient)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                             ItWork
@@ -63,7 +63,7 @@ export default function Layout({ children, user }: { children: React.ReactNode; 
                                             textDecoration: "none"
                                         }}
                                     >
-                                        <img src={item.icon} alt="" style={{ width: "20px", height: "20px", objectFit: "contain" }} />
+                                        <img className="theme-icon" src={item.icon} alt="" style={{ width: "20px", height: "20px", objectFit: "contain" }} />
                                         {item.label}
                                     </Link>
                                 </li>
@@ -92,7 +92,7 @@ export default function Layout({ children, user }: { children: React.ReactNode; 
                                     gap: "0.75rem"
                                 }}
                             >
-                                <img src="/icons/logout.svg" alt="" style={{ width: "20px", height: "20px", objectFit: "contain" }} />
+                                <img className="theme-icon" src="/icons/logout.svg" alt="" style={{ width: "20px", height: "20px", objectFit: "contain" }} />
                                 退出登录
                             </button>
                         </form>
