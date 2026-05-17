@@ -6,9 +6,9 @@ export default function Layout({ children, user }: { children: React.ReactNode; 
 
     const navItems = [
         { label: "仪表盘", path: "/", icon: "/icons/dashboard.svg" },
-        { label: "库存管理", path: "/inventory", icon: "/icons/inventory.svg" },
         { label: "出库管理", path: "/transactions?type=OUT", icon: "/icons/transactions.svg" },
         { label: "入库管理", path: "/transactions?type=IN", icon: "/icons/transactions.svg" },
+        { label: "库存管理", path: "/inventory", icon: "/icons/inventory.svg" },
         { label: "报表", path: "/reports", icon: "/icons/reports.svg" },
         { label: "设置", path: "/settings", icon: "/icons/settings.svg" },
     ];

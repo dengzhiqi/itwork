@@ -430,9 +430,15 @@ export default function Reports() {
                                     </h3>
                                 </div>
                                 <ResponsiveContainer width="100%" height={270}>
-                                    <BarChart data={departmentCostData}>
+                                    <BarChart data={departmentCostData} margin={{ bottom: 20 }}>
                                         <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" />
-                                        <XAxis dataKey="name" stroke="var(--text-secondary)" />
+                                        <XAxis 
+                                            dataKey="name" 
+                                            stroke="var(--text-secondary)" 
+                                            interval={0} 
+                                            tick={{ fontSize: 12, angle: -45, textAnchor: 'end' }} 
+                                            height={60} 
+                                        />
                                         <YAxis stroke="var(--text-secondary)" />
                                         <Tooltip
                                             contentStyle={{
@@ -461,10 +467,16 @@ export default function Reports() {
                                     </h3>
                                 </div>
                                 <ResponsiveContainer width="100%" height={270}>
-                                    <BarChart data={productRankingData} layout="vertical">
+                                    <BarChart data={productRankingData} layout="vertical" margin={{ left: 10 }}>
                                         <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" />
                                         <XAxis type="number" stroke="var(--text-secondary)" />
-                                        <YAxis dataKey="name" type="category" width={150} stroke="var(--text-secondary)" />
+                                        <YAxis 
+                                            dataKey="name" 
+                                            type="category" 
+                                            width={220} 
+                                            stroke="var(--text-secondary)" 
+                                            tick={{ fontSize: 12 }} 
+                                        />
                                         <Tooltip
                                             contentStyle={{
                                                 background: "var(--bg-panel)",
