@@ -3,6 +3,7 @@ import { json } from "@remix-run/cloudflare";
 import { Link, useLoaderData, useSearchParams, Form, useSubmit } from "@remix-run/react";
 import { useState } from "react";
 import Layout from "../components/Layout";
+import Icon from "../components/Icon";
 import { requireUser } from "../utils/auth.server";
 import {
     PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend,
@@ -127,13 +128,14 @@ const CustomPieTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
         return (
             <div style={{
-                background: 'rgba(0, 0, 0, 0.8)',
-                padding: '0.5rem 1rem',
-                borderRadius: '4px',
-                border: '1px solid rgba(255, 255, 255, 0.2)'
+                background: 'var(--bg-panel)',
+                padding: '0.5rem 0.875rem',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid var(--border-medium)',
+                boxShadow: 'var(--shadow-md, 0 4px 12px rgba(0, 0, 0, 0.06))',
             }}>
-                <p style={{ margin: 0, color: '#fff', fontWeight: 'bold' }}>{payload[0].name}</p>
-                <p style={{ margin: 0, color: '#fff' }}>数量: {payload[0].value}</p>
+                <p style={{ margin: 0, color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.8125rem' }}>{payload[0].name}</p>
+                <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>数量: {payload[0].value}</p>
             </div>
         );
     }
@@ -175,7 +177,13 @@ export default function Index() {
                 {/* Header & Controls */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                        <img className="theme-icon" src="/icons/dashboard.svg" alt="" style={{ width: "32px", height: "32px" }} />
+                        <div style={{
+                            width: '40px', height: '40px', borderRadius: '10px',
+                            background: 'var(--bg-secondary)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                            <Icon name="dashboard" size={22} style={{ color: 'var(--text-accent)' }} />
+                        </div>
                         <div>
                             <h2 style={{ margin: 0 }}>仪表盘</h2>
                             <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", margin: 0 }}>消耗统计与分析</p>
@@ -216,7 +224,7 @@ export default function Index() {
                     {/* Category Pie Chart */}
                     <div className="glass-panel" style={{ padding: "1.5rem", minHeight: "400px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "1.25rem", marginBottom: "1rem", borderBottom: "1px solid var(--border-light)", paddingBottom: "0.5rem" }}>
-                            <img className="theme-icon" src="/icons/pie-chart.svg" alt="" style={{ width: "20px", height: "20px" }} />
+                            <Icon name="pie-chart" size={18} style={{ color: 'var(--text-accent)' }} />
                             <h3 style={{ fontSize: "1.25rem", margin: 0 }}>
                                 分类消耗占比
                             </h3>
@@ -230,7 +238,7 @@ export default function Index() {
                                             cx="50%"
                                             cy="45%"
                                             labelLine={false}
-                                            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                            label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}
                                             outerRadius={100}
                                             fill="#8884d8"
                                             dataKey="value"
@@ -261,7 +269,7 @@ export default function Index() {
                     <div className="glass-panel" style={{ padding: "1.5rem", minHeight: "400px" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", borderBottom: "1px solid var(--border-light)", paddingBottom: "0.5rem" }}>
                             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                                <img className="theme-icon" src="/icons/bar-chart.svg" alt="" style={{ width: "20px", height: "20px" }} />
+                                <Icon name="bar-chart" size={18} style={{ color: 'var(--text-accent)' }} />
                                 <h3 style={{ fontSize: "1.25rem", margin: 0 }}>
                                     部门消耗统计 {category && `(${category})`}
                                 </h3>
@@ -319,7 +327,7 @@ export default function Index() {
                 {/* Total Statistics Table */}
                 <div className="glass-panel" style={{ padding: "1.5rem" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "1.25rem", marginBottom: "1.5rem", borderBottom: "1px solid var(--border-light)", paddingBottom: "0.5rem" }}>
-                        <img className="theme-icon" src="/icons/list.svg" alt="" style={{ width: "20px", height: "20px" }} />
+                        <Icon name="list" size={18} style={{ color: 'var(--text-accent)' }} />
                         <h3 style={{ fontSize: "1.25rem", margin: 0 }}>
                             总统计
                         </h3>

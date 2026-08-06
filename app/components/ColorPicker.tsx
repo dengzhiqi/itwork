@@ -36,13 +36,13 @@ export function ColorPicker({ label, value, onChange }: ColorPickerProps) {
                     placeholder="#000000"
                     style={{
                         flex: 1,
-                        padding: "0.5rem",
-                        background: "rgba(15, 23, 42, 0.6)",
-                        border: "1px solid var(--border-light)",
+                        padding: "0.5rem 0.75rem",
+                        background: "var(--bg-input)",
+                        border: "1px solid var(--border-medium)",
                         borderRadius: "var(--radius-sm)",
-                        color: "var(--text-primary)",
+                        color: "var(--text-input)",
                         fontFamily: "monospace",
-                        fontSize: "0.875rem",
+                        fontSize: "0.8125rem",
                     }}
                 />
                 <div

@@ -60,14 +60,29 @@ export default function Login() {
                 background: "var(--bg-app)",
             }}
         >
-            <div className="glass-panel" style={{ width: "100%", maxWidth: "400px", padding: "2rem" }}>
-                <h2 style={{ textAlign: "center", marginBottom: "2rem" }}>ItWork 登录</h2>
+            <div className="glass-panel" style={{ width: "100%", maxWidth: "380px", padding: "2.5rem" }}>
+                <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+                    <div style={{
+                        width: '48px', height: '48px', borderRadius: '12px',
+                        background: 'var(--primary-gradient)',
+                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                        marginBottom: '1rem',
+                    }}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+                            <path d="m3.3 7 8.7 5 8.7-5" />
+                            <path d="M12 22V12" />
+                        </svg>
+                    </div>
+                    <h2 style={{ textAlign: "center", marginBottom: "0.5rem" }}>ItWork</h2>
+                    <p style={{ fontSize: "0.8125rem", color: "var(--text-secondary)", margin: 0 }}>办公用品管理系统</p>
+                </div>
                 <Form method="post">
                     <div style={{ marginBottom: "1rem" }}>
                         <label htmlFor="username">用户名</label>
                         <input type="text" id="username" name="username" required autoComplete="username" />
                     </div>
-                    <div style={{ marginBottom: "2rem" }}>
+                    <div style={{ marginBottom: "1.5rem" }}>
                         <label htmlFor="password">密码</label>
                         <input
                             type="password"
@@ -78,7 +93,7 @@ export default function Login() {
                         />
                     </div>
                     {actionData?.error && (
-                        <div style={{ color: "var(--danger-color)", marginBottom: "1rem", fontSize: "0.875rem" }}>
+                        <div style={{ color: "var(--danger-color)", marginBottom: "1rem", fontSize: "0.8125rem", textAlign: "center" }}>
                             {actionData.error}
                         </div>
                     )}

@@ -37,95 +37,124 @@ export default function App() {
                             (function() {
                                 try {
                                     const themes = {
+                                        'clean-white': {
+                                            bgApp: '#f8f9fa',
+                                            bgPanel: '#ffffff',
+                                            bgCard: '#ffffff',
+                                            bgInput: '#ffffff',
+                                            bgSecondary: '#f1f3f5',
+                                            textPrimary: '#212529',
+                                            textSecondary: '#868e96',
+                                            textInput: '#212529',
+                                            textAccent: '#4c6ef5',
+                                            borderLight: '#e9ecef',
+                                            primaryGradient: 'linear-gradient(135deg, #4c6ef5 0%, #748ffc 100%)',
+                                            primarySolid: '#4c6ef5',
+                                            primaryHover: '#3b5bdb',
+                                            dangerColor: '#fa5252',
+                                            successColor: '#37b24d',
+                                            backgroundGradient1: 'rgba(76, 110, 245, 0.03)',
+                                            backgroundGradient2: 'rgba(116, 143, 252, 0.03)',
+                                        },
                                         'ocean-blue': {
                                             bgApp: '#0f172a',
-                                            bgPanel: 'rgba(30, 41, 59, 0.7)',
-                                            bgCard: 'rgba(51, 65, 85, 0.5)',
-                                            bgInput: 'rgba(15, 23, 42, 0.6)',
-                                            bgSecondary: 'rgba(30, 41, 59, 0.5)',
+                                            bgPanel: '#1e293b',
+                                            bgCard: '#334155',
+                                            bgInput: '#0f172a',
+                                            bgSecondary: '#1e293b',
                                             textPrimary: '#f1f5f9',
                                             textSecondary: '#94a3b8',
                                             textInput: '#f1f5f9',
                                             textAccent: '#38bdf8',
-                                            borderLight: 'rgba(148, 163, 184, 0.1)',
+                                            borderLight: 'rgba(148, 163, 184, 0.15)',
                                             primaryGradient: 'linear-gradient(135deg, #38bdf8 0%, #818cf8 100%)',
+                                            primarySolid: '#38bdf8',
+                                            primaryHover: '#0ea5e9',
                                             dangerColor: '#ef4444',
                                             successColor: '#22c55e',
-                                            backgroundGradient1: 'rgba(56, 189, 248, 0.15)',
-                                            backgroundGradient2: 'rgba(129, 140, 248, 0.15)',
+                                            backgroundGradient1: 'rgba(56, 189, 248, 0.08)',
+                                            backgroundGradient2: 'rgba(129, 140, 248, 0.08)',
                                         },
                                         'warm-sunset': {
                                             bgApp: '#1a1512',
-                                            bgPanel: 'rgba(42, 36, 30, 0.85)',
-                                            bgCard: 'rgba(58, 48, 38, 0.6)',
-                                            bgInput: 'rgba(26, 21, 18, 0.6)',
-                                            bgSecondary: 'rgba(42, 36, 30, 0.5)',
+                                            bgPanel: '#2a241e',
+                                            bgCard: '#3a3026',
+                                            bgInput: '#1a1512',
+                                            bgSecondary: '#2a241e',
                                             textPrimary: '#f5ebe0',
                                             textSecondary: '#b8a898',
                                             textInput: '#f5ebe0',
                                             textAccent: '#f0a050',
                                             borderLight: 'rgba(180, 160, 140, 0.12)',
                                             primaryGradient: 'linear-gradient(135deg, #f0a050 0%, #e07830 100%)',
+                                            primarySolid: '#f0a050',
+                                            primaryHover: '#d97706',
                                             dangerColor: '#ef5350',
                                             successColor: '#66bb6a',
-                                            backgroundGradient1: 'rgba(240, 160, 80, 0.12)',
-                                            backgroundGradient2: 'rgba(224, 120, 48, 0.12)',
+                                            backgroundGradient1: 'rgba(240, 160, 80, 0.08)',
+                                            backgroundGradient2: 'rgba(224, 120, 48, 0.08)',
                                         },
                                         'sakura-pink': {
                                             bgApp: '#fff0f5',
-                                            bgPanel: 'rgba(255, 240, 245, 0.9)',
-                                            bgCard: 'rgba(255, 255, 255, 0.65)',
-                                            bgInput: 'rgba(255, 255, 255, 0.85)',
-                                            bgSecondary: 'rgba(255, 240, 245, 0.6)',
+                                            bgPanel: '#ffffff',
+                                            bgCard: '#ffffff',
+                                            bgInput: '#ffffff',
+                                            bgSecondary: '#fff0f5',
                                             textPrimary: '#2d1b20',
                                             textSecondary: '#5d3a43',
                                             textInput: '#3d2a2f',
                                             textAccent: '#d65d7a',
                                             borderLight: 'rgba(214, 93, 122, 0.15)',
                                             primaryGradient: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+                                            primarySolid: '#d65d7a',
+                                            primaryHover: '#c04464',
                                             dangerColor: '#ef5350',
                                             successColor: '#66bb6a',
-                                            backgroundGradient1: 'rgba(255, 154, 158, 0.12)',
-                                            backgroundGradient2: 'rgba(254, 207, 239, 0.12)',
+                                            backgroundGradient1: 'rgba(255, 154, 158, 0.08)',
+                                            backgroundGradient2: 'rgba(254, 207, 239, 0.08)',
                                         },
                                         'purple-dream': {
                                             bgApp: '#12101a',
-                                            bgPanel: 'rgba(30, 25, 45, 0.85)',
-                                            bgCard: 'rgba(45, 38, 65, 0.6)',
-                                            bgInput: 'rgba(18, 16, 26, 0.6)',
-                                            bgSecondary: 'rgba(30, 25, 45, 0.5)',
+                                            bgPanel: '#1e192d',
+                                            bgCard: '#2d2641',
+                                            bgInput: '#12101a',
+                                            bgSecondary: '#1e192d',
                                             textPrimary: '#e8e0f0',
                                             textSecondary: '#a090b8',
                                             textInput: '#e8e0f0',
                                             textAccent: '#a78bfa',
                                             borderLight: 'rgba(140, 120, 180, 0.12)',
                                             primaryGradient: 'linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%)',
+                                            primarySolid: '#a78bfa',
+                                            primaryHover: '#8b5cf6',
                                             dangerColor: '#ef5350',
                                             successColor: '#66bb6a',
-                                            backgroundGradient1: 'rgba(167, 139, 250, 0.12)',
-                                            backgroundGradient2: 'rgba(139, 92, 246, 0.12)',
+                                            backgroundGradient1: 'rgba(167, 139, 250, 0.08)',
+                                            backgroundGradient2: 'rgba(139, 92, 246, 0.08)',
                                         },
                                         'warm-ivory': {
                                             bgApp: '#f5f7fa',
-                                            bgPanel: 'rgba(255, 255, 255, 0.95)',
-                                            bgCard: 'rgba(255, 255, 255, 0.9)',
-                                            bgInput: 'rgba(255, 255, 255, 0.95)',
-                                            bgSecondary: 'rgba(245, 247, 250, 0.8)',
+                                            bgPanel: '#ffffff',
+                                            bgCard: '#ffffff',
+                                            bgInput: '#ffffff',
+                                            bgSecondary: '#f1f3f5',
                                             textPrimary: '#1e293b',
                                             textSecondary: '#64748b',
                                             textInput: '#1e293b',
                                             textAccent: '#5b7fff',
                                             borderLight: 'rgba(148, 163, 184, 0.12)',
                                             primaryGradient: 'linear-gradient(135deg, #5b7fff 0%, #e879f9 100%)',
+                                            primarySolid: '#5b7fff',
+                                            primaryHover: '#3b5bdb',
                                             dangerColor: '#ef4444',
                                             successColor: '#10b981',
-                                            backgroundGradient1: 'rgba(91, 127, 255, 0.08)',
-                                            backgroundGradient2: 'rgba(232, 121, 249, 0.08)',
+                                            backgroundGradient1: 'rgba(91, 127, 255, 0.05)',
+                                            backgroundGradient2: 'rgba(232, 121, 249, 0.05)',
                                         },
                                     };
                                     
-                                    const savedTheme = localStorage.getItem('theme') || 'ocean-blue';
-                                    const colors = themes[savedTheme] || themes['ocean-blue'];
+                                    const savedTheme = localStorage.getItem('theme') || 'clean-white';
+                                    const colors = themes[savedTheme] || themes['clean-white'];
                                     const root = document.documentElement;
                                     
                                     root.style.setProperty('--bg-app', colors.bgApp);
@@ -133,12 +162,16 @@ export default function App() {
                                     root.style.setProperty('--bg-card', colors.bgCard);
                                     root.style.setProperty('--bg-input', colors.bgInput);
                                     root.style.setProperty('--bg-secondary', colors.bgSecondary);
+                                    root.style.setProperty('--bg-hover', colors.bgSecondary);
                                     root.style.setProperty('--text-primary', colors.textPrimary);
                                     root.style.setProperty('--text-secondary', colors.textSecondary);
                                     root.style.setProperty('--text-input', colors.textInput);
                                     root.style.setProperty('--text-accent', colors.textAccent);
                                     root.style.setProperty('--border-light', colors.borderLight);
+                                    root.style.setProperty('--border-medium', colors.borderLight);
                                     root.style.setProperty('--primary-gradient', colors.primaryGradient);
+                                    root.style.setProperty('--primary-solid', colors.primarySolid);
+                                    root.style.setProperty('--primary-hover', colors.primaryHover);
                                     root.style.setProperty('--danger-color', colors.dangerColor);
                                     root.style.setProperty('--success-color', colors.successColor);
                                     root.style.setProperty('--bg-gradient-1', colors.backgroundGradient1);

@@ -3,6 +3,7 @@ import { json } from "@remix-run/cloudflare";
 import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
 import { useState, useEffect } from "react";
 import Layout from "../components/Layout";
+import Icon from "../components/Icon";
 import { requireUser } from "../utils/auth.server";
 
 export async function loader({ request, context }: LoaderFunctionArgs) {
@@ -205,11 +206,17 @@ export default function Transactions() {
                 {/* Title and action buttons row */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                        <img src="/icons/transactions.svg" alt="" style={{ width: "32px", height: "32px" }} />
+                        <div style={{
+                            width: '40px', height: '40px', borderRadius: '10px',
+                            background: 'var(--bg-secondary)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                            <Icon name="transactions" size={22} style={{ color: 'var(--text-accent)' }} />
+                        </div>
                         <h2 style={{ margin: 0, fontSize: "1.5rem" }}>{pageTitle}</h2>
                     </div>
                     <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
-                        <Link to={`/transactions/export?type=${currentType}&year=${year}&month=${month}&category=${categoryId}&name=${nameQuery}`} className="btn" style={{ background: "var(--bg-glass)", border: "1px solid var(--border-light)", padding: "0.5rem 1rem", fontSize: "0.875rem" }} target="_blank">
+                        <Link to={`/transactions/export?type=${currentType}&year=${year}&month=${month}&category=${categoryId}&name=${nameQuery}`} className="btn btn-secondary" style={{ padding: "0.5rem 1rem", fontSize: "0.875rem" }} target="_blank">
                             导出查询结果
                         </Link>
                         <Link to={`/transactions/new${currentType ? `?type=${currentType}` : ""}`} className="btn btn-primary" style={{ padding: "0.5rem 1rem", fontSize: "0.875rem" }}>
@@ -458,9 +465,9 @@ export default function Transactions() {
                                                 padding: "0.5rem 0.75rem",
                                                 fontSize: "0.875rem",
                                                 minWidth: "40px",
-                                                background: i === page ? "var(--primary-color)" : "var(--bg-glass)",
+                                                background: i === page ? "var(--primary-solid)" : "var(--bg-panel)",
                                                 color: i === page ? "white" : "var(--text-primary)",
-                                                border: i === page ? "1px solid var(--primary-color)" : "1px solid var(--border-light)"
+                                                border: i === page ? "1px solid var(--primary-solid)" : "1px solid var(--border-medium)"
                                             }}
                                         >
                                             {i}

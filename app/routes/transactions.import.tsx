@@ -369,7 +369,7 @@ export default function TransactionImport() {
 
                 {/* Template Download */}
                 <div style={{ marginBottom: "2rem", padding: "1.5rem", background: "var(--bg-secondary)", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-light)" }}>
-                    <h4 style={{ fontSize: "1rem", marginBottom: "1rem", color: "var(--text-primary)" }}>📝 CSV 格式要求</h4>
+                    <h4 style={{ fontSize: "0.8125rem", marginBottom: "1rem", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.03em" }}>CSV 格式要求</h4>
                     <p style={{ fontSize: "0.875rem", marginBottom: "1rem", color: "var(--text-secondary)", lineHeight: "1.6" }}>
                         {currentType === "OUT"
                             ? "每行包含：日期、分类、品牌、型号、数量、部门、经手人、备注（可选）"

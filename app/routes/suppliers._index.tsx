@@ -3,6 +3,7 @@ import { json } from "@remix-run/cloudflare";
 import { Link, useLoaderData, Form, useNavigation, useActionData } from "@remix-run/react";
 import { useState, useEffect } from "react";
 import Layout from "../components/Layout";
+import Icon from "../components/Icon";
 import { requireUser } from "../utils/auth.server";
 
 export async function loader({ request, context }: LoaderFunctionArgs) {
@@ -63,7 +64,13 @@ export default function Suppliers() {
             <div className="glass-panel" style={{ padding: "2rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                        <img src="/icons/suppliers.svg" alt="" style={{ width: "32px", height: "32px" }} />
+                        <div style={{
+                            width: '40px', height: '40px', borderRadius: '10px',
+                            background: 'var(--bg-secondary)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                            <Icon name="suppliers" size={22} style={{ color: 'var(--text-accent)' }} />
+                        </div>
                         <h2 style={{ margin: 0 }}>供应商管理</h2>
                     </div>
                     {!isAdding && (

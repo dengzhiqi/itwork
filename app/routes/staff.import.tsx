@@ -144,10 +144,10 @@ function StaffImportView() {
                 </div>
 
 
-                <div style={{ marginBottom: "2rem", padding: "1rem", background: "rgba(0,0,0,0.2)", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-light)" }}>
-                    <h4 style={{ color: "var(--text-primary)", marginBottom: "0.5rem" }}>📝 CSV 格式说明</h4>
-                    <p style={{ fontSize: "0.875rem", marginBottom: "0.5rem" }}>请上传 UTF-8 编码的 CSV 文件，每行包含两列：</p>
-                    <code style={{ display: "block", padding: "0.5rem", background: "rgba(0,0,0,0.3)", borderRadius: "4px", fontSize: "0.875rem" }}>
+                <div style={{ marginBottom: "2rem", padding: "1rem", background: "var(--bg-secondary)", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-light)" }}>
+                    <h4 style={{ color: "var(--text-primary)", marginBottom: "0.5rem", fontSize: "0.8125rem", textTransform: "uppercase", letterSpacing: "0.03em" }}>CSV 格式说明</h4>
+                    <p style={{ fontSize: "0.8125rem", marginBottom: "0.5rem", color: "var(--text-secondary)" }}>请上传 UTF-8 编码的 CSV 文件，每行包含两列：</p>
+                    <code style={{ display: "block", padding: "0.5rem 0.75rem", background: "var(--bg-app)", borderRadius: "var(--radius-sm)", fontSize: "0.8125rem", fontFamily: "monospace", color: "var(--text-primary)", border: "1px solid var(--border-light)" }}>
                         部门,姓名<br />
                         技术部,张三<br />
                         市场部,李四

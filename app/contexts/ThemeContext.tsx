@@ -42,12 +42,16 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
             root.style.setProperty('--bg-card', colors.bgCard);
             root.style.setProperty('--bg-input', colors.bgInput);
             root.style.setProperty('--bg-secondary', colors.bgSecondary);
+            root.style.setProperty('--bg-hover', colors.bgSecondary);
             root.style.setProperty('--text-primary', colors.textPrimary);
             root.style.setProperty('--text-secondary', colors.textSecondary);
             root.style.setProperty('--text-input', colors.textInput);
             root.style.setProperty('--text-accent', colors.textAccent);
             root.style.setProperty('--border-light', colors.borderLight);
+            root.style.setProperty('--border-medium', colors.borderLight);
             root.style.setProperty('--primary-gradient', colors.primaryGradient);
+            root.style.setProperty('--primary-solid', colors.primarySolid);
+            root.style.setProperty('--primary-hover', colors.primaryHover);
             root.style.setProperty('--danger-color', colors.dangerColor);
             root.style.setProperty('--success-color', colors.successColor);
             root.style.setProperty('--bg-gradient-1', colors.backgroundGradient1);

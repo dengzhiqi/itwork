@@ -3,6 +3,7 @@ import { json, redirect } from "@remix-run/cloudflare";
 import { Form, Link, useLoaderData, useNavigation, useSearchParams, useActionData, useFetcher } from "@remix-run/react";
 import { useState, useEffect } from "react";
 import Layout from "../components/Layout";
+import Icon from "../components/Icon";
 import { requireUser } from "../utils/auth.server";
 
 import { useTheme } from "../contexts/ThemeContext";
@@ -286,7 +287,13 @@ export default function Settings() {
         <Layout user={user}>
             <div style={{ display: "grid", gap: "2rem" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                    <img className="theme-icon" src="/icons/settings.svg" alt="" style={{ width: "32px", height: "32px" }} />
+                    <div style={{
+                        width: '40px', height: '40px', borderRadius: '10px',
+                        background: 'var(--bg-secondary)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                        <Icon name="settings" size={22} style={{ color: 'var(--text-accent)' }} />
+                    </div>
                     <div>
                         <h2 style={{ margin: 0 }}>设置</h2>
                         <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", margin: 0 }}>管理分类、供应商等系统配置</p>
@@ -313,7 +320,7 @@ export default function Settings() {
                             gap: "0.5rem"
                         }}
                     >
-                        <img className="theme-icon" src="/icons/category-tab.svg" alt="" style={{ width: "16px", height: "16px", opacity: activeTab === "categories" ? 1 : 0.6 }} />
+                        <Icon name="category-tab" size={16} style={{ opacity: activeTab === "categories" ? 1 : 0.6, color: activeTab === "categories" ? 'var(--text-accent)' : 'var(--text-secondary)' }} />
                         分类管理
                     </button>
                     <button
@@ -334,7 +341,7 @@ export default function Settings() {
                             gap: "0.5rem"
                         }}
                     >
-                        <img className="theme-icon" src="/icons/staff-tab.svg" alt="" style={{ width: "16px", height: "16px", opacity: activeTab === "staff" ? 1 : 0.6 }} />
+                        <Icon name="staff-tab" size={16} style={{ opacity: activeTab === "staff" ? 1 : 0.6, color: activeTab === "staff" ? 'var(--text-accent)' : 'var(--text-secondary)' }} />
                         人员管理
                     </button>
                     <button
@@ -355,7 +362,7 @@ export default function Settings() {
                             gap: "0.5rem"
                         }}
                     >
-                        <img className="theme-icon" src="/icons/department-tab.svg" alt="" style={{ width: "16px", height: "16px", opacity: activeTab === "departments" ? 1 : 0.6 }} />
+                        <Icon name="department-tab" size={16} style={{ opacity: activeTab === "departments" ? 1 : 0.6, color: activeTab === "departments" ? 'var(--text-accent)' : 'var(--text-secondary)' }} />
                         部门管理
                     </button>
                     <button
@@ -376,7 +383,7 @@ export default function Settings() {
                             gap: "0.5rem"
                         }}
                     >
-                        <img className="theme-icon" src="/icons/supplier-tab.svg" alt="" style={{ width: "16px", height: "16px", opacity: activeTab === "suppliers" ? 1 : 0.6 }} />
+                        <Icon name="supplier-tab" size={16} style={{ opacity: activeTab === "suppliers" ? 1 : 0.6, color: activeTab === "suppliers" ? 'var(--text-accent)' : 'var(--text-secondary)' }} />
                         供应商管理
                     </button>
                     <button
@@ -397,7 +404,7 @@ export default function Settings() {
                             gap: "0.5rem"
                         }}
                     >
-                        <img className="theme-icon" src="/icons/theme-tab.svg" alt="" style={{ width: "16px", height: "16px", opacity: activeTab === "system" ? 1 : 0.6 }} />
+                        <Icon name="theme-tab" size={16} style={{ opacity: activeTab === "system" ? 1 : 0.6, color: activeTab === "system" ? 'var(--text-accent)' : 'var(--text-secondary)' }} />
                         主题
                     </button>
                     <button
@@ -418,7 +425,7 @@ export default function Settings() {
                             gap: "0.5rem"
                         }}
                     >
-                        <img className="theme-icon" src="/icons/data-tab.svg" alt="" style={{ width: "16px", height: "16px", opacity: activeTab === "data" ? 1 : 0.6 }} />
+                        <Icon name="data-tab" size={16} style={{ opacity: activeTab === "data" ? 1 : 0.6, color: activeTab === "data" ? 'var(--text-accent)' : 'var(--text-secondary)' }} />
                         数据管理
                     </button>
                 </div>
@@ -510,7 +517,7 @@ export default function Settings() {
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
                             <h3 style={{ margin: 0 }}>人员列表</h3>
                             <div style={{ display: "flex", gap: "1rem" }}>
-                                <Link to="/staff/import" className="btn" style={{ background: "var(--bg-glass)", border: "1px solid var(--border-light)", padding: "0.5rem 1rem", fontSize: "0.875rem" }}>
+                                <Link to="/staff/import" className="btn btn-secondary" style={{ padding: "0.5rem 1rem", fontSize: "0.875rem" }}>
                                     导入 CSV
                                 </Link>
                                 <Link to="/staff/new" className="btn btn-primary" style={{ padding: "0.5rem 1rem", fontSize: "0.875rem" }}>
@@ -1006,7 +1013,7 @@ export default function Settings() {
                                         onMouseEnter={(e) => {
                                             if (!isActive) {
                                                 e.currentTarget.style.transform = "translateY(-4px)";
-                                                e.currentTarget.style.boxShadow = "0 8px 20px rgba(0,0,0,0.3)";
+                                                e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.08)";
                                             }
                                         }}
                                         onMouseLeave={(e) => {
@@ -1067,6 +1074,7 @@ export default function Settings() {
                                             fontSize: "0.75rem",
                                             color: theme.colors.textSecondary,
                                         }}>
+                                            {theme.name === 'clean-white' && '简洁现代白色主题'}
                                             {theme.name === 'ocean-blue' && '经典蓝色主题'}
                                             {theme.name === 'warm-sunset' && '温暖琥珀夜色'}
                                             {theme.name === 'sakura-pink' && '柔美樱花漫舞'}
@@ -1089,8 +1097,11 @@ export default function Settings() {
                             {/* OUT Transaction Import */}
                             <div className="glass-card" style={{ padding: "1.5rem" }}>
                                 <div style={{ marginBottom: "1rem" }}>
-                                    <h4 style={{ fontSize: "1.125rem", marginBottom: "0.5rem", color: "var(--text-primary)" }}>📤 出库记录导入</h4>
-                                    <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)", lineHeight: "1.5" }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
+                                        <Icon name="upload" size={18} style={{ color: 'var(--text-accent)' }} />
+                                        <h4 style={{ fontSize: "1.125rem", margin: 0, color: "var(--text-primary)" }}>出库记录导入</h4>
+                                    </div>
+                                    <p style={{ fontSize: "0.8125rem", color: "var(--text-secondary)", lineHeight: "1.5" }}>
                                         批量导入历史出库记录，支持指定部门和经手人信息。
                                     </p>
                                 </div>
@@ -1112,8 +1123,11 @@ export default function Settings() {
                             {/* IN Transaction Import */}
                             <div className="glass-card" style={{ padding: "1.5rem" }}>
                                 <div style={{ marginBottom: "1rem" }}>
-                                    <h4 style={{ fontSize: "1.125rem", marginBottom: "0.5rem", color: "var(--text-primary)" }}>📥 入库记录导入</h4>
-                                    <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)", lineHeight: "1.5" }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
+                                        <Icon name="download" size={18} style={{ color: 'var(--text-accent)' }} />
+                                        <h4 style={{ fontSize: "1.125rem", margin: 0, color: "var(--text-primary)" }}>入库记录导入</h4>
+                                    </div>
+                                    <p style={{ fontSize: "0.8125rem", color: "var(--text-secondary)", lineHeight: "1.5" }}>
                                         批量导入历史入库记录，支持指定单价和供应商信息。
                                     </p>
                                 </div>
@@ -1140,7 +1154,7 @@ export default function Settings() {
                             borderRadius: "var(--radius-sm)",
                             border: "1px solid var(--border-light)"
                         }}>
-                            <h4 style={{ fontSize: "1rem", marginBottom: "0.5rem", color: "var(--text-primary)" }}>💡 导入说明</h4>
+                            <h4 style={{ fontSize: "0.8125rem", marginBottom: "0.5rem", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.03em" }}>导入说明</h4>
                             <ul style={{ margin: 0, paddingLeft: "1.5rem", fontSize: "0.875rem", color: "var(--text-secondary)", lineHeight: "1.6" }}>
                                 <li>CSV 文件必须使用 <strong>UTF-8 编码</strong></li>
                                 <li>系统会根据品牌和型号自动匹配产品</li>

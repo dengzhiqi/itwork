@@ -219,7 +219,7 @@ export default function EditTransaction() {
                                 style={{
                                     cursor: "not-allowed",
                                     opacity: 0.6,
-                                    backgroundColor: "rgba(0,0,0,0.3)"
+                                    backgroundColor: "var(--bg-secondary)"
                                 }}
                             >
                                 <option value="OUT">出库 (使用)</option>
@@ -270,8 +270,8 @@ export default function EditTransaction() {
                     </div>
 
                     {transactionType === "OUT" && (
-                        <div style={{ padding: "1rem", background: "rgba(0,0,0,0.2)", borderRadius: "var(--radius-sm)" }}>
-                            <h4 style={{ marginBottom: "1rem", fontSize: "0.875rem", color: "var(--text-secondary)" }}>出库信息</h4>
+                        <div style={{ padding: "1rem", background: "var(--bg-secondary)", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-light)" }}>
+                            <h4 style={{ marginBottom: "1rem", fontSize: "0.8125rem", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.03em" }}>出库信息</h4>
                             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                                 <div>
                                     <label>部门</label>
@@ -307,8 +307,8 @@ export default function EditTransaction() {
                     )}
 
                     {transactionType === "IN" && (
-                        <div style={{ padding: "1rem", background: "rgba(0,0,0,0.2)", borderRadius: "var(--radius-sm)" }}>
-                            <h4 style={{ marginBottom: "1rem", fontSize: "0.875rem", color: "var(--text-secondary)" }}>入库信息</h4>
+                        <div style={{ padding: "1rem", background: "var(--bg-secondary)", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-light)" }}>
+                            <h4 style={{ marginBottom: "1rem", fontSize: "0.8125rem", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.03em" }}>入库信息</h4>
                             <div>
                                 <label>供应商</label>
                                 <select name="handler_name" defaultValue={transaction.handler_name || ""}>

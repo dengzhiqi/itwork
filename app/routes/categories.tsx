@@ -2,6 +2,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/cloudfla
 import { json, redirect } from "@remix-run/cloudflare";
 import { Form, useLoaderData, useNavigation, useActionData } from "@remix-run/react";
 import Layout from "../components/Layout";
+import Icon from "../components/Icon";
 import { requireUser } from "../utils/auth.server";
 
 export async function loader({ request, context }: LoaderFunctionArgs) {
@@ -96,7 +97,13 @@ export default function Categories() {
             <div className="glass-panel" style={{ padding: "2rem" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                        <img src="/icons/categories.svg" alt="" style={{ width: "32px", height: "32px" }} />
+                        <div style={{
+                            width: '40px', height: '40px', borderRadius: '10px',
+                            background: 'var(--bg-secondary)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                            <Icon name="categories" size={22} style={{ color: 'var(--text-accent)' }} />
+                        </div>
                         <h2 style={{ margin: 0 }}>分类管理</h2>
                     </div>
                 </div>
